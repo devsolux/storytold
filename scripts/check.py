@@ -12,7 +12,7 @@ from urllib.parse import unquote, urlsplit
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from storytold_tools.build import allowlist, project, render, source_map
 from storytold_tools.catalog import APP_IDS, load_catalog, templates
-from storytold_tools.releases import load_releases
+from storytold_tools.releases import load_releases, load_signatures
 from storytold_tools.common import ROOT, StorytoldError, digest, encoded, parse_json, require
 
 ORIGINAL_HASHES = {
@@ -94,8 +94,19 @@ def check() -> dict:
     require(files['config/releases.json'] == encoded(releases),
             'config/releases.json must be canonical JSON; regenerate it with scripts/refresh_releases.py')
     for app, row in releases['apps'].items():
-        require(row['assets']['macos']['name'].startswith(catalog[app]['executable'] + '-'), f'{app}: manifest asset is not the catalog executable')
-    checks.append('release-manifest-twelve-reviewed-pins')
+        for asset in row['assets'].values():
+            require(asset['name'].startswith(app + '-'), f'{app}: manifest asset belongs to another app')
+    checks.append('release-manifest-twelve-reviewed-pins-three-platforms')
+    signatures = load_signatures(releases=releases)
+    require(files['config/signatures.json'] == encoded(signatures), 'config/signatures.json must be canonical JSON; regenerate it with scripts/sign_releases.py')
+    checks.append('signature-store-matches-manifest')
+    refresh = files['.github/workflows/releases.yml'].decode('utf-8')
+    uses = re.findall(r'uses:\s*(\S+)', refresh)
+    require(uses and all(re.fullmatch(r'[a-z-]+/[a-z-]+@[0-9a-f]{40}', x) for x in uses), 'release workflow actions must be full-commit pinned')
+    require('persist-credentials: false' in refresh and 'id-token: write' in refresh, 'release workflow must not persist credentials and must request an OIDC token for keyless signing')
+    require('pull_request_target' not in refresh and 'write-all' not in refresh and 'secrets.' not in refresh, 'release workflow must stay on github.token with scoped permissions')
+    require('cosign-release:' in refresh and 'bot/releases' in refresh, 'release workflow must pin cosign and publish through the bot/releases pull request')
+    checks.append('release-workflow-pinned-scoped-keyless')
     for filename, expected in ORIGINAL_HASHES.items():
         require(digest(files['docs/sources/' + filename]) == expected, 'supplied source modified: ' + filename)
         checks.append('source-sha256:' + filename)

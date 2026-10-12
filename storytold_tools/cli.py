@@ -29,11 +29,12 @@ def parser() -> argparse.ArgumentParser:
     sub=p.add_subparsers(dest='command',required=True)
     sub.add_parser('doctor',help='Report capabilities and per-app MCP connection gaps without executing or installing hosts/apps')
     sub.add_parser('apps',help='Show the twelve source-documented app entries')
-    s=sub.add_parser('setup',help='Explicit macOS install: download reviewed notarized <app>-cli releases, pin, probe and register with codex/claude')
+    s=sub.add_parser('setup',help='Explicit install (macOS, Linux x86_64, Windows x64): download reviewed <app>-cli releases, verify, pin, probe and register with codex/claude')
     s.add_argument('--app',action='append',help='App to set up (repeatable)');s.add_argument('--all',action='store_true',help='All twelve apps')
     s.add_argument('--acknowledge-unconfined',action='store_true',help='Also register apps without file-root flags; NOT evidence of isolation')
     s.add_argument('--host',action='append',choices=['codex','claude'],help='Limit registration to one host (default: every host CLI on PATH)')
     s.add_argument('--skip-probe',action='store_true',help='Register without the official-SDK native probe (binary stays unverified)')
+    s.add_argument('--trust-upstream-sums',action='store_true',help='Linux/Windows: proceed on the manifest and SHA256SUMS.txt when no Sigstore bundle or cosign is available')
     s.add_argument('--upgrade',action='store_true',help='Replace an already installed binary with the manifest release')
     s.add_argument('--replace',action='store_true',help='Replace a differing existing host registration of the same name')
     s.add_argument('--dry-run',action='store_true',help='Print downloads, paths and registrations without doing anything')
@@ -111,7 +112,7 @@ def main(argv: list[str] | None=None) -> int:
                 if args.remove: result=setup_remove(apps,**common)
                 else:
                     result=run_setup(apps,acknowledge_unconfined=args.acknowledge_unconfined,skip_probe=args.skip_probe,upgrade=args.upgrade,
-                                     replace=args.replace,dry_run=args.dry_run,timeout=args.timeout,**common)
+                                     replace=args.replace,dry_run=args.dry_run,timeout=args.timeout,trust_upstream_sums=args.trust_upstream_sums,**common)
                     code=0 if result.get('status','passed')=='passed' else 1
         elif cmd=='workspace-init': result=init_workspace(required_path(args.root,'root'))
         elif cmd=='inventory':

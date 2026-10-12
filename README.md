@@ -30,7 +30,7 @@ User + Claude Code / local Codex
                       native engines → durable files
 ```
 
-**Release 1.1.0.** The offline core suite, the official MCP SDK contract test,
+**Release 1.2.0.** The offline core suite, the official MCP SDK contract test,
 strict Claude manifest validation and Claude Code/Codex install with Skill
 discovery have been run. Craft apps are not bundled and need your own pinned
 builds; PhotoCraft 0.7.0 has passed the native discovery and smoke-call probe on
@@ -120,14 +120,13 @@ against a clearly synthetic stdio fixture. It does not run the twelve Craft apps
 `make release` orders checks, core tests and reproducible packaging; it does not
 claim native acceptance or publish anything. [Makefile](Makefile) lists all targets.
 
-## Set up the native apps (macOS, one command)
+## Set up the native apps (one command)
 
-Each app's MCP server is its CLI, `<app>-cli`. On macOS the ArtCraft Launcher
-and the `.dmg` install only the `.app`; the CLI is a separate notarized release
-asset (Windows MSI/portable ZIP and Linux `.deb`/`.rpm` packages include it).
-Until it is installed **and** registered with your host, the Skill correctly
+Each app's MCP server is its CLI, `<app>-cli`. Installing the plugin or the
+desktop app never provides or registers it, so until then the Skill correctly
 reports that the app's native tools aren't connected. One explicit command fixes
-that per app, or for all twelve:
+that per app, or for all twelve, on macOS (universal), Linux x86_64 and Windows
+x64:
 
 ```bash
 python3 storytold.py setup --app photocraft
@@ -141,23 +140,44 @@ Run it from a clone or from the installed plugin directory (Codex:
 `~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/`; Claude Code:
 the plugin cache under `~/.claude/plugins/`); `python3 storytold.py doctor`
 prints the exact command for each app that is missing. For each app, `setup`
-downloads the release pinned in [`config/releases.json`](config/releases.json),
-checks the archive against that manifest **and** the release's own
-`SHA256SUMS.txt`, requires Apple notarization by the ArtCraft team, installs to
-`~/.local/opt/craft/bin`, pins the binary hash in a private lock, probes
-initialize, tools/list and one read-only call through the official MCP SDK, and
-registers the server with every host CLI on PATH (`codex mcp add`,
-`claude mcp add --scope user`). Then start a new session. `--dry-run` previews,
-`--list` shows state, `--upgrade` moves to a newer manifest release, `--remove`
-undoes. Nothing runs unless you invoke it; Python 3.11+ is required.
+downloads the archive pinned for your platform in
+[`config/releases.json`](config/releases.json) (the macOS CLI zip, the Linux
+tarball or the Windows portable zip), checks it against that manifest **and**
+the release's own `SHA256SUMS.txt`, takes exactly the one `<app>-cli` out of
+it, checks provenance, installs it (`~/.local/opt/craft/bin`, or
+`%LOCALAPPDATA%\Storytold\craft\bin` on Windows), pins the binary hash in a
+private lock, probes initialize, tools/list and one read-only call through the
+official MCP SDK, and registers the server with every host CLI on PATH
+(`codex mcp add`, `claude mcp add --scope user`). Then start a new session.
+`--dry-run` previews, `--list` shows state, `--upgrade` moves to a newer
+manifest release, `--remove` undoes. Nothing runs unless you invoke it; Python
+3.11+ is required.
+
+**Provenance.** On macOS the binary must be Apple-notarized by the ArtCraft
+team. Upstream does not code-sign Linux or Windows builds, so the
+[daily workflow](.github/workflows/releases.yml) signs every pinned CLI keyless
+with [Sigstore cosign](https://docs.sigstore.dev/) under its own GitHub
+identity and commits the bundles to
+[`config/signatures.json`](config/signatures.json); on Linux and Windows,
+`setup` verifies that bundle with `cosign verify-blob` (install cosign first)
+before installing, and macOS verifies it too when cosign is present. Until a
+release has a bundle, or without cosign, `--trust-upstream-sums` proceeds on the
+manifest and `SHA256SUMS.txt` alone and says so in the lock.
+
+**Daily refresh.** The workflow checks every app's latest release each day,
+rewrites the manifest, signs new CLIs, rebuilds the plugin, runs the checks and
+the real `setup` on Linux, Windows and macOS runners, and opens one pull request
+on `bot/releases` for review (set the repository variable
+`STORYTOLD_AUTO_MERGE=true` to merge green runs automatically). Users get the
+new pins with the next plugin update.
 
 PhotoCraft, VectorCraft, EffectCraft and PdfCraft are confined to the workspace
 by native root flags and register by default. The other eight can read and
 write anything your user can, so they register only with
 `--acknowledge-unconfined`: keep them for non-sensitive work or run them under
-OS isolation. Windows, Linux, air-gapped machines and custom pins use the manual
-chain in [operations](docs/operations.md): download, lock, `preflight`, `probe`,
-`configure`, register.
+OS isolation. Other platforms, air-gapped machines and custom pins use the
+manual chain in [operations](docs/operations.md): download, lock, `preflight`,
+`probe`, `configure`, register.
 
 The complete Unix launch templates are under `config/`. They are examples only,
 not active host configuration. Real config generation chooses `.exe` on native

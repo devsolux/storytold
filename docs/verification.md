@@ -1,4 +1,4 @@
-# Verification status — 1.1.0
+# Verification status — 1.2.0
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. One operator-installed
@@ -11,12 +11,12 @@ macOS (Darwin 27, arm64) with Python **3.11.17**:
 
 | Gate | Result |
 |---|---|
-| `make check` | Passed **64 check entries**: parsed 41 files (29 Python, 11 JSON, one TOML), checked 119 local Markdown links in source and plugin, validated the release manifest and 14 native scenario definitions without executing any. |
-| `make test` | **160 tests** passed in an isolated source copy, including the `setup` flow with injected network, macOS signing tools and host CLIs, manifest rules and `doctor` connection cases; zero failures, errors or skips. |
-| `make build`, `make verify-build` | The committed plugin (49 files) matches its 82 allowlisted canonical inputs. |
+| `make check` | Passed **68 check entries**: parsed 43 files (30 Python, 12 JSON, one TOML), checked 119 local Markdown links in source and plugin, validated the three-platform release manifest, the signature store, the release workflow rules and 14 native scenario definitions without executing any. |
+| `make test` | **169 tests** passed in an isolated source copy, including the `setup` flow on simulated macOS, Linux and Windows with injected network, notarization, cosign and host CLIs, manifest and signature-store rules and `doctor` connection cases; zero failures, errors or skips. |
+| `make build`, `make verify-build` | The committed plugin (50 files) matches its 85 allowlisted canonical inputs. |
 | `make package`, `make source` | Reproducible plugin and source ZIPs with SHA-256 files. |
 | `make test-sdk` with `mcp==2.3.0` | Passed 7 checks against the synthetic stdio fixture: initialize, two-page `tools/list`, wire aliases, typed structured content, `isError`, SDK context exit, and a native tool error not reported as success. |
-| `claude plugin validate --strict` (Claude Code 2.1.282) | 1.1.0 marketplace and plugin manifests: no errors or warnings. |
+| `claude plugin validate --strict` (Claude Code 2.1.282) | 1.2.0 marketplace and plugin manifests: no errors or warnings. |
 | Claude Code install from the local marketplace | `storytold@devsolux-storytold` 1.0.0 installed and enabled; `claude plugin details` lists one Skill (`craft`) and zero MCP servers. |
 | Codex CLI 0.162.0-alpha.17.2 install from the local marketplace | `storytold@devsolux-storytold` 1.0.0 installed and enabled; `codex debug prompt-input` lists the `storytold:craft` Skill. |
 | Portable manifests | `plugin.json` and `config/portable.mcp.example.json` validate against the published Agent Plugins 1.0.0 schemas. |
@@ -25,7 +25,7 @@ macOS (Darwin 27, arm64) with Python **3.11.17**:
 
 Host installs used throwaway `CLAUDE_CONFIG_DIR` and `CODEX_HOME` directories, so
 no real host configuration was changed. The two install rows ran for 1.0.0;
-1.0.1 and 1.1.0 change Skill text, docs and helper commands, not manifest structure. Installation from GitHub reads the same
+1.0.1 through 1.2.0 change Skill text, docs and helper commands, not manifest structure. Installation from GitHub reads the same
 committed marketplace files and `plugins/storytold/` runtime.
 
 ## Native app evidence — all twelve apps via `setup`
@@ -58,6 +58,13 @@ Every archive matched both `config/releases.json` and the release's
 ID* with team `DJ6XS33FX8`; the probe SDK was installed into
 `~/.local/state/storytold/venv` from PyPI by `setup` itself. Re-running `setup`
 afterwards reports every app as already installed and already registered.
+
+Upgrade path (1.2.0): after the manifest refresh moved VectorCraft to v0.10.0,
+PdfCraft to v0.7.1 and SoundCraft to v0.6.1, `setup --app … --upgrade` replaced
+the three binaries (notarization verified; no Sigstore bundle exists before the
+workflow's first run), re-probed them (32, 17 and 17 tools, servers reporting
+0.10.0, 0.7.1 and 0.6.1) and left both hosts' registrations unchanged;
+`setup --list` reports all twelve pins equal to the manifest commits.
 
 Fresh-user simulation: in a throwaway `CODEX_HOME`, `codex plugin marketplace
 add <this checkout>` and `codex plugin add storytold@devsolux-storytold`, then
@@ -110,6 +117,14 @@ Host manifest schemas remain authoritative.
   macOS machine; only PhotoCraft has produced a real export. Native edit,
   export, root-denial, isolation and fidelity tests (M1–M3) have not run for the
   other eleven apps.
+- **Linux and Windows.** `setup` for `linux-x86_64` and `windows-x64` is
+  covered by simulated-platform tests only; the first real runs happen in the
+  release workflow's verify matrix after this change is pushed. Until that
+  workflow has run and its pull request is merged, `config/signatures.json` is
+  empty, so Linux/Windows users need `--trust-upstream-sums`.
+- **Sigstore signing.** `scripts/sign_releases.py`, keyless signing and
+  `cosign verify-blob` were not executed here (cosign is not installed on this
+  Mac); the workflow exercises both.
 - **CI matrix.** GitHub Actions for Linux/macOS/Windows × Python 3.11/3.13 is
   configured but was not executed here. Windows-specific branches (binary-mode
   reads, read-only publication order) are covered by simulations on macOS.

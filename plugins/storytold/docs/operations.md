@@ -5,7 +5,7 @@ non-sensitive fixtures until [acceptance](acceptance.md) passes. The release was
 checked with Claude Code, Codex and the optional SDK; one native binary
 (PhotoCraft 0.7.0) has passed the discovery probe. See [verification](verification.md).
 
-## One-command setup (macOS)
+## One-command setup (macOS, Linux x86_64, Windows x64)
 
 ```bash
 python3 "$STORYTOLD/storytold.py" setup --app photocraft
@@ -15,18 +15,36 @@ python3 "$STORYTOLD/storytold.py" setup --all --acknowledge-unconfined
 `setup` performs sections 0–5 below for each selected app, in order, stopping
 at the first failure, and prints a JSON report:
 
-1. Paths: `~/.local/opt/craft/bin` (binaries), `~/craft-work-storytold`
-   (workspace, created with `workspace-init` if absent), and
-   `~/.local/state/storytold/` (lock, evidence, probe venv, `setup.json`).
-   `CRAFT_*` variables or `--bin-dir/--work-root/--lock/--evidence-dir` override
-   them; later commands read `setup.json`, so no exports are needed.
-2. Download of the CLI zip named in `config/releases.json` and that release's
-   `SHA256SUMS.txt`, HTTPS to GitHub release hosts only (redirects elsewhere are
-   refused, 512 MiB cap). The archive hash must match the manifest **and** the
-   published sums; a disagreement stops with a message naming the source.
-3. Exactly one `<app>-cli` is taken from the archive (other executables are
-   refused). `spctl` must report *Notarized Developer ID* and `codesign` must
-   report the manifest's Apple team; otherwise the file is discarded.
+1. Paths: `~/.local/opt/craft/bin` (binaries; Windows:
+   `%LOCALAPPDATA%\Storytold\craft\bin`), `~/craft-work-storytold` (workspace,
+   created with `workspace-init` if absent), and `~/.local/state/storytold/`
+   (Linux honours `$XDG_STATE_HOME`; Windows: `%LOCALAPPDATA%\Storytold\state`)
+   for the lock, evidence, probe venv and `setup.json`. `CRAFT_*` variables or
+   `--bin-dir/--work-root/--lock/--evidence-dir` override them; later commands
+   read `setup.json`, so no exports are needed.
+2. Download of the archive pinned for your platform in `config/releases.json`
+   (macOS: `<app>-cli-<v>-macos-universal.zip`; Linux: the `-linux-x86_64.tar.gz`
+   tarball, standalone CLI when upstream publishes one; Windows:
+   `<app>-<v>-windows-x64-portable.zip`) and that release's `SHA256SUMS.txt`,
+   HTTPS to GitHub release hosts only (redirects elsewhere are refused, 512 MiB
+   cap). The archive hash must match the manifest **and** the published sums; a
+   disagreement stops with a message naming the source.
+3. Exactly one `<app>-cli` (`.exe` on Windows) is taken from the archive; the
+   desktop binary and everything else in a full-application archive are
+   ignored, links and traversal are refused. Provenance per platform:
+   - macOS: `spctl` must report *Notarized Developer ID* and `codesign` the
+     manifest's Apple team, otherwise the file is discarded.
+   - Linux and Windows: upstream publishes no code signature, so `setup`
+     requires the Sigstore bundle that the daily workflow produced for this
+     exact archive (`config/signatures.json`): the extracted binary's SHA-256
+     must equal the signed one, then `cosign verify-blob --bundle … 
+     --certificate-identity-regexp <manifest signers> --certificate-oidc-issuer
+     https://token.actions.githubusercontent.com` must pass. Install cosign
+     first (Linux: the release binary or distro package; Windows:
+     `winget install sigstore.cosign`; macOS: `brew install cosign`). Without a
+     bundle or cosign, `--trust-upstream-sums` proceeds on the manifest and
+     `SHA256SUMS.txt` alone and records "upstream sums only" in the lock.
+   - macOS also verifies the bundle when cosign is present.
 4. Install with mode 0755 (`--upgrade` to replace an existing file), then the
    binary hash, tag commit and release label are merged into the lock.
 5. `preflight`, then the native probe (initialize, `tools/list`, one read-only
@@ -44,12 +62,22 @@ Apps without root flags are installed but registered only with
 and is not isolation. `--dry-run` prints downloads, paths and registrations;
 `--list` shows manifest, installed, pinned and registered state; `--remove --app
 X` unregisters, deletes the binary and drops the pin, keeping the workspace.
-Maintainers refresh the manifest with `make refresh-releases` and review the diff.
+Maintainers refresh the manifest with `make refresh-releases` and review the
+diff; `make sign-releases` (cosign required) downloads and signs CLIs that have
+no current bundle. In the repository this runs daily: the
+[release workflow](https://github.com/devsolux/storytold/blob/main/.github/workflows/releases.yml) refreshes, signs keyless
+with its GitHub OIDC identity (`id-token: write`), rebuilds the plugin, runs
+the checks and a real `setup --all --acknowledge-unconfined --trust-upstream-sums`
+on Linux, Windows and macOS runners, and opens one pull request on
+`bot/releases`. Review it (a changed app needs its card and smoke tool rechecked
+at the new tag) or set the repository variable `STORYTOLD_AUTO_MERGE=true` to
+merge green runs. Signing identity, issuer and Apple team are data in the
+manifest's `signers`; the signature store names the archive it was made for.
 
 ## 0. Manual path: get each app's CLI yourself
 
-Use this on Windows or Linux, on air-gapped machines, or for custom pins; on
-macOS `setup` does all of it.
+Use this on other platforms, on air-gapped machines, or for custom pins;
+`setup` does all of it on macOS, Linux x86_64 and Windows x64.
 
 Every MCP server is an app's command-line tool, `<app>-cli` (for example
 `photocraft-cli mcp`). On macOS the `.dmg` and the ArtCraft Launcher install the
@@ -296,8 +324,8 @@ For each app, `connections.apps[]` shows the desktop app, a CLI in
 
 | `status` | Fix |
 |---|---|
-| `desktop_app_only` | macOS: run the `setup` command doctor prints. Elsewhere: install the CLI (section 0). |
-| `cli_not_registered` | macOS: the `setup` command. Elsewhere: sections 1–5: lock, preflight, probe, configure, register. |
+| `desktop_app_only` | Run the `setup` command doctor prints (macOS, Linux x86_64, Windows x64); elsewhere install the CLI (section 0). |
+| `cli_not_registered` | The `setup` command; elsewhere sections 1–5: lock, preflight, probe, configure, register. |
 | `registered_command_missing` | The binary moved or was removed; re-run `setup` (with `--upgrade` if a stale file remains) or reinstall and re-probe by hand. |
 | `registered` | Start a new host session; check `codex mcp get <app>` or `claude mcp get <app>` and approve the server. |
 

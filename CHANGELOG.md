@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.2.0 — 2026-10-12
+
+`setup` now covers Linux x86_64 and Windows x64, and the release pins refresh
+themselves daily.
+
+- Platform support: the manifest pins one archive per platform (macOS CLI zip,
+  Linux tarball, Windows portable zip); `setup` extracts exactly the one
+  `<app>-cli` from zip or tar.gz, uses per-OS paths
+  (`%LOCALAPPDATA%\Storytold` on Windows, `$XDG_STATE_HOME` on Linux), the
+  venv's `Scripts\python.exe`, and runs `.cmd` host shims through `cmd.exe`.
+- Provenance: upstream does not code-sign Linux or Windows builds, so the new
+  daily workflow signs every pinned CLI keyless with Sigstore cosign under its
+  own GitHub OIDC identity and commits the bundles to `config/signatures.json`;
+  on Linux and Windows `setup` requires that bundle and `cosign verify-blob`
+  (`--trust-upstream-sums` to proceed on the manifest and `SHA256SUMS.txt`
+  alone, recorded in the lock); macOS keeps Apple notarization and verifies the
+  bundle too when cosign is present.
+- `.github/workflows/releases.yml`: daily `refresh_releases.py` +
+  `sign_releases.py`, plugin rebuild, checks, tests, a real `setup` on Linux,
+  Windows and macOS runners, and one pull request on `bot/releases`; optional
+  auto-merge via the `STORYTOLD_AUTO_MERGE` repository variable. Actions are
+  commit-pinned, credentials are not persisted, only `github.token` is used.
+- Manifest schema 2 with a `signers` block (Apple team, Sigstore identity and
+  issuer); `make check` validates the manifest, the signature store and the
+  workflow's permission rules.
+- Refreshed pins: VectorCraft 0.10.0, PdfCraft 0.7.1, SoundCraft 0.6.1.
+- Tests: 169 offline tests, including the setup flow on three simulated
+  platforms.
+
 ## 1.1.0 — 2026-10-12
 
 One command now takes a plugin user from "tools aren't connected" to twelve

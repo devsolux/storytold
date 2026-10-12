@@ -20,12 +20,14 @@ the connected binary's schemas remain authoritative.
 
 `python /absolute/path/to/this/plugin/storytold.py doctor` reports local capability
 and, per app, the desktop app, CLI and host registration it finds, without
-execution. A desktop app is not an MCP server. On macOS,
-`python /absolute/path/to/this/plugin/storytold.py setup --app <app>` downloads
-the reviewed notarized `<app>-cli` release, verifies, pins and probes it, and
-registers it with `codex`/`claude` through their own CLIs; `doctor` prints that
-command for each missing app. Elsewhere, register the CLI your installer provides
-(operations, section 0 and troubleshooting). Nothing runs unless you invoke it. All other deterministic helper commands are documented in
+execution. A desktop app is not an MCP server. On macOS, Linux x86_64 and
+Windows x64, `python /absolute/path/to/this/plugin/storytold.py setup --app <app>`
+downloads the reviewed `<app>-cli` release, verifies it (Apple notarization on
+macOS; the Sigstore bundle in `config/signatures.json` with cosign on Linux and
+Windows), pins and probes it, and registers it with `codex`/`claude` through
+their own CLIs; `doctor` prints that command for each missing app. Elsewhere,
+register the CLI your installer provides (operations, section 0 and
+troubleshooting). Nothing runs unless you invoke it. All other deterministic helper commands are documented in
 operations. Core helpers require Python 3.11+ and no third-party packages. Only
 the explicit native probe requires the reviewed optional MCP client dependency
 listed in `requirements-probe.txt`; install that in your separately managed

@@ -1,12 +1,15 @@
-"""Explicit one-command Craft CLI setup for macOS: download, verify, pin, probe, register.
+"""Explicit one-command Craft CLI setup: download, verify, pin, probe, register.
 
 Nothing here runs unless an operator invokes `storytold.py setup`. The command
-downloads only the reviewed release assets named in config/releases.json, checks
-each archive against the manifest and the release's own SHA256SUMS.txt, requires
-Apple notarization by the pinned team, pins the binary in the private lock, runs
-the existing preflight and probe, and registers the server through the host's
-own CLI. It never edits host configuration files itself, starts no daemon, keeps
-one registration per server name and never retries a write.
+downloads only the reviewed release archives named in config/releases.json,
+checks each archive against the manifest and the release's own SHA256SUMS.txt,
+takes exactly one `<app>-cli` out of it, checks provenance (Apple notarization
+by the pinned team on macOS; the Sigstore bundle the daily workflow signed on
+Linux and Windows, and on macOS too when cosign is present), pins the binary in
+the private lock, runs the existing preflight and probe, and registers the
+server through the host's own CLI. It never edits host configuration files
+itself, starts no daemon, keeps one registration per server name and never
+retries a write.
 """
 from __future__ import annotations
 from datetime import datetime, timezone
@@ -19,6 +22,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import tarfile
 import tempfile
 from typing import Callable
 from urllib.parse import urlsplit
@@ -27,7 +31,7 @@ import zipfile
 from .catalog import APP_IDS, load_catalog, platform_id, preflight
 from .common import ROOT, StorytoldError, absolute, create_new, directory, encoded, keys, load_json, require, snapshot
 from .probe import SDK_VERSION
-from .releases import asset_url, load_releases, published_hash, sums_url
+from .releases import asset_url, load_releases, load_signatures, published_hash, sums_url
 from .workspace import MARKER, init_workspace, open_workspace
 
 ALLOWED_HOSTS = {'github.com', 'objects.githubusercontent.com', 'release-assets.githubusercontent.com'}
@@ -37,22 +41,40 @@ HOSTS = ('codex', 'claude')
 Runner = Callable[[list[str]], tuple[int, str, str]]
 Fetcher = Callable[[str, Path, int], int]
 Logger = Callable[[str], None]
+Which = Callable[[str], str | None]
+
+def platform_key(system: str = platform.system(), machine: str = platform.machine()) -> str:
+    if system=='Darwin': return 'macos'
+    if system=='Linux' and machine in {'x86_64', 'amd64'}: return 'linux-x86_64'
+    if system=='Windows' and machine.lower() in {'amd64', 'x86_64'}: return 'windows-x64'
+    raise StorytoldError(f'setup supports macOS (universal), Linux x86_64 and Windows x64; this is {system} {machine}. '
+                         'Install the CLI by hand and follow docs/operations.md sections 1-5.')
+
+def exe_name(catalog: dict, app: str) -> str:
+    return catalog[app]['executable'] + ('.exe' if os.name=='nt' else '')
 
 # ---------------------------------------------------------------- state/paths
-def state_dir(env: dict, home: Path) -> Path:
-    return absolute(env.get('STORYTOLD_STATE_DIR') or home/'.local/state/storytold')
+def state_dir(env: dict, home: Path, system: str = platform.system()) -> Path:
+    if env.get('STORYTOLD_STATE_DIR'): return absolute(env['STORYTOLD_STATE_DIR'])
+    if system=='Windows': return absolute(Path(env.get('LOCALAPPDATA') or home/'AppData/Local')/'Storytold/state')
+    if system=='Linux' and env.get('XDG_STATE_HOME'): return absolute(Path(env['XDG_STATE_HOME'])/'storytold')
+    return absolute(home/'.local/state/storytold')
 
-def load_state(env: dict, home: Path) -> dict:
-    p = state_dir(env, home)/STATE_FILE
+def load_state(env: dict, home: Path, system: str = platform.system()) -> dict:
+    p = state_dir(env, home, system)/STATE_FILE
     if not p.is_file(): return {}
     data = keys(load_json(p), {'schema_version','bin_dir','work_root','output_root','lock','evidence_dir','updated_at'}, label='setup state')
     require(data['schema_version']==1, 'unsupported setup state')
     return data
 
-def resolve_paths(env: dict, home: Path, **override: str | None) -> dict:
-    """Flags, then CRAFT_* environment, then recorded state, then conventions."""
-    st = load_state(env, home); sd = state_dir(env, home)
-    defaults = {'bin_dir': home/'.local/opt/craft/bin', 'work_root': home/'craft-work-storytold',
+def resolve_paths(env: dict, home: Path, system: str = platform.system(), **override: str | None) -> dict:
+    """Flags, then CRAFT_* environment, then recorded state, then per-OS conventions."""
+    st = load_state(env, home, system); sd = state_dir(env, home, system)
+    if system=='Windows':
+        bin_default = Path(env.get('LOCALAPPDATA') or home/'AppData/Local')/'Storytold/craft/bin'
+    else:
+        bin_default = home/'.local/opt/craft/bin'
+    defaults = {'bin_dir': bin_default, 'work_root': home/'craft-work-storytold',
                 'lock': sd/'installations.lock.json', 'evidence_dir': sd/'evidence'}
     envkeys = {'bin_dir': 'CRAFT_BIN_DIR', 'work_root': 'CRAFT_WORK_ROOT', 'lock': 'CRAFT_LOCK', 'evidence_dir': 'CRAFT_EVIDENCE_DIR'}
     paths = {}
@@ -118,28 +140,48 @@ def fetch(url: str, dest: Path, limit: int = MAX_DOWNLOAD) -> int:
             f.write(chunk)
     return total
 
+def _safe_member(name: str) -> None:
+    require(name and not name.startswith('/') and '\\' not in name and '..' not in name.split('/') and ':' not in name.split('/')[0],
+            f'unsafe archive path: {name}')
+
 def extract_cli(archive: Path, dest_dir: Path, exe: str) -> Path:
-    """Take exactly one regular `<app>-cli` member; refuse anything else executable."""
+    """Take exactly the one regular `<app>-cli` member; ignore the rest, refuse anything unsafe.
+
+    Full-application archives (Linux tarballs, Windows portable zips) also carry
+    the desktop binary; only the CLI is copied out.
+    """
     dest_dir.mkdir(mode=0o700)
-    with zipfile.ZipFile(archive) as z:
-        infos = z.infolist()
-        require(0 < len(infos) <= 256, 'unexpected archive member count')
-        candidates = []
-        for info in infos:
-            name = info.filename
-            require(not name.startswith('/') and '\\' not in name and '..' not in name.split('/'), f'unsafe archive path: {name}')
-            mode = (info.external_attr >> 16) & 0o170000
-            require(mode != stat.S_IFLNK, f'symlink in archive: {name}')
-            if info.is_dir(): continue
-            require(info.file_size <= MAX_DOWNLOAD, 'archive member too large')
-            if name.split('/')[-1] == exe:
-                candidates.append(info)
-            else:
-                require(not (info.external_attr >> 16) & 0o111, f'unexpected executable in archive: {name}')
-        require(len(candidates)==1, f'archive must contain exactly one {exe}')
-        target = dest_dir/exe
-        with z.open(candidates[0]) as src, open(target, 'wb') as out:
-            shutil.copyfileobj(src, out, 1024*1024)
+    target = dest_dir/exe
+    name = archive.name
+    if name.endswith('.zip'):
+        with zipfile.ZipFile(archive) as z:
+            infos = z.infolist()
+            require(0 < len(infos) <= 4096, 'unexpected archive member count')
+            found = []
+            for info in infos:
+                _safe_member(info.filename)
+                require((info.external_attr >> 16) & 0o170000 != stat.S_IFLNK, f'symlink in archive: {info.filename}')
+                if not info.is_dir() and info.filename.split('/')[-1]==exe:
+                    require(info.file_size <= MAX_DOWNLOAD, 'archive member too large'); found.append(info)
+            require(len(found)==1, f'archive must contain exactly one {exe}')
+            with z.open(found[0]) as src, open(target, 'wb') as out:
+                shutil.copyfileobj(src, out, 1024*1024)
+    elif name.endswith(('.tar.gz', '.tgz')):
+        with tarfile.open(archive, 'r:gz') as t:
+            found = []
+            count = 0
+            for member in t:
+                count += 1; require(count <= 4096, 'unexpected archive member count')
+                _safe_member(member.name)
+                require(not member.issym() and not member.islnk() and not member.isdev(), f'link/device in archive: {member.name}')
+                if member.isfile() and member.name.split('/')[-1]==exe:
+                    require(member.size <= MAX_DOWNLOAD, 'archive member too large'); found.append(member)
+            require(len(found)==1, f'archive must contain exactly one {exe}')
+            src = t.extractfile(found[0]); require(src is not None, 'unreadable archive member')
+            with src, open(target, 'wb') as out:
+                shutil.copyfileobj(src, out, 1024*1024)
+    else:
+        raise StorytoldError(f'unsupported archive type: {name}')
     target.chmod(0o700)
     return target
 
@@ -147,8 +189,8 @@ def default_runner(argv: list[str]) -> tuple[int, str, str]:
     r = subprocess.run(argv, capture_output=True, text=True, check=False)
     return r.returncode, r.stdout, r.stderr
 
-def check_provenance(binary: Path, team: str, run: Runner, system: str) -> dict:
-    require(system=='Darwin', 'setup verifies notarized macOS binaries only in this release; see docs/operations.md for Windows/Linux')
+# ---------------------------------------------------------------- provenance
+def check_notarization(binary: Path, team: str, run: Runner) -> dict:
     code, out, err = run(['spctl', '--assess', '--type', 'install', '-vv', str(binary)])
     combined = out + err
     require(code==0 and 'source=Notarized Developer ID' in combined, f'{binary.name}: not accepted as a notarized Developer ID binary:\n{combined.strip()[:500]}')
@@ -157,10 +199,52 @@ def check_provenance(binary: Path, team: str, run: Runner, system: str) -> dict:
     require(code==0 and found==[team], f'{binary.name}: signing team {found or "unknown"} is not the reviewed team {team}')
     return {'notarized': True, 'team': team}
 
+def check_sigstore(binary: Path, binary_sha: str, entry: dict, signers: dict, run: Runner, cosign: str, tmp: Path) -> dict:
+    require(entry['binary_sha256']==binary_sha, f'{binary.name}: extracted binary differs from the one the workflow signed')
+    bundle = tmp/(binary.name+'.sigstore.json')
+    bundle.write_bytes(encoded(entry['bundle']))
+    code, out, err = run([cosign, 'verify-blob', '--bundle', str(bundle), '--certificate-identity-regexp', signers['sigstore_identity_regexp'],
+                          '--certificate-oidc-issuer', signers['sigstore_oidc_issuer'], str(binary)])
+    require(code==0, f'{binary.name}: Sigstore verification failed:\n{(out+err).strip()[:800]}')
+    return {'sigstore': True, 'identity': signers['sigstore_identity_regexp']}
+
+def check_provenance(binary: Path, binary_sha: str, asset_name: str, plat: str, releases: dict, signatures: dict, *, run: Runner,
+                     which: Which, trust_upstream_sums: bool, tmp: Path, log: Logger) -> dict:
+    signers = releases['signers']; result = {}
+    if plat=='macos':
+        result.update(check_notarization(binary, signers['apple_team_id'], run))
+    entry = signatures.get('bundles', {}).get(asset_name)
+    cosign = which('cosign')
+    if entry is not None and cosign:
+        result.update(check_sigstore(binary, binary_sha, entry, signers, run, cosign, tmp))
+    elif plat=='macos':
+        result['sigstore'] = False
+        log(f'{binary.name}: notarization verified; Sigstore bundle ' + ('not verified (cosign not on PATH)' if entry else 'not yet published for this release'))
+    else:
+        reason = ('no Sigstore bundle has been published for this release yet' if entry is None
+                  else 'cosign is not on PATH (install it: https://docs.sigstore.dev/cosign/system_config/installation/)')
+        require(trust_upstream_sums, f'{binary.name}: {reason}. Pass --trust-upstream-sums to rely on the manifest and SHA256SUMS.txt alone.')
+        result['sigstore'] = False; result['provenance'] = 'upstream_sums_only'
+        log(f'{binary.name}: WARNING {reason}; proceeding on the manifest and SHA256SUMS.txt only, as requested')
+    return result
+
+def provenance_label(info: dict, signers: dict) -> str:
+    parts = []
+    if info.get('notarized'): parts.append('notarized '+signers['apple_team_id'])
+    if info.get('sigstore'): parts.append('sigstore')
+    if info.get('provenance')=='upstream_sums_only': parts.append('upstream sums only')
+    return ', '.join(parts) or 'unverified'
+
 # ------------------------------------------------------------------- install
-def install_app(app: str, releases: dict, catalog: dict, paths: dict, *, system: str, fetch: Fetcher, run: Runner,
-                upgrade: bool, log: Logger) -> dict:
-    row = releases['apps'][app]; asset = row['assets']['macos']; exe = catalog[app]['executable']
+def pinned_entry(lock_path: Path, app: str) -> dict | None:
+    if not lock_path.is_file(): return None
+    lock = load_json(lock_path)
+    entry = lock.get('apps', {}).get(app) if isinstance(lock, dict) and isinstance(lock.get('apps'), dict) else None
+    return entry if isinstance(entry, dict) else None
+
+def install_app(app: str, plat: str, releases: dict, signatures: dict, catalog: dict, paths: dict, *, fetch: Fetcher, run: Runner,
+                which: Which, upgrade: bool, trust_upstream_sums: bool, log: Logger) -> dict:
+    row = releases['apps'][app]; asset = row['assets'][plat]; exe = exe_name(catalog, app)
     target = paths['bin_dir']/exe
     previous = None
     if target.exists():
@@ -169,12 +253,12 @@ def install_app(app: str, releases: dict, catalog: dict, paths: dict, *, system:
         if pinned and pinned.get('sha256')==previous and pinned.get('revision')==row['commit']:
             log(f"{app}: already installed at {row['tag']} and pinned; skipping download")
             return {'path': str(target), 'sha256': previous, 'bytes': target.stat().st_size, 'archive_sha256': asset['sha256'],
-                    'previous_sha256': previous, 'notarized': True, 'team': releases['apple_team_id'], 'unchanged': True}
+                    'previous_sha256': previous, 'unchanged': True, 'label': pinned.get('version')}
         require(upgrade, f'{app}: {target} already exists with a different pin; pass --upgrade to replace it')
     with tempfile.TemporaryDirectory(prefix='storytold-download-', dir=paths['state_dir']) as td:
         tmp = Path(td); archive = tmp/asset['name']
         log(f"{app}: downloading {asset['name']} ({asset['bytes']} bytes) from GitHub release {row['tag']}")
-        n = fetch(asset_url(app, row, 'macos'), archive, MAX_DOWNLOAD)
+        n = fetch(asset_url(app, row, plat), archive, MAX_DOWNLOAD)
         require(n==asset['bytes'], f"{app}: downloaded {n} bytes; the manifest expects {asset['bytes']}")
         zip_sha = snapshot(archive)[0]
         require(zip_sha==asset['sha256'], f'{app}: archive SHA-256 differs from config/releases.json; review the release before refreshing the manifest')
@@ -182,8 +266,9 @@ def install_app(app: str, releases: dict, catalog: dict, paths: dict, *, system:
         published = published_hash((tmp/'SHA256SUMS.txt').read_bytes(), asset['name'])
         require(published==zip_sha, f"{app}: upstream SHA256SUMS.txt disagrees with the manifest for {asset['name']}; stop and review the release")
         binary = extract_cli(archive, tmp/'extract', exe)
-        provenance = check_provenance(binary, releases['apple_team_id'], run, system)
         sha, nbytes, body = snapshot(binary, body=True)
+        provenance = check_provenance(binary, sha, asset['name'], plat, releases, signatures, run=run, which=which,
+                                      trust_upstream_sums=trust_upstream_sums, tmp=tmp, log=log)
         if previous is None:
             create_new(target, body or b'', mode=0o755)
         elif previous == sha:
@@ -193,33 +278,28 @@ def install_app(app: str, releases: dict, catalog: dict, paths: dict, *, system:
             os.replace(staged, target)
             log(f'{app}: replaced {previous[:12]}… with {sha[:12]}…')
     require(snapshot(target)[0]==sha, f'{app}: installed file changed during publication')
-    return {'path': str(target), 'sha256': sha, 'bytes': nbytes, 'archive_sha256': zip_sha, 'previous_sha256': previous, **provenance}
+    label = f"{row['version']} ({row['tag']}, {asset['name']}, {provenance_label(provenance, releases['signers'])})"
+    return {'path': str(target), 'sha256': sha, 'bytes': nbytes, 'archive_sha256': zip_sha, 'previous_sha256': previous,
+            'label': label, **provenance}
 
-def pinned_entry(lock_path: Path, app: str) -> dict | None:
-    if not lock_path.is_file(): return None
-    lock = load_json(lock_path)
-    entry = lock.get('apps', {}).get(app) if isinstance(lock, dict) and isinstance(lock.get('apps'), dict) else None
-    return entry if isinstance(entry, dict) else None
-
-def pin(lock_path: Path, app: str, row: dict, binary_sha: str, team: str) -> dict:
+def pin(lock_path: Path, app: str, row: dict, binary_sha: str, label: str) -> dict:
     if lock_path.exists():
         lock = keys(load_json(lock_path), {'schema_version','platform','apps'}, label='installation lock')
         require(lock['schema_version']==1 and lock['platform']==platform_id() and isinstance(lock['apps'], dict), 'existing lock is not for this machine; move it aside')
     else:
         lock = {'schema_version': 1, 'platform': platform_id(), 'apps': {}}
-    asset = row['assets']['macos']['name']
-    lock['apps'][app] = {'revision': row['commit'], 'version': f"{row['version']} ({row['tag']}, {asset}, notarized {team})", 'sha256': binary_sha}
+    lock['apps'][app] = {'revision': row['commit'], 'version': label, 'sha256': binary_sha}
     lock['apps'] = dict(sorted(lock['apps'].items()))
     replace_file(lock_path, encoded(lock))
     return lock['apps'][app]
 
 # --------------------------------------------------------------------- probe
-def probe_python(sd: Path, run: Runner, log: Logger) -> str:
+def probe_python(sd: Path, run: Runner, log: Logger, system: str = platform.system()) -> str:
     try:
         if importlib.metadata.version('mcp')==SDK_VERSION: return sys.executable
     except importlib.metadata.PackageNotFoundError:
         pass
-    venv = sd/'venv'; py = venv/'bin'/'python'
+    venv = sd/'venv'; py = venv/('Scripts/python.exe' if system=='Windows' else 'bin/python')
     def ok() -> bool:
         code, out, _ = run([str(py), '-c', "import importlib.metadata as m; print(m.version('mcp'))"])
         return code==0 and out.strip()==SDK_VERSION
@@ -256,20 +336,25 @@ def run_probe(app: str, smoke_tool: str, paths: dict, python_exe: str, run: Runn
             'protocol_version': report.get('protocol_version'), 'server_info': report.get('server_info')}
 
 # ------------------------------------------------------------------ register
-def host_available(host: str, which: Callable[[str], str | None] = shutil.which) -> bool:
-    return which(host) is not None
+def host_argv(host: str, which: Which) -> list[str] | None:
+    """Resolved host CLI; Windows .cmd shims run through cmd.exe, never by name."""
+    path = which(host)
+    if path is None: return None
+    if path.lower().endswith(('.cmd', '.bat')): return ['cmd.exe', '/d', '/c', path]
+    return [path]
 
-def host_get(host: str, app: str, run: Runner) -> dict | None:
+def host_get(host: str, app: str, run: Runner, which: Which = shutil.which) -> dict | None:
     """Current registration as the host reports it, or None when absent."""
+    base = host_argv(host, which) or [host]
     if host=='codex':
-        code, out, _ = run(['codex', 'mcp', 'get', app, '--json'])
+        code, out, _ = run([*base, 'mcp', 'get', app, '--json'])
         if code!=0: return None
         try:
             transport = json.loads(out).get('transport', {})
         except ValueError:
             return {'command': None, 'args': None}
         return {'command': transport.get('command'), 'args': transport.get('args')}
-    code, out, _ = run(['claude', 'mcp', 'get', app])
+    code, out, _ = run([*base, 'mcp', 'get', app])
     if code!=0: return None
     command = args = None
     for line in out.splitlines():
@@ -278,58 +363,66 @@ def host_get(host: str, app: str, run: Runner) -> dict | None:
         elif s.startswith('Args:'): args = s.split(':', 1)[1].split()
     return {'command': command, 'args': args}
 
-def host_add(host: str, app: str, command: str, args: list[str], run: Runner) -> None:
-    argv = (['codex', 'mcp', 'add', app, '--', command, *args] if host=='codex'
-            else ['claude', 'mcp', 'add', '--scope', 'user', '--transport', 'stdio', app, '--', command, *args])
+def host_add(host: str, app: str, command: str, args: list[str], run: Runner, which: Which = shutil.which) -> None:
+    base = host_argv(host, which) or [host]
+    argv = ([*base, 'mcp', 'add', app, '--', command, *args] if host=='codex'
+            else [*base, 'mcp', 'add', '--scope', 'user', '--transport', 'stdio', app, '--', command, *args])
     code, out, err = run(argv)
     require(code==0, f'{host}: registration failed:\n{(out+err).strip()[:800]}')
 
-def host_remove(host: str, app: str, run: Runner) -> None:
-    argv = ['codex', 'mcp', 'remove', app] if host=='codex' else ['claude', 'mcp', 'remove', '--scope', 'user', app]
+def host_remove(host: str, app: str, run: Runner, which: Which = shutil.which) -> None:
+    base = host_argv(host, which) or [host]
+    argv = [*base, 'mcp', 'remove', app] if host=='codex' else [*base, 'mcp', 'remove', '--scope', 'user', app]
     code, out, err = run(argv)
     require(code==0, f'{host}: removal failed:\n{(out+err).strip()[:800]}')
 
-def register(app: str, launch: dict, hosts: list[str], run: Runner, replace: bool, log: Logger) -> list[dict]:
+def register(app: str, launch: dict, hosts: list[str], run: Runner, replace: bool, log: Logger, which: Which = shutil.which) -> list[dict]:
     rows = []
     for host in hosts:
-        current = host_get(host, app, run)
+        current = host_get(host, app, run, which)
         matches = current is not None and current['command']==launch['command'] and current['args']==launch['args']
         if current is not None and not matches:
             require(replace, f"{host}: '{app}' is already registered with a different command; pass --replace to re-register it")
-            host_remove(host, app, run); log(f'{host}: removed previous {app} registration')
+            host_remove(host, app, run, which); log(f'{host}: removed previous {app} registration')
         if not matches:
-            host_add(host, app, launch['command'], launch['args'], run)
-            after = host_get(host, app, run)
+            host_add(host, app, launch['command'], launch['args'], run, which)
+            after = host_get(host, app, run, which)
             require(after is not None and after['command']==launch['command'], f'{host}: {app} is not visible after registration')
             log(f'{host}: registered {app} (user scope)')
         rows.append({'host': host, 'status': 'already_registered' if matches else 'registered', 'command': launch['command'], 'args': launch['args']})
     return rows
 
 # ---------------------------------------------------------------------- flow
-def plan_hosts(requested: list[str] | None, which: Callable[[str], str | None] = shutil.which) -> list[str]:
+def plan_hosts(requested: list[str] | None, which: Which = shutil.which) -> list[str]:
     hosts = [h for h in HOSTS if (not requested or h in requested)]
-    return [h for h in hosts if host_available(h, which)]
+    return [h for h in hosts if which(h) is not None]
+
+def default_log(message: str) -> None:
+    print('storytold setup: '+message, file=sys.stderr)
 
 def setup(apps: list[str], *, acknowledge_unconfined: bool, hosts: list[str] | None, skip_probe: bool, upgrade: bool,
-          replace: bool, dry_run: bool, timeout: float, env: dict, home: Path, system: str = platform.system(),
-          fetch: Fetcher = fetch, run: Runner = default_runner, which: Callable[[str], str | None] = shutil.which,
-          log: Logger = lambda s: print('storytold setup: '+s, file=sys.stderr), releases: dict | None = None,
+          replace: bool, dry_run: bool, timeout: float, env: dict, home: Path, trust_upstream_sums: bool = False,
+          system: str = platform.system(), machine: str = platform.machine(), fetch: Fetcher = fetch, run: Runner = default_runner,
+          which: Which = shutil.which, log: Logger = default_log, releases: dict | None = None, signatures: dict | None = None,
           catalog: dict | None = None, **overrides: str | None) -> dict:
     releases = releases or load_releases(); catalog = catalog or load_catalog()
-    require(system=='Darwin', 'setup supports macOS in this release; Windows and Linux installers already include <app>-cli, see docs/operations.md')
-    paths = resolve_paths(env, home, **overrides)
+    signatures = signatures if signatures is not None else load_signatures(releases=releases)
+    plat = platform_key(system, machine)
+    paths = resolve_paths(env, home, system, **overrides)
     require(not paths['lock'].is_relative_to(paths['work_root']) and not paths['evidence_dir'].is_relative_to(paths['work_root']),
             'lock and evidence must stay outside the native workspace')
     targets = plan_hosts(hosts, which)
-    report = {'schema_version': 1, 'dry_run': dry_run, 'platform': platform_id(), 'paths': {k: str(v) for k, v in paths.items()},
-              'hosts': targets, 'apps': [], 'notice': 'Hosts load MCP servers when a session starts: open a new Claude Code or Codex session afterwards.'}
+    report = {'schema_version': 1, 'dry_run': dry_run, 'platform': platform_id(), 'platform_key': plat, 'cosign': which('cosign'),
+              'paths': {k: str(v) for k, v in paths.items()}, 'hosts': targets, 'apps': [],
+              'notice': 'Hosts load MCP servers when a session starts: open a new Claude Code or Codex session afterwards.'}
     if hosts and not targets:
         report['warnings'] = [f'requested host CLI not on PATH: {", ".join(hosts)}']
     if dry_run:
         for app in apps:
-            row = releases['apps'][app]; asset = row['assets']['macos']; unconfined = catalog[app]['confinement']=='os_only'
-            report['apps'].append({'app': app, 'release': row['tag'], 'download': asset_url(app, row, 'macos'), 'bytes': asset['bytes'],
-                                   'install_to': str(paths['bin_dir']/catalog[app]['executable']), 'probe': not skip_probe,
+            row = releases['apps'][app]; asset = row['assets'][plat]; unconfined = catalog[app]['confinement']=='os_only'
+            report['apps'].append({'app': app, 'release': row['tag'], 'download': asset_url(app, row, plat), 'bytes': asset['bytes'],
+                                   'install_to': str(paths['bin_dir']/exe_name(catalog, app)), 'probe': not skip_probe,
+                                   'sigstore_bundle': asset['name'] in signatures.get('bundles', {}),
                                    'register': (not unconfined or acknowledge_unconfined) and bool(targets),
                                    'needs_acknowledge_unconfined': unconfined and not acknowledge_unconfined})
         return report
@@ -338,8 +431,9 @@ def setup(apps: list[str], *, acknowledge_unconfined: bool, hosts: list[str] | N
     for app in apps:
         row = releases['apps'][app]; entry = {'app': app, 'release': row['tag']}
         try:
-            entry['install'] = install_app(app, releases, catalog, paths, system=system, fetch=fetch, run=run, upgrade=upgrade, log=log)
-            entry['pin'] = pin(paths['lock'], app, row, entry['install']['sha256'], releases['apple_team_id'])
+            entry['install'] = install_app(app, plat, releases, signatures, catalog, paths, fetch=fetch, run=run, which=which,
+                                           upgrade=upgrade, trust_upstream_sums=trust_upstream_sums, log=log)
+            entry['pin'] = pin(paths['lock'], app, row, entry['install']['sha256'], entry['install']['label'])
             if catalog[app]['confinement']=='os_only' and not acknowledge_unconfined:
                 entry['status'] = 'installed_not_registered'
                 entry['next'] = (f'{app} has no file-root flags: it can read and write anywhere your user can. '
@@ -351,12 +445,12 @@ def setup(apps: list[str], *, acknowledge_unconfined: bool, hosts: list[str] | N
                 entry['probe'] = {'status': 'skipped', 'native_runtime_verified': False}
                 log(f'{app}: probe skipped on request; the binary has not been exercised')
             else:
-                python_exe = python_exe or probe_python(paths['state_dir'], run, log)
+                python_exe = python_exe or probe_python(paths['state_dir'], run, log, system)
                 entry['probe'] = run_probe(app, row['smoke_tool'], paths, python_exe, run, timeout, log, acknowledge_unconfined)
-            entry['registrations'] = register(app, launch, targets, run, replace, log) if targets else []
+            entry['registrations'] = register(app, launch, targets, run, replace, log, which) if targets else []
             entry['status'] = 'registered' if targets else 'installed_no_host_cli'
             if not targets: entry['next'] = 'No codex/claude CLI on PATH: install one, then re-run setup to register.'
-        except (OSError, ValueError, TypeError, KeyError) as exc:
+        except (OSError, ValueError, TypeError, KeyError, tarfile.TarError, zipfile.BadZipFile) as exc:
             entry['status'] = 'failed'; entry['error'] = str(exc)[:1000]
             report['apps'].append(entry); log(f'{app}: FAILED: {exc}')
             break
@@ -364,17 +458,16 @@ def setup(apps: list[str], *, acknowledge_unconfined: bool, hosts: list[str] | N
     report['status'] = 'passed' if all(a.get('status')!='failed' for a in report['apps']) else 'failed'
     return report
 
-def remove(apps: list[str], *, hosts: list[str] | None, env: dict, home: Path, run: Runner = default_runner,
-           which: Callable[[str], str | None] = shutil.which, log: Logger = lambda s: print('storytold setup: '+s, file=sys.stderr),
-           catalog: dict | None = None, **overrides: str | None) -> dict:
-    catalog = catalog or load_catalog(); paths = resolve_paths(env, home, **overrides); targets = plan_hosts(hosts, which)
+def remove(apps: list[str], *, hosts: list[str] | None, env: dict, home: Path, system: str = platform.system(), run: Runner = default_runner,
+           which: Which = shutil.which, log: Logger = default_log, catalog: dict | None = None, **overrides: str | None) -> dict:
+    catalog = catalog or load_catalog(); paths = resolve_paths(env, home, system, **overrides); targets = plan_hosts(hosts, which)
     rows = []
     for app in apps:
         entry = {'app': app, 'hosts': [], 'binary_removed': False, 'pin_removed': False}
         for host in targets:
-            if host_get(host, app, run) is not None:
-                host_remove(host, app, run); entry['hosts'].append(host); log(f'{host}: removed {app}')
-        target = paths['bin_dir']/catalog[app]['executable']
+            if host_get(host, app, run, which) is not None:
+                host_remove(host, app, run, which); entry['hosts'].append(host); log(f'{host}: removed {app}')
+        target = paths['bin_dir']/exe_name(catalog, app)
         if target.is_file() and target.stat().st_nlink==1:
             target.unlink(); entry['binary_removed'] = True; log(f'{app}: removed {target}')
         if paths['lock'].exists():
@@ -385,20 +478,20 @@ def remove(apps: list[str], *, hosts: list[str] | None, env: dict, home: Path, r
         rows.append(entry)
     return {'schema_version': 1, 'apps': rows, 'workspace_kept': str(paths['work_root'])}
 
-def status(*, hosts: list[str] | None, env: dict, home: Path, run: Runner = default_runner,
-           which: Callable[[str], str | None] = shutil.which, releases: dict | None = None, catalog: dict | None = None,
-           **overrides: str | None) -> dict:
+def status(*, hosts: list[str] | None, env: dict, home: Path, system: str = platform.system(), run: Runner = default_runner,
+           which: Which = shutil.which, releases: dict | None = None, catalog: dict | None = None, **overrides: str | None) -> dict:
     releases = releases or load_releases(); catalog = catalog or load_catalog()
-    paths = resolve_paths(env, home, **overrides); targets = plan_hosts(hosts, which)
+    paths = resolve_paths(env, home, system, **overrides); targets = plan_hosts(hosts, which)
     lock = load_json(paths['lock']) if paths['lock'].is_file() else {}
     pins = lock.get('apps', {}) if isinstance(lock, dict) and isinstance(lock.get('apps'), dict) else {}
     rows = []
     for app in APP_IDS:
-        target = paths['bin_dir']/catalog[app]['executable']; pinned = pins.get(app) if isinstance(pins.get(app), dict) else None
+        target = paths['bin_dir']/exe_name(catalog, app); pinned = pins.get(app) if isinstance(pins.get(app), dict) else None
         evidence = paths['evidence_dir']/(app+'.json')
         rows.append({'app': app, 'manifest': releases['apps'][app]['tag'], 'installed': target.is_file(), 'path': str(target),
                      'pinned_version': pinned.get('version') if pinned else None,
                      'pinned_hash_matches': bool(target.is_file() and pinned and snapshot(target)[0]==pinned.get('sha256')),
+                     'manifest_commit_pinned': bool(pinned and pinned.get('revision')==releases['apps'][app]['commit']),
                      'probe_evidence': evidence.is_file(),
-                     'registered': [h for h in targets if host_get(h, app, run) is not None]})
-    return {'schema_version': 1, 'paths': {k: str(v) for k, v in paths.items()}, 'hosts': targets, 'apps': rows}
+                     'registered': [h for h in targets if host_get(h, app, run, which) is not None]})
+    return {'schema_version': 1, 'paths': {k: str(v) for k, v in paths.items()}, 'hosts': targets, 'cosign': which('cosign'), 'apps': rows}
