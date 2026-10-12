@@ -12,6 +12,9 @@ step, and the main CI matrix on Linux and Windows.
 - Tests: the CLI dry-run test accepted only macOS; doctor and setup tests
   created `<app>-cli` without `.exe`, compared paths without it and read
   recorded state from `~/.local` on Windows.
+- A doctor test hard-coded CADCraft's manifest tag, so the first genuine
+  upstream release (CADCraft 0.6.2) failed the workflow's test step right
+  after the refresh; tests now read expected versions from the manifest.
 - Documented the three repository settings the daily workflow needs to run
   hands-off (Actions may open pull requests, approval policy for new-to-GitHub
   accounts only, `STORYTOLD_AUTO_MERGE`); PR creation is now non-fatal.

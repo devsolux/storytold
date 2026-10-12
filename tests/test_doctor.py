@@ -27,7 +27,8 @@ class DoctorTests(unittest.TestCase):
         self.assertIn('setup --app photocraft`',apps['photocraft']['next']);self.assertNotIn('--acknowledge-unconfined',apps['photocraft']['next'])
         self.assertEqual(apps['vectorcraft']['status'],'not_installed')
         self.assertIn('setup --app cadcraft --acknowledge-unconfined',apps['cadcraft']['next'])
-        self.assertEqual(apps['cadcraft']['manifest_release'],'v0.5.0');self.assertIsNone(apps['cadcraft']['pinned_version'])
+        from storytold_tools.releases import load_releases
+        self.assertEqual(apps['cadcraft']['manifest_release'],load_releases()['apps']['cadcraft']['tag']);self.assertIsNone(apps['cadcraft']['pinned_version'])
 
     def test_cli_found_but_unregistered(self):
         cmd=self.binary('photocraft-cli');self.env['CRAFT_BIN_DIR']=str(self.base/'bin')
