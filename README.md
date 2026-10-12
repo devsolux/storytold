@@ -5,6 +5,8 @@ Claude Code & Codex plugin for the open-source ArtCraft Craft App Suite: one
 RAW, PDF, layout, sheets, docs, slides, CAD, audio, motion) with staged copies
 and verified exports.
 
+**English** · [Deutsch](README.DE.md) · [Türkçe](README.TR.md)
+
 > **Thank you, ArtCraft team!** Storytold is built on the Craft App Suite, which
 > the [ArtCraft](https://getartcraft.com/) team released as free, open-source
 > software: twelve creative apps, each written from scratch. We're grateful for
@@ -31,7 +33,7 @@ User + Claude Code / local Codex
                       native engines → durable files
 ```
 
-**Release 1.2.1.** The offline core suite, the official MCP SDK contract test,
+**Release 1.2.2.** The offline core suite, the official MCP SDK contract test,
 strict Claude manifest validation and Claude Code/Codex install with Skill
 discovery have been run, and `setup` has installed, probed and
 Sigstore-verified all twelve Craft CLIs on macOS, Linux and Windows runners as

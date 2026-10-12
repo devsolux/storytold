@@ -10,7 +10,9 @@ are skills/, config/, storytold_tools/, scripts/, and docs/. plugins/storytold/
 is generated; never edit it directly. Version belongs in packaging/project.json.
 The build emits .claude-plugin/plugin.json and a portable root plugin.json whose
 extensions.com.openai replaces any .codex-plugin overlay; do not add one back.
-Keep English code/docs, current source provenance, and explicit verification limits.
+Keep English as the canonical language of code and docs (README.DE.md and
+README.TR.md follow README.md), current source provenance, and explicit
+verification limits.
 
 The default plugin contains guidance and inactive templates. Creating real MCP
 configuration requires local pinned executables and matching discovery evidence.

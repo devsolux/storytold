@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.2.2 — 2026-10-12
+
+Documentation release; no code change.
+
+- German and Turkish READMEs (`README.DE.md`, `README.TR.md`), linked from the
+  English one and checked by `make check`; English stays canonical.
+- README: the two-step update (plugin, then `setup --list` /
+  `setup --all --upgrade`), the remove order (`setup --remove --all` before
+  `plugin uninstall`), the verified plugin cache path, and a "Where things
+  live" table for the plugin, CLIs, private state, workspace and host
+  registrations on macOS/Linux and Windows.
+- `make github-push` pulls with rebase onto `origin/main` and re-checks the
+  generated plugin before pushing, because the daily workflow merges into
+  `main` on its own; `make github-pull` rebases instead of refusing.
+- Verification report: first local Sigstore verification with cosign.
+
 ## 1.2.1 — 2026-10-12
 
 Fixes the first run of the daily release workflow, which failed in its test

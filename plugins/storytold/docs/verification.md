@@ -1,4 +1,4 @@
-# Verification status — 1.2.1
+# Verification status — 1.2.2
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. One operator-installed
@@ -16,7 +16,7 @@ macOS (Darwin 27, arm64) with Python **3.11.17**:
 | `make build`, `make verify-build` | The committed plugin (50 files) matches its 85 allowlisted canonical inputs. |
 | `make package`, `make source` | Reproducible plugin and source ZIPs with SHA-256 files. |
 | `make test-sdk` with `mcp==2.3.0` | Passed 7 checks against the synthetic stdio fixture: initialize, two-page `tools/list`, wire aliases, typed structured content, `isError`, SDK context exit, and a native tool error not reported as success. |
-| `claude plugin validate --strict` (Claude Code 2.1.282) | 1.2.1 marketplace and plugin manifests: no errors or warnings. |
+| `claude plugin validate --strict` (Claude Code 2.1.282) | 1.2.2 marketplace and plugin manifests: no errors or warnings. |
 | Claude Code install from the local marketplace | `storytold@devsolux-storytold` 1.0.0 installed and enabled; `claude plugin details` lists one Skill (`craft`) and zero MCP servers. |
 | Codex CLI 0.162.0-alpha.17.2 install from the local marketplace | `storytold@devsolux-storytold` 1.0.0 installed and enabled; `codex debug prompt-input` lists the `storytold:craft` Skill. |
 | Portable manifests | `plugin.json` and `config/portable.mcp.example.json` validate against the published Agent Plugins 1.0.0 schemas. |
