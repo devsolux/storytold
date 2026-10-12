@@ -1,5 +1,47 @@
 # Changelog
 
+## 1.3.1 — 2026-10-12
+
+Focused reliability and security hardening of the 1.3.0 lifecycle. No new
+architecture: the same twelve stdio servers, Skill, SDK probe and
+deterministic helpers.
+
+- Interrupted promotion is now reconcilable. The recovery marker lives in
+  `state/recovery/<app>.json`, outside staging, so the cleanup that follows a
+  failure can no longer discard it. It records the candidate hash, the
+  previous hash and pin, and is cleared only after the binary and the lock
+  are seen to agree. The next run classifies the active binary as
+  `consistent`, `completable` (lock rewritten from the marker), `reverted`
+  (the replace never happened), `ambiguous` (matches neither; refused, nothing
+  changed) or `corrupt` (marker unreadable; refused, marker kept), reports it
+  under `recovery` and in `setup --list`, and `setup --remove` defers to that
+  reconciliation first. Recovery never replaces the binary.
+- Removal verifies the whole registration, not the command path: command,
+  every argument, user scope and the host's own user-scope file
+  (`config.toml` / `.claude.json`) must agree with what `setup` writes, the
+  app must still be pinned, and the pinned binary must be owned or already
+  gone. A same-name entry with other arguments or cwd/env, another scope, a
+  text-only Claude entry whose arguments cannot be recovered, a missing pin or
+  a modified binary keeps its registration, listed with the reason
+  (`attention`, exit 1). A host CLI that is not on PATH is reported as not
+  inspected, never guessed.
+- `--replace` is recoverable. The old entry is removed only after it is known
+  to be restorable exactly (user scope, structured arguments, no cwd/env);
+  if adding the new one fails, the old one is re-added and verified. A
+  restoration that also fails is reported as `registration_lost` with the
+  exact `mcp add` command to run by hand. Entries that cannot be restored are
+  refused before anything is removed.
+- Evidence names the launch it describes. The staged probe writes
+  `evidence/<app>-candidate.json` and that file is never renamed; after
+  promotion the active launch is preflighted and probed again, and only that
+  report becomes `evidence/<app>.json`, so `configure`'s fingerprint check
+  compares like with like. A binary that passes as a candidate but fails at
+  its active path is reported as `promoted_unverified` and not registered.
+- The daily release workflow verifies strictly: `scripts/check_bundles.py`
+  requires a Sigstore bundle for every pinned archive before the Linux,
+  Windows and macOS runners run `setup` without `--trust-upstream-sums`.
+  `make check` enforces that order and the absence of the flag.
+
 ## 1.3.0 — 2026-10-12
 
 Reliability and safety fixes for `setup`, the signature store and `doctor`.

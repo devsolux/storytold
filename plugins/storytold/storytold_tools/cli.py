@@ -36,7 +36,7 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument('--skip-probe',action='store_true',help='Register without the official-SDK native probe (binary stays unverified)')
     s.add_argument('--trust-upstream-sums',action='store_true',help='Linux/Windows: proceed on the manifest and SHA256SUMS.txt when no Sigstore bundle or cosign is available')
     s.add_argument('--upgrade',action='store_true',help='Replace an already installed binary with the manifest release')
-    s.add_argument('--replace',action='store_true',help='Replace a differing existing host registration of the same name')
+    s.add_argument('--replace',action='store_true',help='Replace a differing existing host registration of the same name; the previous entry is restored if the new one cannot be added')
     s.add_argument('--dry-run',action='store_true',help='Preview: with install, the downloads, paths and registrations; with --remove, exactly what would be unregistered or deleted. Changes nothing')
     s.add_argument('--remove',action='store_true',help='Unregister and delete the selected apps that Storytold provably manages (workspace is kept); combine with --dry-run for a read-only preview')
     s.add_argument('--list',action='store_true',help='Show manifest, installed, pinned and registered state')

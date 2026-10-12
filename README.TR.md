@@ -200,11 +200,14 @@ sabitlemesiyle ve manifestle eşleşen bir uygulama atlanır, zaten eşleşen bi
 kayıt korunur. `--dry-run` önizleme yapar; `--list` manifest, kurulum,
 sabitleme ve kayıt durumunu gösterir; `--upgrade` sabitlemesi değişen bir
 uygulamayı manifest sürümüne taşır; `--replace` başka bir yere işaret eden aynı
-adlı sunucuyu yeniden kaydeder; `--skip-probe` ikili dosyayı çalıştırmadan
-kaydeder ve bunu belirtir; `--remove` yalnızca yönetilen ikili dosyaya işaret eden kayıtları kaldırır ve
-yalnızca baytları kilitle eşleşen bir ikili dosyayı siler; geri kalan her şey
-korunur ve raporlanır. `--remove --dry-run` hiçbir şeyi değiştirmeden tam
-olarak bunu önizler. Siz çağırmadıkça hiçbir şey çalışmaz; Python 3.11+
+adlı sunucuyu yeniden kaydeder ve yenisi eklenemezse eski kaydı geri getirir;
+`--skip-probe` ikili dosyayı çalıştırmadan kaydeder ve bunu belirtir;
+`--remove` yalnızca `setup`'ın kendi yazdığı kullanıcı kapsamı kayıtlarını
+(aynı komut ve argümanlar, uygulama hâlâ sabitlenmiş) kaldırır ve yalnızca
+baytları kilitle eşleşen bir ikili dosyayı siler; geri kalan her şey korunur
+ve raporlanır. `--remove --dry-run` hiçbir şeyi değiştirmeden tam olarak bunu
+önizler. Dosya değiştirme ile kilidin yeniden yazılması arasında kesilen bir
+yükseltmeyi bir sonraki çalıştırma tutarlı duruma getirir. Siz çağırmadıkça hiçbir şey çalışmaz; Python 3.11+
 gerekir.
 
 **Kaynak doğrulama.** macOS'ta ikili dosya ArtCraft ekibi tarafından Apple

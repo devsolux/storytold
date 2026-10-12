@@ -94,6 +94,12 @@ def partition_signature_store(data: object, releases: dict) -> tuple[dict, dict]
 def load_signatures(root: Path = ROOT, releases: dict | None = None) -> dict:
     return validate_signature_store(load_json(root/'config/signatures.json'), releases or load_releases(root))
 
+def require_complete_bundles(signatures: dict, releases: dict) -> list[str]:
+    """Strict release policy: every pinned archive on every platform has a current bundle."""
+    missing = sorted(set(pinned_archives(releases)) - set(signatures.get('bundles', {})))
+    require(not missing, 'archives without a Sigstore bundle: ' + ', '.join(missing))
+    return sorted(signatures['bundles'])
+
 def asset_url(app: str, row: dict, plat: str) -> str:
     return f"https://github.com/storytold/{app}/releases/download/{row['tag']}/{row['assets'][plat]['name']}"
 

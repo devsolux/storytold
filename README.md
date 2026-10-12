@@ -193,11 +193,14 @@ Re-running `setup` is idempotent: an app whose installed binary matches its
 pin and the manifest is skipped, a registration that already matches is kept.
 `--dry-run` previews; `--list` shows manifest, installed, pinned and registered
 state; `--upgrade` moves an app whose pin changed to the manifest release;
-`--replace` re-registers a same-name server that points elsewhere;
+`--replace` re-registers a same-name server that points elsewhere and
+restores the old entry if the new one cannot be added;
 `--skip-probe` registers without exercising the binary and says so;
-`--remove` unregisters only entries that point at the managed binary and
-deletes only a binary whose bytes match the lock, reporting anything it leaves
-alone; `--remove --dry-run` previews exactly that without changing anything.
+`--remove` unregisters only the user-scope entries `setup` itself wrote (same
+command and arguments, app still pinned) and deletes only a binary whose
+bytes match the lock, reporting anything it leaves alone; `--remove --dry-run`
+previews exactly that without changing anything. An upgrade interrupted
+between the file replace and the lock rewrite is reconciled by the next run.
 Nothing runs unless you invoke it; Python 3.11+ is required.
 
 **Provenance.** On macOS the binary must be Apple-notarized by the ArtCraft

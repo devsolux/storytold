@@ -15,11 +15,19 @@ and upstream `SHA256SUMS.txt`, then Apple notarization by the pinned team
 Windows; macOS too when cosign is present), then preflight and the official-SDK
 probe before `codex mcp add` / `claude mcp add` run. `--trust-upstream-sums`
 and `--skip-probe` weaken that chain and are recorded in the lock or report.
-A candidate is probed where it was staged and promoted only afterwards, so a
-failed upgrade cannot leave a host launching an unverified binary. Removal
-deletes only a plain file whose SHA-256 equals the lock entry Storytold wrote
-and unregisters only entries whose command is that managed path; `--dry-run`
-previews removal without any side effect.
+A candidate is probed where it was staged, promoted only afterwards, and
+probed again at its active path before any registration, so a host is never
+pointed at a binary that was not exercised where it runs. A recovery marker
+outside staging makes an interrupted promotion reconcilable; a binary that
+matches neither the previous pin nor the candidate is refused, never
+"repaired". Removal deletes only a plain file whose SHA-256 equals the lock
+entry Storytold wrote and unregisters only the user-scope entry Storytold
+itself writes (same command, same arguments, same scope, confirmed in the
+host's own file) for an app that is still pinned; `--dry-run` previews
+removal without any side effect. `--replace` removes a registration only when
+it can be restored exactly and restores it if the new one cannot be added.
+The daily workflow verifies every pinned archive against its Sigstore bundle
+and refuses to run `setup` with `--trust-upstream-sums`.
 The default plugin ships inactive launch templates; `configure` needs matching
 local pins and probe evidence.
 

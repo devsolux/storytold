@@ -86,9 +86,12 @@ jobs:
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
           cosign-release: 'v3.1.3'
-      - name: Real setup on this runner (download, verify, pin, probe; no host CLI here)
+      - name: Every pinned archive must have a Sigstore bundle before strict verification
         shell: bash
-        run: python storytold.py setup --all --acknowledge-unconfined --trust-upstream-sums
+        run: python scripts/check_bundles.py
+      - name: Real setup on this runner with strict provenance (download, verify, cosign, pin, probe; no host CLI here)
+        shell: bash
+        run: python storytold.py setup --all --acknowledge-unconfined
   merge:
     needs: [refresh, verify]
     if: needs.refresh.outputs.changed == 'true' && vars.STORYTOLD_AUTO_MERGE == 'true'

@@ -62,42 +62,76 @@ at the first failure, and prints a JSON report:
    preflight, and so the probe, cannot run without it.
 6. Only after that the candidate is promoted: an atomic replace inside the
    bin directory (identical bytes are left in place and only the pin moves),
-   then the lock is rewritten. A marker written just before the replace makes
-   the only non-atomic window recoverable; the next run completes an
-   interrupted upgrade. The candidate evidence becomes `evidence/<app>.json`
-   and the staging directory is removed.
-7. Registration through the host's own CLI, user scope, absolute command and the
+   then the lock is rewritten. The binary replace and the lock rewrite are two
+   writes, so a recovery marker (`~/.local/state/storytold/recovery/<app>.json`,
+   outside staging, recording the candidate hash and the previous hash and
+   pin) is written first and cleared last, only after the binary and the lock
+   are seen to agree. The candidate evidence stays
+   `evidence/<app>-candidate.json`; the staging directory is removed.
+7. The active launch is verified on its own: `preflight` against the bin
+   directory and the real lock, then the probe again at the installed path,
+   writing `evidence/<app>.json` (the previous one is archived). That report,
+   not the candidate's, is what `configure` later matches against the launch
+   fingerprint. A binary that passed as a candidate but fails here is
+   reported as `promoted_unverified`, stays installed and pinned, and is not
+   registered; re-run `setup` to probe again or `setup --remove --app <app>`.
+8. Registration through the host's own CLI, user scope, absolute command and the
    exact catalog args: `codex mcp add` and/or `claude mcp add --scope user`,
    for every host CLI on PATH (`--host` limits). A registration that already
    matches is kept; a same-name registration with a different command is
    refused unless `--replace`; one whose command the host CLI does not print
-   is never modified. Each host is reported separately: if one fails, the
-   binary and pin are already current and the report says
-   `partially_registered`. Nothing else in the host configuration is touched.
-   Start a new session afterwards.
+   is never modified. With `--replace` the old entry is removed only once it
+   is known to be restorable exactly (user scope, structured arguments, no
+   cwd/env); if adding the new one fails, the old one is re-added and that
+   restoration is verified. If the restoration fails too, the host row says
+   `registration_lost` and gives the exact `mcp add` command to run by hand.
+   Each host is reported separately: if one fails, the binary and pin are
+   already current and the report says `partially_registered`. Nothing else
+   in the host configuration is touched. Start a new session afterwards.
 
 A candidate that fails at any step up to promotion leaves the previous
 binary, its pin, its evidence and every registration exactly as they were;
-only `evidence/<app>-candidate.json` records the failed attempt.
+only `evidence/<app>-candidate.json` records the failed attempt. A failure
+between the replace and the end of step 6 leaves the marker in place; the
+next `setup` run (or `--list`) classifies it before anything else happens:
+`consistent` (binary and lock already agree: marker cleared),
+`completable` (the binary is the verified candidate, the lock still names the
+previous one: the lock is rewritten from the marker, never the binary),
+`reverted` (the binary is still the previous one: marker cleared, the
+upgrade is simply retried), `ambiguous` (the binary matches neither: refused,
+nothing changed, the marker stays until you move the file aside or restore a
+known binary and delete it) or `corrupt` (the marker is unreadable: refused,
+marker kept). `setup --remove` defers to the same reconciliation and keeps
+everything for an app whose marker is still present.
 
 Apps without root flags are installed but registered only with
 `--acknowledge-unconfined`, which records your decision for non-sensitive work
 and is not isolation. `--dry-run` prints downloads, paths and registrations;
 `--list` shows manifest, installed, pinned and registered state. `--remove --app
-X` unregisters only registrations whose command is the Storytold-managed path,
-deletes the binary only when it is a plain file whose SHA-256 equals the lock
-entry, drops that pin and archives its evidence; a same-name registration that
-points elsewhere, a registration the host CLI cannot describe, or a file
-without a matching pin is kept and listed with its reason (exit status 1,
-report `attention`). `--remove --dry-run` prints the same report with
-`would …` actions and changes nothing. The workspace is never touched.
+X` takes two separate decisions. The binary is deleted only when it is a
+plain, unlinked file whose SHA-256 equals the lock entry; then that pin is
+dropped and its evidence archived. A registration is unregistered only when
+it is, in full, the user-scope entry `setup` writes: the command is the
+managed path, every argument is the catalog launch, the host reports user
+scope, the host's own user-scope file (`$CODEX_HOME/config.toml`,
+`$CLAUDE_CONFIG_DIR/.claude.json`) carries the same entry without cwd or env,
+the app is still pinned, and the pinned binary is either owned or already
+gone. A same-name registration that points elsewhere or carries other
+arguments, one in another scope, one the host CLI cannot describe (or whose
+arguments only appear as joined text), one for an app without a pin, or one
+whose binary was modified is kept and listed with its reason (exit status 1,
+report `attention`); a host CLI that is not on PATH is reported as not
+inspected. `--remove --dry-run` prints the same report with `would …` actions
+and changes nothing. The workspace is never touched.
 Maintainers refresh the manifest with `make refresh-releases` and review the
 diff; `make sign-releases` (cosign required) downloads and signs CLIs that have
 no current bundle. In the repository this runs daily: the
 [release workflow](https://github.com/devsolux/storytold/blob/main/.github/workflows/releases.yml) refreshes, signs keyless
 with its GitHub OIDC identity (`id-token: write`), rebuilds the plugin, runs
-the checks and a real `setup --all --acknowledge-unconfined --trust-upstream-sums`
-on Linux, Windows and macOS runners, and opens one pull request on
+the checks, `scripts/check_bundles.py` (every pinned archive must have a
+bundle) and a real `setup --all --acknowledge-unconfined` that verifies each
+bundle with cosign, never `--trust-upstream-sums`, on Linux, Windows and macOS
+runners, and opens one pull request on
 `bot/releases`. Review it (a changed app needs its card and smoke tool rechecked
 at the new tag) or set the repository variable `STORYTOLD_AUTO_MERGE=true` to
 merge green runs. Signing identity, issuer and Apple team are data in the
@@ -372,7 +406,9 @@ For each app, `connections.apps[]` shows the desktop app, a CLI in
 (`./.mcp.json`) scopes, and reports only each server's command, never other
 settings in those files. `python3 storytold.py setup --list` adds, per app,
 whether the installed binary matches its pin (`owned`), whether that pin is
-still the manifest's commit, and whether an upgrade was interrupted.
+still the manifest's commit, and the `recovery` state of any interrupted
+upgrade (`none`, `consistent`, `completable`, `reverted`, `ambiguous`,
+`corrupt`).
 
 PATH does not matter for the connection: hosts launch the absolute `command` from
 their config. Claude user-scope servers are outside this static check; use
@@ -396,11 +432,16 @@ candidate succeed, the lock entry is rewritten atomically, and the host
 registration is left alone because the command path does not change. What a
 failure leaves behind: download, checksum, provenance, preflight or probe
 failure → nothing changed, `evidence/<app>-candidate.json` kept; failure during
-the file replace → the old file (the replace is atomic); failure between the
-replace and the lock rewrite → `setup --list` shows `interrupted_upgrade` and
-the next `setup` run completes the pin from the marker; a failed registration
-→ binary and pin current, `partially_registered` in the report, re-run `setup`
-to register. To roll back, `setup --remove --app <app>` and either install
+the file replace → the old file (the replace is atomic) and a `reverted`
+marker the next run clears; failure between the replace and the lock rewrite
+→ `setup --list` shows `completable` and the next `setup` run rewrites the
+lock from the marker; a binary that matches neither → `ambiguous`, refused
+until you intervene; a failed active probe after promotion →
+`promoted_unverified`, installed and pinned but not registered, re-run `setup`
+to probe again; a failed registration → binary and pin current,
+`partially_registered` in the report, re-run `setup` to register; a failed
+`--replace` → the previous registration restored and verified, or
+`registration_lost` with the command to re-add it. To roll back, `setup --remove --app <app>` and either install
 the earlier release by hand (section 0, with its hash in the lock) or run
 `setup --app <app> --upgrade` from a checkout of the Storytold commit whose
 manifest pinned it. `setup --remove` never touches the workspace or outputs.

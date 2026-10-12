@@ -204,11 +204,15 @@ App, deren installierte Binärdatei zu ihrem Pin und zum Manifest passt, wird
 zeigt die Vorschau; `--list` zeigt Manifest-, Installations-, Pin- und
 Registrierungsstand; `--upgrade` bringt eine App mit geändertem Pin auf das
 Manifest-Release; `--replace` registriert einen gleichnamigen Server neu, der
-woanders hinzeigt; `--skip-probe` registriert, ohne die Binärdatei
-auszuführen, und sagt das auch; `--remove` hebt nur Registrierungen auf, die auf die verwaltete Binärdatei
-zeigen, und löscht nur eine Binärdatei, deren Bytes zum Lock passen; alles
-andere bleibt und wird gemeldet. `--remove --dry-run` zeigt genau das als
-Vorschau, ohne etwas zu ändern. Nichts läuft, ohne dass du es aufrufst;
+woanders hinzeigt, und stellt den alten Eintrag wieder her, wenn der neue
+nicht hinzugefügt werden kann; `--skip-probe` registriert, ohne die Binärdatei
+auszuführen, und sagt das auch; `--remove` hebt nur die Benutzer-Registrierungen
+auf, die `setup` selbst geschrieben hat (gleicher Befehl und gleiche
+Argumente, App noch gepinnt), und löscht nur eine Binärdatei, deren Bytes zum
+Lock passen; alles andere bleibt und wird gemeldet. `--remove --dry-run` zeigt
+genau das als Vorschau, ohne etwas zu ändern. Ein Upgrade, das zwischen dem
+Ersetzen der Datei und dem Neuschreiben des Locks unterbrochen wurde, bringt
+der nächste Lauf in einen konsistenten Zustand. Nichts läuft, ohne dass du es aufrufst;
 Python 3.11+ ist erforderlich.
 
 **Herkunft.** Unter macOS muss die Binärdatei vom ArtCraft-Team bei Apple

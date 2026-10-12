@@ -106,7 +106,11 @@ def check() -> dict:
     require('persist-credentials: false' in refresh and 'id-token: write' in refresh, 'release workflow must not persist credentials and must request an OIDC token for keyless signing')
     require('pull_request_target' not in refresh and 'write-all' not in refresh and 'secrets.' not in refresh, 'release workflow must stay on github.token with scoped permissions')
     require('cosign-release:' in refresh and 'bot/releases' in refresh, 'release workflow must pin cosign and publish through the bot/releases pull request')
-    checks.append('release-workflow-pinned-scoped-keyless')
+    verify_section = refresh[refresh.index('verify:'):refresh.index('merge:')]
+    require('--trust-upstream-sums' not in verify_section, 'release verification must not fall back to checksum-only trust')
+    require(0 <= verify_section.index('scripts/check_bundles.py') < verify_section.index('storytold.py setup'),
+            'release verification must assert complete Sigstore bundles before running setup')
+    checks.append('release-verification-strict-provenance-after-bundle-check')
     for filename, expected in ORIGINAL_HASHES.items():
         require(digest(files['docs/sources/' + filename]) == expected, 'supplied source modified: ' + filename)
         checks.append('source-sha256:' + filename)

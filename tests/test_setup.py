@@ -43,7 +43,8 @@ class FakeWorld:
         self.signatures={'schema_version':1,'signed_by':SIGNER,'bundles':{}}
         self.archives={};self.hosts={'codex':{},'claude':{}};self.available={'codex','claude'};self.calls=[];self.logs=[]
         self.notarized=True;self.team='TESTTEAM00';self.cosign_ok=True;self.probe_status='discovery_and_call_passed';self.sums_override=None
-        self.fail_fetch=set();self.fail_add=set();self.claude_json=True;self.claude_text_omits_command=False
+        self.fail_fetch=set();self.fail_add=set();self.fail_add_once=set();self.fail_remove=set();self.claude_json=True;self.claude_text_omits_command=False
+        self.claude_scope='User config (available in all your projects)';self.codex_cwd=None;self.probe_fail_bin_dirs=set()
         for app in self.releases['apps']:
             self.set_archive(app,b'SYNTHETIC '+app.encode())
     def set_archive(self,app,body):
@@ -75,6 +76,13 @@ class FakeWorld:
         p=self.home/'.claude.json';data=load_json(p) if p.is_file() else {'oauthAccount':{'emailAddress':'secret@example.invalid'}}
         data['mcpServers']={app:{'type':'stdio','command':row['command'],'args':row['args'],'env':{}} for app,row in self.hosts['claude'].items()}
         p.write_bytes(encoded(data))
+    def _sync_codex_toml(self):
+        if self.home is None: return
+        p=self.home/'.codex/config.toml';p.parent.mkdir(exist_ok=True)
+        lines=['[other]\nkeep = true\n']
+        for app,row in self.hosts['codex'].items():
+            lines.append(f'[mcp_servers.{app}]\ncommand = {json.dumps(row["command"])}\nargs = {json.dumps(row["args"])}\n'+(f'cwd = {json.dumps(self.codex_cwd)}\n' if self.codex_cwd else ''))
+        p.write_text('\n'.join(lines))
     def run(self,argv):
         self.calls.append(argv);tool=Path(argv[0]).name.lower()
         if tool=='cmd.exe': argv=argv[3:];tool=argv[0].rsplit('\\',1)[-1].lower().removesuffix('.cmd')
@@ -89,27 +97,30 @@ class FakeWorld:
             if sub=='get':
                 app=argv[3];row=store.get(app)
                 if row is None: return (1,'',f'No MCP server named {app}')
-                if tool=='codex': return (0,json.dumps({'name':app,'transport':{'type':'stdio','command':row['command'],'args':row['args']}}),'')
-                lines=[f'{app}:','  Scope: User config (available in all your projects)','  Status: ✔ Connected','  Type: stdio']
+                if tool=='codex': return (0,json.dumps({'name':app,'transport':{'type':'stdio','command':row['command'],'args':row['args'],'env':None,'cwd':self.codex_cwd}}),'')
+                lines=[f'{app}:',f'  Scope: {self.claude_scope}','  Status: ✔ Connected','  Type: stdio']
                 if not self.claude_text_omits_command: lines.append(f"  Command: {row['command']}")
                 lines.append(f"  Args: {' '.join(row['args'])}");lines.append('  Environment:')
                 return (0,'\n'.join(lines)+'\n','')
             if sub=='add':
                 if tool in self.fail_add: return (1,'','synthetic host failure')
+                if tool in self.fail_add_once: self.fail_add_once.discard(tool);return (1,'','synthetic transient host failure')
                 i=argv.index('--');app=argv[i-1];store[app]={'command':argv[i+1],'args':argv[i+2:]}
-                if tool=='claude': self._sync_claude_json()
+                self._sync_claude_json() if tool=='claude' else self._sync_codex_toml()
                 return (0,'','')
             if sub=='remove':
+                if tool in self.fail_remove: return (1,'','synthetic removal failure')
                 store.pop(argv[-1],None)
-                if tool=='claude': self._sync_claude_json()
+                self._sync_claude_json() if tool=='claude' else self._sync_codex_toml()
                 return (0,'','')
         if 'probe' in argv and any(a.endswith('storytold.py') for a in argv):
             out=Path(argv[argv.index('--output')+1]);app=argv[argv.index('--app')+1]
             if self.catalog[app]['confinement']=='os_only' and '--acknowledge-unconfined' not in argv:
                 return (1,'',f'storytold: {app}: no verified native root flags; use tested OS isolation or explicitly acknowledge non-sensitive local testing')
-            report={'status':self.probe_status,'tools':[{'name':'x'}],'protocol_version':'2025-11-25','server_info':{'name':app},
-                    'probed_bin_dir':argv[argv.index('--bin-dir')+1],'error':None if self.probe_status.endswith('passed') else {'type':'Synthetic','message':'synthetic failure'}}
-            out.write_text(json.dumps(report));return (0 if self.probe_status.endswith('passed') else 1,'','')
+            bin_dir=argv[argv.index('--bin-dir')+1];status=('failed' if bin_dir in self.probe_fail_bin_dirs else self.probe_status)
+            report={'status':status,'tools':[{'name':'x'}],'protocol_version':'2025-11-25','server_info':{'name':app},
+                    'probed_bin_dir':bin_dir,'error':None if status.endswith('passed') else {'type':'Synthetic','message':'synthetic failure'}}
+            out.write_text(json.dumps(report));return (0 if status.endswith('passed') else 1,'','')
         if argv[1:3]==['-m','venv'] or argv[1:3]==['-m','pip']: return (0,'','')
         if argv[1]=='-c': return (0,'2.3.0\n','')
         raise AssertionError('unexpected command: '+' '.join(argv))
@@ -157,8 +168,10 @@ class MacSetupTests(SetupCase):
         lock=load_json(self.lock);self.assertEqual(lock['apps']['photocraft']['revision'],self.world.releases['apps']['photocraft']['commit'])
         self.assertIn('notarized TESTTEAM00',lock['apps']['photocraft']['version']);self.assertNotIn('sigstore',lock['apps']['photocraft']['version'])
         self.assertEqual(entry['probe']['status'],'discovery_and_call_passed')
-        evidence=load_json(self.paths['evidence_dir']/'photocraft.json');self.assertEqual(evidence['probed_bin_dir'],str(self.paths['state_dir']/'staging/photocraft/bin'))
-        self.assertFalse((self.paths['state_dir']/'staging/photocraft').exists())
+        evidence=load_json(self.paths['evidence_dir']/'photocraft.json');self.assertEqual(evidence['probed_bin_dir'],str(self.bin))  # the active launch
+        candidate=load_json(self.paths['evidence_dir']/'photocraft-candidate.json');self.assertEqual(candidate['probed_bin_dir'],str(self.paths['state_dir']/'staging/photocraft/bin'))
+        self.assertEqual(entry['candidate_probe']['bin_dir'],str(self.paths['state_dir']/'staging/photocraft/bin'));self.assertEqual(entry['probe']['bin_dir'],str(self.bin))
+        self.assertFalse((self.paths['state_dir']/'staging/photocraft').exists());self.assertFalse(s.recovery_marker(self.paths,'photocraft').exists())
         work=self.home/'craft-work-storytold';expected=['mcp','--automation-read-root',str(work),'--automation-write-root',str(work/'outputs')]
         for host in ('codex','claude'):
             self.assertEqual(self.world.hosts[host]['photocraft'],{'command':str(binary),'args':expected})
@@ -230,11 +243,12 @@ class MacSetupTests(SetupCase):
         r=self.setup(['photocraft'],upgrade=True);entry=r['apps'][0]
         self.assertEqual(r['status'],'failed');self.assertIn('native probe failed',entry['error'])
         after=self.snapshot_state();candidate=str(self.paths['evidence_dir']/'photocraft-candidate.json')
-        self.assertEqual({k:v for k,v in after['files'].items() if k!=candidate},before['files']);self.assertIn(candidate,after['files'])
+        self.assertEqual({k:v for k,v in after['files'].items() if k!=candidate},{k:v for k,v in before['files'].items() if k!=candidate})
         self.assertEqual(self.installed('photocraft').read_bytes(),b'SYNTHETIC photocraft');self.assertEqual(after['lock'],before['lock'])
         self.assertEqual(after['hosts'],before['hosts']);self.assertEqual(self.mcp_mutations(),[])
-        self.assertEqual(load_json(self.paths['evidence_dir']/'photocraft.json')['probed_bin_dir'],str(self.paths['state_dir']/'staging/photocraft/bin'))
+        self.assertEqual(load_json(self.paths['evidence_dir']/'photocraft.json')['probed_bin_dir'],str(self.bin))  # active evidence untouched
         self.assertEqual(load_json(Path(candidate))['status'],'failed');self.assertFalse((self.paths['state_dir']/'staging/photocraft').exists())
+        self.assertFalse(s.recovery_marker(self.paths,'photocraft').exists())
 
     def test_failed_download_and_failed_provenance_preserve_the_working_installation(self):
         self.setup(['photocraft']);before=self.snapshot_state()
@@ -258,14 +272,15 @@ class MacSetupTests(SetupCase):
         self.assertEqual(self.installed('vectorcraft').read_bytes(),b'TAMPERED')
 
     def test_interrupted_promotion_is_completed_on_the_next_run(self):
-        self.setup(['photocraft']);new=b'SYNTHETIC promoted but not pinned'
-        staging=self.paths['state_dir']/'staging/photocraft';staging.mkdir(parents=True)
-        commit=self.world.releases['apps']['photocraft']['commit']
-        (staging/s.PROMOTE_MARKER).write_bytes(encoded({'app':'photocraft','sha256':digest(new),'commit':commit,'label':'0.7.0 (test, promoted)'}))
+        self.setup(['photocraft']);new=b'SYNTHETIC promoted but not pinned';old_pin=load_json(self.lock)['apps']['photocraft']
+        marker=s.recovery_marker(self.paths,'photocraft');marker.parent.mkdir(exist_ok=True)
+        marker.write_bytes(encoded({'schema_version':1,'app':'photocraft','candidate_sha256':digest(new),'previous_sha256':old_pin['sha256'],'previous_pin':old_pin,
+                                    'commit':old_pin['revision'],'label':'0.7.0 (test, promoted)','written_at':'2026-10-12T00:00:00+00:00'}))
         self.installed('photocraft').write_bytes(new)  # the crash happened between os.replace and the lock rewrite
-        r=self.setup(['photocraft']);entry=r['apps'][0];self.assertEqual(r['status'],'passed',entry)
+        self.assertEqual(s.recovery_state(self.paths,self.world.catalog,'photocraft')['state'],'completable')
+        r=self.setup(['photocraft']);entry=r['apps'][0];self.assertEqual(r['status'],'passed',entry);self.assertEqual(entry['recovery'],'completable')
         self.assertTrue(any('completed an interrupted upgrade' in l for l in self.world.logs))
-        self.assertEqual(load_json(self.lock)['apps']['photocraft']['sha256'],digest(new));self.assertTrue(entry['install']['unchanged']);self.assertFalse(staging.exists())
+        self.assertEqual(load_json(self.lock)['apps']['photocraft']['sha256'],digest(new));self.assertTrue(entry['install']['unchanged']);self.assertFalse(marker.exists())
 
     def test_partial_host_registration_failure_is_reported_not_hidden(self):
         self.world.fail_add={'claude'}
@@ -323,11 +338,12 @@ class MacSetupTests(SetupCase):
         self.assertFalse((self.paths['evidence_dir']/'photocraft.json').exists());self.assertTrue(any((self.paths['evidence_dir']/'archive').iterdir()))
 
     def test_remove_keeps_a_binary_storytold_cannot_prove_it_owns(self):
-        self.setup(['photocraft']);self.installed('photocraft').write_bytes(b'TAMPERED')
+        self.setup(['photocraft']);self.installed('photocraft').write_bytes(b'TAMPERED');self.world.calls.clear()
         r=self.remove(['photocraft']);entry=r['apps'][0]
         self.assertEqual(r['status'],'attention');self.assertEqual(entry['binary']['action'],'kept');self.assertIn('differ from the SHA-256',entry['binary']['reason'])
         self.assertEqual(self.installed('photocraft').read_bytes(),b'TAMPERED');self.assertIn('photocraft',load_json(self.lock)['apps']);self.assertEqual(entry['pin']['action'],'kept')
-        self.assertEqual([x['action'] for x in entry['registrations']],['unregister','unregister'])  # those pointed at the managed path and were Storytold's
+        self.assertEqual([x['action'] for x in entry['registrations']],['kept','kept']);self.assertIn('not provably',entry['registrations'][0]['reason'])
+        self.assertEqual(self.mcp_mutations(),[])  # a registration pointing at a binary Storytold cannot vouch for is left for the operator
         # no lock entry at all: same protection
         self.setup(['vectorcraft']);lock=load_json(self.lock);del lock['apps']['vectorcraft'];self.lock.write_bytes(encoded(lock))
         r=self.remove(['vectorcraft']);self.assertEqual(r['apps'][0]['binary']['action'],'kept');self.assertIn('no lock entry',r['apps'][0]['binary']['reason']);self.assertTrue(self.installed('vectorcraft').is_file())
@@ -345,7 +361,7 @@ class MacSetupTests(SetupCase):
         r=s.status(hosts=None,env=self.env,home=self.home,system='Darwin',run=self.world.run,which=self.world.which,releases=self.world.releases,catalog=self.world.catalog)
         rows={a['app']:a for a in r['apps']};self.assertEqual(len(rows),12)
         self.assertTrue(rows['photocraft']['installed'] and rows['photocraft']['owned'] and rows['photocraft']['pinned_hash_matches'] and rows['photocraft']['manifest_commit_pinned'])
-        self.assertEqual(sorted(rows['photocraft']['registered']),['claude','codex']);self.assertFalse(rows['cadcraft']['installed']);self.assertFalse(rows['photocraft']['interrupted_upgrade'])
+        self.assertEqual(sorted(rows['photocraft']['registered']),['claude','codex']);self.assertFalse(rows['cadcraft']['installed']);self.assertEqual(rows['photocraft']['recovery'],'none')
 
     def test_recorded_state_and_environment_precedence(self):
         self.setup(['photocraft'])
@@ -370,7 +386,10 @@ class PathsWithSpacesTests(SetupCase):
         launch={'command':str(self.installed('photocraft')),'args':['mcp','--automation-read-root',str(self.home/'craft-work-storytold'),'--automation-write-root',str(self.home/'craft-work-storytold/outputs')]}
         self.assertTrue(s.registration_matches(current,launch['command'],launch['args']))
         self.assertFalse(s.registration_matches(current,launch['command'],launch['args'][:-1]))
-        r=self.remove(['photocraft'],dry_run=True);self.assertEqual([x['action'] for x in r['apps'][0]['registrations']],['would unregister','would unregister'])
+        # Setup stays idempotent on the whole-line match, but removal needs exact argument identity, which text output cannot prove.
+        r=self.remove(['photocraft'],dry_run=True);rows={x['host']:x for x in r['apps'][0]['registrations']}
+        self.assertEqual(rows['codex']['action'],'would unregister');self.assertEqual(rows['claude']['action'],'kept');self.assertIn('scope cannot be confirmed',rows['claude']['reason'])
+        self.assertEqual(r['status'],'attention');self.assertIn('photocraft',self.world.hosts['claude'])
 
 class LinuxSetupTests(SetupCase):
     system='Linux';machine='x86_64'

@@ -1,4 +1,4 @@
-"""Explicit one-command Craft CLI setup: stage, verify, probe, promote, pin, register.
+"""Explicit one-command Craft CLI setup: stage, verify, probe, promote, pin, probe again, register.
 
 Nothing here runs unless an operator invokes `storytold.py setup`. The command
 downloads only the reviewed release archives named in config/releases.json,
@@ -7,11 +7,14 @@ takes exactly one `<app>-cli` out of it, checks provenance (Apple notarization
 by the pinned team on macOS; the Sigstore bundle the daily workflow signed on
 Linux and Windows, and on macOS too when cosign is present), runs the existing
 preflight and official-SDK probe against that staged candidate, and only then
-promotes it, pins it in the private lock and registers it through the host's
-own CLI. A candidate that fails any step leaves the active binary, its pin and
-the host registrations untouched. Removal deletes only binaries the lock proves
-Storytold installed and unregisters only entries that point at them. It never
-edits host configuration files itself, starts no daemon, keeps one
+promotes it, pins it in the private lock, probes the active launch so the
+evidence describes what hosts will run, and registers it through the host's
+own CLI. A candidate that fails any step before promotion leaves the active
+binary, its pin and the host registrations untouched; a failure after the
+binary was replaced leaves a recovery marker that the next run reconciles.
+Removal deletes only binaries the lock proves Storytold installed and
+unregisters only entries that are, in full, the registration Storytold wrote.
+It never edits host configuration files itself, starts no daemon, keeps one
 registration per server name and never retries a write.
 """
 from __future__ import annotations
@@ -27,12 +30,13 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import tomllib
 from typing import Callable
 from urllib.parse import urlsplit
 import urllib.request
 import zipfile
 from .catalog import APP_IDS, load_catalog, platform_id, preflight
-from .common import ROOT, StorytoldError, absolute, create_new, directory, encoded, keys, load_json, require, snapshot
+from .common import MAX_JSON, ROOT, StorytoldError, absolute, create_new, directory, encoded, keys, load_json, parse_json, require, sha, snapshot
 from .probe import SDK_VERSION
 from .releases import asset_url, load_releases, load_signatures, published_hash, sums_url
 from .workspace import MARKER, init_workspace, open_workspace
@@ -40,7 +44,7 @@ from .workspace import MARKER, init_workspace, open_workspace
 ALLOWED_HOSTS = {'github.com', 'objects.githubusercontent.com', 'release-assets.githubusercontent.com'}
 MAX_DOWNLOAD = 512 * 1024 * 1024
 STATE_FILE = 'setup.json'
-PROMOTE_MARKER = 'promote.json'
+RECOVERY_DIR = 'recovery'
 HOSTS = ('codex', 'claude')
 Runner = Callable[[list[str]], tuple[int, str, str]]
 Fetcher = Callable[[str, Path, int], int]
@@ -61,6 +65,10 @@ def exe_name(catalog: dict, app: str) -> str:
 def member_name(catalog: dict, app: str, plat: str) -> str:
     """CLI file name inside an archive built for `plat`."""
     return catalog[app]['executable'] + ('.exe' if plat=='windows-x64' else '')
+
+def launch_args(catalog: dict, app: str, paths: dict) -> list[str]:
+    """The exact arguments Storytold registers for `app`, from the reviewed catalog."""
+    return [{'{work}': str(paths['work_root']), '{outputs}': str(paths['output_root'])}.get(x, x) for x in catalog[app]['args']]
 
 # ---------------------------------------------------------------- state/paths
 def state_dir(env: dict, home: Path, system: str = platform.system()) -> Path:
@@ -99,8 +107,13 @@ def claude_user_config(env: dict, home: Path) -> Path:
     base = Path(env['CLAUDE_CONFIG_DIR']) if env.get('CLAUDE_CONFIG_DIR') else home
     return base/'.claude.json'
 
+def codex_user_config(env: dict, home: Path) -> Path:
+    """Where Codex keeps user-scope MCP registrations (`codex mcp add`)."""
+    base = Path(env['CODEX_HOME']) if env.get('CODEX_HOME') else home/'.codex'
+    return base/'config.toml'
+
 def replace_file(path: Path, data: bytes, mode: int = 0o600) -> None:
-    """Atomic rewrite of operator-owned state (lock, setup state); never partial."""
+    """Atomic rewrite of operator-owned state (lock, markers, setup state); never partial."""
     absolute(path); directory(path.parent)
     fd, name = tempfile.mkstemp(prefix='.storytold-replace-', dir=path.parent)
     try:
@@ -265,22 +278,98 @@ def managed_binary(paths: dict, catalog: dict, app: str) -> dict:
     """
     target = paths['bin_dir']/exe_name(catalog, app)
     info = {'path': str(target), 'exists': target.exists() or target.is_symlink(), 'owned': False, 'reason': None, 'sha256': None, 'pin': None}
-    if not info['exists']:
-        info['reason'] = 'not installed'; return info
     pinned = pinned_entry(paths['lock'], app)
     info['pin'] = pinned
+    if not info['exists']:
+        info['reason'] = 'not installed'; return info
     if pinned is None or not isinstance(pinned.get('sha256'), str):
         info['reason'] = 'no lock entry records this file, so Storytold cannot prove it installed it'; return info
     try:
-        sha, _, _ = snapshot(target)
+        sha256, _, _ = snapshot(target)
         require(target.stat().st_nlink==1, 'the file has more than one hard link')
     except (OSError, ValueError) as exc:
         info['reason'] = f'not a plain regular file Storytold would have written: {exc}'; return info
-    info['sha256'] = sha
-    if sha != pinned['sha256']:
+    info['sha256'] = sha256
+    if sha256 != pinned['sha256']:
         info['reason'] = 'the installed bytes differ from the SHA-256 recorded in the lock'; return info
     info['owned'] = True
     return info
+
+# ------------------------------------------------------------------ recovery
+def recovery_marker(paths: dict, app: str) -> Path:
+    """Lives outside staging, so cleaning staging can never discard recovery information."""
+    return paths['state_dir']/RECOVERY_DIR/(app+'.json')
+
+def clear_recovery_marker(marker: Path) -> None:
+    marker.unlink(missing_ok=True)
+
+def recovery_state(paths: dict, catalog: dict, app: str) -> dict:
+    """Read-only classification of a promotion that may have been interrupted.
+
+    `none`: no marker. `consistent`: the active binary is the recorded candidate
+    and the lock already pins it. `completable`: the active binary is the
+    candidate but the lock still needs rewriting. `reverted`: the active binary
+    (or its absence) is what the marker recorded as previous, so the replace
+    never happened. `ambiguous`: the active binary matches neither; nothing may
+    change it automatically. `corrupt`: the marker itself is unreadable.
+    """
+    marker = recovery_marker(paths, app)
+    if not marker.is_file(): return {'state': 'none'}
+    try:
+        data = keys(load_json(marker), {'schema_version','app','candidate_sha256','previous_sha256','previous_pin','commit','label','written_at'}, label='recovery marker')
+        require(data['schema_version']==1 and data['app']==app, 'recovery marker belongs to another app or version')
+        sha(data['candidate_sha256'])
+        require(data['previous_sha256'] is None or sha(data['previous_sha256'])!=data['candidate_sha256'], 'recovery marker records no change')
+        require(data['previous_pin'] is None or isinstance(data['previous_pin'], dict), 'invalid previous pin in recovery marker')
+    except (OSError, ValueError, TypeError) as exc:
+        return {'state': 'corrupt', 'marker': str(marker), 'reason': str(exc)[:300]}
+    target = paths['bin_dir']/exe_name(catalog, app)
+    active = None
+    if target.exists() or target.is_symlink():
+        try:
+            active, _, _ = snapshot(target)
+        except (OSError, ValueError) as exc:
+            return {'state': 'ambiguous', 'marker': str(marker), 'reason': f'active file is not a plain regular file: {exc}', 'data': data}
+    pinned = pinned_entry(paths['lock'], app)
+    pinned_sha = pinned.get('sha256') if isinstance(pinned, dict) else None
+    if active==data['candidate_sha256']:
+        return {'state': 'consistent' if pinned_sha==active else 'completable', 'marker': str(marker), 'data': data, 'active_sha256': active}
+    if active==data['previous_sha256']:
+        previous_pin_sha = data['previous_pin'].get('sha256') if data['previous_pin'] else None
+        if pinned_sha==previous_pin_sha:
+            return {'state': 'reverted', 'marker': str(marker), 'data': data, 'active_sha256': active}
+        return {'state': 'ambiguous', 'marker': str(marker), 'reason': 'the active binary is the previous one but the lock no longer records it', 'data': data}
+    return {'state': 'ambiguous', 'marker': str(marker), 'reason': 'the active binary matches neither the previous pin nor the verified candidate', 'data': data,
+            'active_sha256': active}
+
+def reconcile(paths: dict, catalog: dict, app: str, log: Logger) -> dict:
+    """Bring an interrupted promotion to a consistent state, or refuse with the marker kept.
+
+    Idempotent: a second call finds `none` after success, and the same refusal
+    after an ambiguous or corrupt state. Only the lock is ever written here;
+    the active binary is never replaced during recovery.
+    """
+    st = recovery_state(paths, catalog, app)
+    marker = recovery_marker(paths, app)
+    if st['state']=='none': return st
+    if st['state']=='corrupt':
+        raise StorytoldError(f"{app}: recovery marker {marker} is unreadable ({st['reason']}). Inspect the installed binary and the lock; "
+                             f"delete the marker only once they are what you expect. Nothing was changed.")
+    if st['state']=='ambiguous':
+        raise StorytoldError(f"{app}: an earlier upgrade was interrupted and {st['reason']} (marker {marker}). Nothing was changed. "
+                             f"Move the installed file aside or restore a known binary, delete the marker, then run setup again.")
+    data = st['data']
+    if st['state']=='completable':
+        pin(paths['lock'], app, {'commit': data['commit']}, data['candidate_sha256'], data['label'])
+        finished = managed_binary(paths, catalog, app)
+        require(finished['owned'], f"{app}: lock rewritten but the binary still does not match it: {finished['reason']}")
+        log(f'{app}: completed an interrupted upgrade; the lock now records the promoted binary')
+    elif st['state']=='reverted':
+        log(f'{app}: an earlier upgrade stopped before the binary was replaced; the previous installation is intact')
+    else:
+        log(f'{app}: an earlier upgrade had already finished; clearing its recovery marker')
+    clear_recovery_marker(marker)
+    return st
 
 # ------------------------------------------------------------------- staging
 def staging_dir(paths: dict, app: str) -> Path:
@@ -289,31 +378,10 @@ def staging_dir(paths: dict, app: str) -> Path:
     return p
 
 def clear_staging(paths: dict, app: str, log: Logger) -> None:
+    """Remove candidate files only; recovery markers live elsewhere and are never touched here."""
     p = staging_dir(paths, app)
     if p.exists():
-        shutil.rmtree(p); log(f'{app}: removed leftover staging from an earlier run')
-
-def resume_interrupted_promotion(paths: dict, catalog: dict, app: str, log: Logger) -> bool:
-    """A promote marker survives only between replacing the binary and rewriting the lock.
-
-    If the active binary carries the marker's hash, finish the pin; otherwise
-    the marker is stale and is discarded. Either way the next step sees a
-    consistent binary/lock pair.
-    """
-    marker = staging_dir(paths, app)/PROMOTE_MARKER
-    if not marker.is_file(): return False
-    data = load_json(marker)
-    target = paths['bin_dir']/exe_name(catalog, app)
-    finished = False
-    if isinstance(data, dict) and target.is_file():
-        try:
-            if snapshot(target)[0]==data.get('sha256'):
-                pin(paths['lock'], app, {'commit': data['commit']}, data['sha256'], data['label'])
-                log(f'{app}: completed an interrupted upgrade; the lock now records the promoted binary'); finished = True
-        except (OSError, ValueError, KeyError):
-            finished = False
-    clear_staging(paths, app, log)
-    return finished
+        shutil.rmtree(p); log(f'{app}: removed staging files')
 
 def stage_candidate(app: str, plat: str, releases: dict, signatures: dict, catalog: dict, paths: dict, *, fetch: Fetcher, run: Runner,
                     which: Which, trust_upstream_sums: bool, log: Logger) -> dict:
@@ -333,29 +401,37 @@ def stage_candidate(app: str, plat: str, releases: dict, signatures: dict, catal
         published = published_hash((tmp/'SHA256SUMS.txt').read_bytes(), asset['name'])
         require(published==zip_sha, f"{app}: upstream SHA256SUMS.txt disagrees with the manifest for {asset['name']}; stop and review the release")
         extracted = extract_cli(archive, tmp/'extract', member, exe)
-        sha, nbytes, body = snapshot(extracted, body=True)
-        provenance = check_provenance(extracted, sha, asset['name'], plat, releases, signatures, run=run, which=which,
+        sha256, nbytes, body = snapshot(extracted, body=True)
+        provenance = check_provenance(extracted, sha256, asset['name'], plat, releases, signatures, run=run, which=which,
                                       trust_upstream_sums=trust_upstream_sums, tmp=tmp, log=log)
         candidate = create_new(bin_dir/exe, body or b'', mode=0o755)
     label = f"{row['version']} ({row['tag']}, {asset['name']}, {provenance_label(provenance, releases['signers'])})"
     lock = staging/'lock.json'
     replace_file(lock, encoded({'schema_version': 1, 'platform': platform_id(),
-                                'apps': {app: {'revision': row['commit'], 'version': label, 'sha256': sha}}}))
-    return {'candidate': str(candidate), 'bin_dir': str(bin_dir), 'lock': str(lock), 'sha256': sha, 'bytes': nbytes,
+                                'apps': {app: {'revision': row['commit'], 'version': label, 'sha256': sha256}}}))
+    return {'candidate': str(candidate), 'bin_dir': str(bin_dir), 'lock': str(lock), 'sha256': sha256, 'bytes': nbytes,
             'archive_sha256': zip_sha, 'label': label, **provenance}
 
-def promote(paths: dict, catalog: dict, app: str, candidate: Path, candidate_sha: str, row: dict, label: str, log: Logger) -> dict:
+def promote(paths: dict, catalog: dict, app: str, candidate: Path, candidate_sha: str, row: dict, label: str, previous: dict, log: Logger) -> dict:
     """Replace or create the active binary from the verified candidate, then pin it.
 
-    The marker written first makes the only non-atomic window (binary replaced,
-    lock not yet rewritten) recoverable by `resume_interrupted_promotion`.
+    The binary replace and the lock rewrite are two writes, not one
+    transaction. The recovery marker, written first and cleared last (only
+    after the binary and the lock are seen to agree), is what makes a failure
+    anywhere in between reconcilable by the next run.
     """
     exe = exe_name(catalog, app); target = paths['bin_dir']/exe
-    marker = staging_dir(paths, app)/PROMOTE_MARKER
-    replace_file(marker, encoded({'app': app, 'sha256': candidate_sha, 'commit': row['commit'], 'label': label}))
+    marker = recovery_marker(paths, app)
+    marker.parent.mkdir(mode=0o700, exist_ok=True)
+    stale = target.with_name(exe+'.storytold-new')
+    if stale.is_file() and not stale.is_symlink():
+        stale.unlink(); log(f'{app}: removed a leftover temporary file from an earlier run')
+    replace_file(marker, encoded({'schema_version': 1, 'app': app, 'candidate_sha256': candidate_sha, 'previous_sha256': previous.get('sha256'),
+                                  'previous_pin': previous.get('pin'), 'commit': row['commit'], 'label': label,
+                                  'written_at': datetime.now(timezone.utc).isoformat()}))
     body = snapshot(candidate, body=True)[2] or b''
     if target.exists():
-        staged = create_new(target.with_name(exe+'.storytold-new'), body, mode=0o755)
+        staged = create_new(stale, body, mode=0o755)
         os.replace(staged, target)
         log(f'{app}: promoted the verified candidate over the previous binary')
     else:
@@ -363,7 +439,9 @@ def promote(paths: dict, catalog: dict, app: str, candidate: Path, candidate_sha
         log(f'{app}: installed the verified candidate')
     require(snapshot(target)[0]==candidate_sha, f'{app}: promoted file changed during publication')
     entry = pin(paths['lock'], app, row, candidate_sha, label)
-    marker.unlink()
+    finished = managed_binary(paths, catalog, app)
+    require(finished['owned'], f"{app}: binary and lock disagree after promotion: {finished['reason']}")
+    clear_recovery_marker(marker)
     return entry
 
 def pin(lock_path: Path, app: str, row: dict, binary_sha: str, label: str) -> dict:
@@ -404,7 +482,13 @@ def archive_evidence(evidence_dir: Path, app: str) -> None:
 def run_probe(app: str, smoke_tool: str, paths: dict, python_exe: str, run: Runner, timeout: float, log: Logger,
               acknowledge_unconfined: bool = False, *, bin_dir: Path | None = None, lock: Path | None = None,
               output: Path | None = None) -> dict:
-    """Probe the binary in `bin_dir` under `lock` (defaults: the active ones) into `output`."""
+    """Probe the binary in `bin_dir` under `lock` into `output`.
+
+    With the defaults this is the active launch and the evidence becomes
+    `evidence/<app>.json` (the previous one is archived). A candidate probe
+    passes the staging directory, its one-app lock and `<app>-candidate.json`;
+    that evidence keeps describing the staged path and is never renamed.
+    """
     bin_dir = bin_dir or paths['bin_dir']; lock = lock or paths['lock']
     call = paths['evidence_dir']/(app+'-call.json')
     replace_file(call, encoded({'name': smoke_tool, 'arguments': {}}))
@@ -422,7 +506,7 @@ def run_probe(app: str, smoke_tool: str, paths: dict, python_exe: str, run: Runn
     require(code==0 and report.get('status')=='discovery_and_call_passed',
             f"{app}: native probe {report.get('status')}: {report.get('error')}; evidence kept at {output}")
     return {'evidence': str(output), 'status': report['status'], 'tools': len(report.get('tools', [])),
-            'protocol_version': report.get('protocol_version'), 'server_info': report.get('server_info'), 'command': str(bin_dir)}
+            'protocol_version': report.get('protocol_version'), 'server_info': report.get('server_info'), 'bin_dir': str(bin_dir)}
 
 # ------------------------------------------------------------------ register
 def host_argv(host: str, which: Which) -> list[str] | None:
@@ -432,8 +516,11 @@ def host_argv(host: str, which: Which) -> list[str] | None:
     if path.lower().endswith(('.cmd', '.bat')): return ['cmd.exe', '/d', '/c', path]
     return [path]
 
-def _claude_user_entry(app: str, env: dict | None, home: Path | None) -> dict | None:
-    """Structured user-scope registration from .claude.json; only `command` and `args` are read."""
+def _string_list(value: object) -> list[str] | None:
+    return list(value) if isinstance(value, list) and all(isinstance(a, str) for a in value) else None
+
+def claude_user_entry(app: str, env: dict | None, home: Path | None) -> dict | None:
+    """User-scope registration from .claude.json; only `command`, `args` and `env` are read."""
     if env is None or home is None: return None
     p = claude_user_config(env, home)
     if not p.is_file(): return None
@@ -444,9 +531,25 @@ def _claude_user_entry(app: str, env: dict | None, home: Path | None) -> dict | 
     servers = data.get('mcpServers') if isinstance(data, dict) else None
     row = servers.get(app) if isinstance(servers, dict) else None
     if not isinstance(row, dict) or not isinstance(row.get('command'), str): return None
-    args = row.get('args', [])
-    if not (isinstance(args, list) and all(isinstance(a, str) for a in args)): return None
-    return {'command': row['command'], 'args': list(args)}
+    args = _string_list(row.get('args', []))
+    if args is None: return None
+    return {'command': row['command'], 'args': args, 'env': row.get('env') or {}, 'cwd': row.get('cwd')}
+
+def codex_user_entry(app: str, env: dict | None, home: Path | None) -> dict | None:
+    """User-scope registration from $CODEX_HOME/config.toml; only the app's table is read."""
+    if env is None or home is None: return None
+    p = codex_user_config(env, home)
+    if not p.is_file(): return None
+    try:
+        data = tomllib.loads((snapshot(p, limit=MAX_JSON, body=True)[2] or b'').decode('utf-8'))
+    except (OSError, ValueError):
+        return None
+    servers = data.get('mcp_servers') if isinstance(data, dict) else None
+    row = servers.get(app) if isinstance(servers, dict) else None
+    if not isinstance(row, dict) or not isinstance(row.get('command'), str): return None
+    args = _string_list(row.get('args', []))
+    if args is None: return None
+    return {'command': row['command'], 'args': args, 'env': row.get('env') or {}, 'cwd': row.get('cwd')}
 
 def host_get(host: str, app: str, run: Runner, which: Which = shutil.which, env: dict | None = None, home: Path | None = None) -> dict | None:
     """Current registration as the host reports it, or None when absent.
@@ -463,11 +566,13 @@ def host_get(host: str, app: str, run: Runner, which: Which = shutil.which, env:
         if code!=0: return None
         try:
             transport = json.loads(out).get('transport', {})
-            command, args = transport.get('command'), transport.get('args')
+            command, args = transport.get('command'), _string_list(transport.get('args'))
+            env_vars, cwd = transport.get('env'), transport.get('cwd')
         except (ValueError, AttributeError):
-            command, args = None, None
-        ok = isinstance(command, str) and isinstance(args, list) and all(isinstance(a, str) for a in args)
-        return {'command': command if ok else None, 'args': list(args) if ok else None, 'args_text': None, 'scope': None, 'parse_error': not ok}
+            command, args, env_vars, cwd = None, None, None, None
+        ok = isinstance(command, str) and args is not None
+        return {'command': command if ok else None, 'args': args if ok else None, 'args_text': None, 'scope': 'user' if ok else None,
+                'env': env_vars or {}, 'cwd': cwd, 'parse_error': not ok}
     code, out, _ = run([*base, 'mcp', 'get', app])
     if code!=0: return None
     command = args_text = scope = None
@@ -476,11 +581,11 @@ def host_get(host: str, app: str, run: Runner, which: Which = shutil.which, env:
         if s.startswith('Scope:'): scope = s.split(':', 1)[1].strip()
         elif s.startswith('Command:'): command = s.split(':', 1)[1].strip()
         elif s.startswith('Args:'): args_text = s.split(':', 1)[1].strip()
-    result = {'command': command or None, 'args': None, 'args_text': args_text, 'scope': scope, 'parse_error': not command}
+    result = {'command': command or None, 'args': None, 'args_text': args_text, 'scope': scope, 'env': None, 'cwd': None, 'parse_error': not command}
     if command and scope and scope.lower().startswith('user'):
-        structured = _claude_user_entry(app, env, home)
+        structured = claude_user_entry(app, env, home)
         if structured is not None and structured['command']==command:
-            result['args'] = structured['args']
+            result['args'] = structured['args']; result['env'] = structured['env']; result['cwd'] = structured['cwd']
     return result
 
 def registration_matches(current: dict | None, command: str, args: list[str]) -> bool:
@@ -488,6 +593,43 @@ def registration_matches(current: dict | None, command: str, args: list[str]) ->
     if current.get('command') != command: return False
     if current.get('args') is not None: return current['args']==list(args)
     return current.get('args_text')==' '.join(args)
+
+def user_scope_entry(host: str, app: str, env: dict | None, home: Path | None) -> dict | None:
+    return codex_user_entry(app, env, home) if host=='codex' else claude_user_entry(app, env, home)
+
+def registration_ownership(host: str, app: str, current: dict | None, command: str, args: list[str], env: dict | None, home: Path | None) -> tuple[bool, str]:
+    """Whether the effective registration is, in full, the one Storytold writes for `app`.
+
+    Name and path alone prove nothing. The command, every argument, the user
+    scope and the host's own user-scope file must all agree; anything the host
+    cannot describe, or any field Storytold never writes (cwd, env), keeps the
+    entry out of Storytold's hands.
+    """
+    if current is None: return False, 'not registered'
+    if current.get('parse_error'): return False, f'`{host} mcp get` named no command; inspect it by hand'
+    if current.get('command') != command: return False, f"points at {current.get('command')}, not the Storytold-managed {command}"
+    if current.get('args') is not None:
+        if current['args'] != list(args): return False, 'its arguments are not the catalog launch Storytold registers'
+    elif current.get('args_text') != ' '.join(args):
+        return False, 'its arguments are not the catalog launch Storytold registers'
+    scope = current.get('scope') or ''
+    if not scope.lower().startswith('user'): return False, f"its scope is '{scope or 'unknown'}', not user scope (which setup writes)"
+    entry = user_scope_entry(host, app, env, home)
+    if entry is None: return False, f"the user-scope {'config.toml' if host=='codex' else '.claude.json'} has no readable entry for it, so its scope cannot be confirmed"
+    if entry['command'] != command or entry['args'] != list(args): return False, 'the user-scope file disagrees with what the host CLI reports'
+    if entry.get('cwd') is not None or entry.get('env'): return False, 'it carries cwd or env settings Storytold never writes'
+    return True, ''
+
+def restorable_original(host: str, app: str, current: dict, env: dict | None, home: Path | None) -> dict:
+    """The exact registration to re-add if a replacement fails; refuses what cannot be re-added faithfully."""
+    require(not current.get('parse_error'), f"{host}: '{app}' is registered but `{host} mcp get` named no command; not touching it")
+    scope = current.get('scope') or ''
+    require(scope.lower().startswith('user'), f"{host}: '{app}' is registered in scope '{scope or 'unknown'}', not user scope; replace it by hand")
+    args = current.get('args')
+    require(args is not None, f"{host}: '{app}' arguments cannot be recovered exactly from `{host} mcp get` text; replace it by hand")
+    require(not current.get('env') and current.get('cwd') is None,
+            f"{host}: '{app}' carries env or cwd settings that `{host} mcp add` cannot restore; replace it by hand")
+    return {'command': current['command'], 'args': list(args)}
 
 def host_add(host: str, app: str, command: str, args: list[str], run: Runner, which: Which = shutil.which) -> None:
     base = host_argv(host, which) or [host]
@@ -502,9 +644,19 @@ def host_remove(host: str, app: str, run: Runner, which: Which = shutil.which) -
     code, out, err = run(argv)
     require(code==0, f'{host}: removal failed:\n{(out+err).strip()[:800]}')
 
+def manual_add_command(host: str, app: str, command: str, args: list[str]) -> str:
+    quoted = ' '.join(json.dumps(a) if ' ' in a else a for a in [command, *args])
+    return f'{host} mcp add {app} -- {quoted}' if host=='codex' else f'{host} mcp add --scope user {app} -- {quoted}'
+
 def register(app: str, launch: dict, hosts: list[str], run: Runner, replace: bool, log: Logger, which: Which = shutil.which,
              env: dict | None = None, home: Path | None = None) -> list[dict]:
-    """One row per host; a failing host is reported, never hidden, and does not stop the others."""
+    """One row per host; a failing host is reported, never hidden, and does not stop the others.
+
+    Replacement removes the old entry only after it is known to be restorable;
+    if adding the new one fails, the old one is re-added and that restoration
+    is verified. A lost registration is reported as such with the exact
+    command to re-add it.
+    """
     rows = []
     for host in hosts:
         row = {'host': host, 'command': launch['command'], 'args': launch['args']}
@@ -513,17 +665,32 @@ def register(app: str, launch: dict, hosts: list[str], run: Runner, replace: boo
             if current is not None and current.get('parse_error'):
                 raise StorytoldError(f"{host}: '{app}' is registered but `{host} mcp get` named no command; not touching it. Inspect it by hand.")
             matches = registration_matches(current, launch['command'], launch['args'])
+            original = None
             if current is not None and not matches:
                 require(replace, f"{host}: '{app}' is already registered with a different command ({current.get('command')}); pass --replace to re-register it")
+                original = restorable_original(host, app, current, env, home)
                 host_remove(host, app, run, which); log(f'{host}: removed previous {app} registration')
             if not matches:
-                host_add(host, app, launch['command'], launch['args'], run, which)
-                after = host_get(host, app, run, which, env, home)
-                require(registration_matches(after, launch['command'], launch['args']), f'{host}: {app} is not visible as registered after `mcp add`')
+                try:
+                    host_add(host, app, launch['command'], launch['args'], run, which)
+                    after = host_get(host, app, run, which, env, home)
+                    require(registration_matches(after, launch['command'], launch['args']), f'{host}: {app} is not visible as registered after `mcp add`')
+                except (OSError, ValueError) as exc:
+                    if original is None: raise
+                    try:
+                        host_add(host, app, original['command'], original['args'], run, which)
+                        restored = host_get(host, app, run, which, env, home)
+                        require(registration_matches(restored, original['command'], original['args']), 'the restored entry is not visible')
+                        raise StorytoldError(f'{exc}; the previous registration ({original["command"]}) was restored and verified') from exc
+                    except (OSError, ValueError) as exc2:
+                        if exc2.__cause__ is exc: raise
+                        row['registration_lost'] = True; row['original'] = original
+                        raise StorytoldError(f'{exc}; restoring the previous registration also failed ({exc2}). Re-add it by hand: '
+                                             f'{manual_add_command(host, app, original["command"], original["args"])}') from exc2
                 log(f'{host}: registered {app} (user scope)')
             row['status'] = 'already_registered' if matches else 'registered'
         except (OSError, ValueError) as exc:
-            row['status'] = 'failed'; row['error'] = str(exc)[:600]; log(f'{host}: {app}: FAILED: {exc}')
+            row['status'] = 'failed'; row['error'] = str(exc)[:800]; log(f'{host}: {app}: FAILED: {exc}')
         rows.append(row)
     return rows
 
@@ -566,7 +733,8 @@ def setup(apps: list[str], *, acknowledge_unconfined: bool, hosts: list[str] | N
     for app in apps:
         row = releases['apps'][app]; entry = {'app': app, 'release': row['tag']}
         try:
-            resume_interrupted_promotion(paths, catalog, app, log)
+            recovered = reconcile(paths, catalog, app, log)
+            if recovered['state']!='none': entry['recovery'] = recovered['state']
             current = managed_binary(paths, catalog, app)
             up_to_date = current['owned'] and current['pin'].get('revision')==row['commit']
             if current['exists'] and not current['owned']:
@@ -586,39 +754,45 @@ def setup(apps: list[str], *, acknowledge_unconfined: bool, hosts: list[str] | N
                 log(f"{app}: already installed at {row['tag']} and pinned; skipping download")
                 entry['install'] = {'path': current['path'], 'sha256': current['sha256'], 'unchanged': True, 'label': current['pin'].get('version')}
                 entry['pin'] = current['pin']
-                probe_bin, probe_lock, probe_output = paths['bin_dir'], paths['lock'], None
             else:
                 clear_staging(paths, app, log)
                 staged = stage_candidate(app, plat, releases, signatures, catalog, paths, fetch=fetch, run=run, which=which,
                                          trust_upstream_sums=trust_upstream_sums, log=log)
                 entry['candidate'] = {k: staged[k] for k in ('candidate', 'sha256', 'bytes', 'archive_sha256', 'label') if k in staged}
-                probe_bin, probe_lock = Path(staged['bin_dir']), Path(staged['lock'])
-                probe_output = paths['evidence_dir']/(app+'-candidate.json')
-            # Preflight and probe run against the candidate (or the active binary when nothing changed).
-            preflight(probe_bin, paths['work_root'], paths['output_root'], probe_lock, [app], catalog, acknowledge_unconfined)
-            if skip_probe:
-                entry['probe'] = {'status': 'skipped', 'native_runtime_verified': False}
-                log(f'{app}: probe skipped on request; the binary has not been exercised')
-            else:
-                python_exe = python_exe or probe_python(paths['state_dir'], run, log, system)
-                entry['probe'] = run_probe(app, row['smoke_tool'], paths, python_exe, run, timeout, log, acknowledge_unconfined,
-                                           bin_dir=probe_bin, lock=probe_lock, output=probe_output)
-            if not up_to_date:
+                # Candidate verification: preflight and probe against the staged path; this evidence stays the candidate's.
+                preflight(Path(staged['bin_dir']), paths['work_root'], paths['output_root'], Path(staged['lock']), [app], catalog, acknowledge_unconfined)
+                if skip_probe:
+                    entry['candidate_probe'] = {'status': 'skipped', 'native_runtime_verified': False}
+                else:
+                    python_exe = python_exe or probe_python(paths['state_dir'], run, log, system)
+                    entry['candidate_probe'] = run_probe(app, row['smoke_tool'], paths, python_exe, run, timeout, log, acknowledge_unconfined,
+                                                         bin_dir=Path(staged['bin_dir']), lock=Path(staged['lock']),
+                                                         output=paths['evidence_dir']/(app+'-candidate.json'))
                 staged_sha = staged['sha256']
                 if current['owned'] and current['sha256']==staged_sha:
                     entry['pin'] = pin(paths['lock'], app, row, staged_sha, staged['label'])
                     log(f'{app}: installed binary already matches this release; pin updated, file unchanged')
                 else:
-                    entry['pin'] = promote(paths, catalog, app, Path(staged['candidate']), staged_sha, row, staged['label'], log)
+                    entry['pin'] = promote(paths, catalog, app, Path(staged['candidate']), staged_sha, row, staged['label'], current, log)
                 entry['install'] = {'path': str(paths['bin_dir']/exe_name(catalog, app)), 'sha256': staged_sha, 'bytes': staged['bytes'],
                                     'archive_sha256': staged['archive_sha256'], 'previous_sha256': current['sha256'], 'label': staged['label'],
                                     **{k: staged[k] for k in ('notarized', 'team', 'sigstore', 'identity', 'provenance') if k in staged}}
-                if probe_output is not None and probe_output.is_file():
-                    archive_evidence(paths['evidence_dir'], app); probe_output.rename(paths['evidence_dir']/(app+'.json'))
-                    entry['probe']['evidence'] = str(paths['evidence_dir']/(app+'.json'))
                 clear_staging(paths, app, lambda _: None)
-            # The active binary and lock must agree before anything is registered.
+            # Active-launch verification: the binary and lock must agree, and the evidence must describe this very launch.
             launch = preflight(paths['bin_dir'], paths['work_root'], paths['output_root'], paths['lock'], [app], catalog, acknowledge_unconfined)['launches'][0]
+            if skip_probe:
+                entry['probe'] = {'status': 'skipped', 'native_runtime_verified': False}
+                log(f'{app}: probe skipped on request; the binary has not been exercised')
+            else:
+                try:
+                    python_exe = python_exe or probe_python(paths['state_dir'], run, log, system)
+                    entry['probe'] = run_probe(app, row['smoke_tool'], paths, python_exe, run, timeout, log, acknowledge_unconfined)
+                except (OSError, ValueError) as exc:
+                    entry['status'] = 'promoted_unverified'; entry['error'] = str(exc)[:1000]
+                    entry['next'] = (f'{app} is installed and pinned but failed the probe at its active path; it was not registered. '
+                                     f'Re-run setup to probe again, or `setup --remove --app {app}`.')
+                    report['apps'].append(entry); log(f'{app}: FAILED after promotion: {exc}')
+                    break
             entry['registrations'] = register(app, launch, targets, run, replace, log, which, env, home) if targets else []
             failed_hosts = [r['host'] for r in entry['registrations'] if r['status']=='failed']
             entry['status'] = ('installed_no_host_cli' if not targets else 'partially_registered' if failed_hosts else 'registered')
@@ -631,7 +805,7 @@ def setup(apps: list[str], *, acknowledge_unconfined: bool, hosts: list[str] | N
             except OSError: pass
             break
         report['apps'].append(entry)
-    report['status'] = 'passed' if all(a.get('status') not in {'failed', 'partially_registered'} for a in report['apps']) else 'failed'
+    report['status'] = 'passed' if all(a.get('status') not in {'failed', 'partially_registered', 'promoted_unverified'} for a in report['apps']) else 'failed'
     return report
 
 def remove(apps: list[str], *, hosts: list[str] | None, env: dict, home: Path, dry_run: bool = False, system: str = platform.system(),
@@ -639,26 +813,45 @@ def remove(apps: list[str], *, hosts: list[str] | None, env: dict, home: Path, d
            **overrides: str | None) -> dict:
     """Unregister and delete only what Storytold provably manages; preview everything with dry_run.
 
-    A registration is removed only when it points at the managed binary path; a
-    binary is deleted only when the lock proves Storytold wrote those exact
-    bytes. Everything else is kept and reported, and the result is `attention`.
+    Two separate decisions per app. The binary is deleted only when the lock
+    proves Storytold wrote exactly those bytes. A registration is removed only
+    when it is, in full, the user-scope entry Storytold writes (command,
+    arguments, scope, user-scope file) and the pinned binary is either owned or
+    already gone. Everything else is kept and reported; `attention` says so.
     """
     catalog = catalog or load_catalog(); paths = resolve_paths(env, home, system, **overrides); targets = plan_hosts(hosts, which)
     verb = 'would ' if dry_run else ''
     rows = []
     for app in apps:
         entry = {'app': app, 'registrations': [], 'binary': None, 'pin': None, 'evidence': None, 'status': 'ok'}
-        managed = managed_binary(paths, catalog, app); expected = managed['path']
-        for host in targets:
+        recovery = recovery_state(paths, catalog, app)
+        if recovery['state'] not in {'none'}:
+            entry['status'] = 'attention'; entry['recovery'] = recovery['state']
+            entry['binary'] = {'action': 'kept', 'path': str(paths['bin_dir']/exe_name(catalog, app)),
+                               'reason': f"an interrupted upgrade left recovery marker {recovery['marker']}; run setup --app {app} first"}
+            rows.append(entry); continue
+        managed = managed_binary(paths, catalog, app); expected = managed['path']; expected_args = launch_args(catalog, app, paths)
+        pinned = managed['pin']
+        for host in HOSTS:
+            if host not in targets:
+                if hosts and host in hosts:
+                    entry['registrations'].append({'host': host, 'action': 'kept', 'reason': 'host CLI not on PATH; its registration could not be inspected'})
+                    entry['status'] = 'attention'
+                elif not hosts:
+                    entry['registrations'].append({'host': host, 'action': 'none', 'reason': 'host CLI not on PATH; not inspected'})
+                continue
             current = host_get(host, app, run, which, env, home)
+            owned, reason = registration_ownership(host, app, current, expected, expected_args, env, home)
             if current is None:
                 entry['registrations'].append({'host': host, 'action': 'none', 'reason': 'not registered'}); continue
-            if current.get('parse_error'):
-                entry['registrations'].append({'host': host, 'action': 'kept', 'reason': f'`{host} mcp get` named no command; inspect it by hand'})
-                entry['status'] = 'attention'; continue
-            if current['command'] != expected:
+            if not owned:
+                entry['registrations'].append({'host': host, 'action': 'kept', 'command': current.get('command'), 'reason': reason}); entry['status'] = 'attention'; continue
+            if pinned is None:
                 entry['registrations'].append({'host': host, 'action': 'kept', 'command': current['command'],
-                                               'reason': f'points at {current["command"]}, not the Storytold-managed {expected}; not Storytold\'s to remove'})
+                                               'reason': 'the lock has no pin for this app, so Storytold cannot confirm it created this registration'}); entry['status'] = 'attention'; continue
+            if managed['exists'] and not managed['owned']:
+                entry['registrations'].append({'host': host, 'action': 'kept', 'command': current['command'],
+                                               'reason': f"the binary it points at is not provably Storytold's ({managed['reason']}); unregister by hand with `{host} mcp remove {app}` once you have inspected it"})
                 entry['status'] = 'attention'; continue
             if not dry_run: host_remove(host, app, run, which)
             entry['registrations'].append({'host': host, 'action': verb+'unregister', 'command': current['command']})
@@ -672,21 +865,21 @@ def remove(apps: list[str], *, hosts: list[str] | None, env: dict, home: Path, d
             if not dry_run: Path(expected).unlink()
             entry['binary'] = {'action': verb+'delete', 'path': expected, 'sha256': managed['sha256']}
             log(f'{app}: {verb}delete {expected}')
-        pinned = managed['pin']
         if pinned is not None and (not managed['exists'] or managed['owned']):
             if not dry_run:
                 lock = load_json(paths['lock']); del lock['apps'][app]; replace_file(paths['lock'], encoded(lock))
             entry['pin'] = {'action': verb+'drop', 'version': pinned.get('version')}
         elif pinned is not None:
             entry['pin'] = {'action': 'kept', 'reason': 'the binary at that path was kept, so its pin stays with it'}
-        evidence = paths['evidence_dir']/(app+'.json')
-        if evidence.is_file() and (not managed['exists'] or managed['owned']):
-            if not dry_run: archive_evidence(paths['evidence_dir'], app)
+        evidence = paths['evidence_dir']/(app+'.json'); candidate = paths['evidence_dir']/(app+'-candidate.json')
+        if (evidence.is_file() or candidate.is_file()) and (not managed['exists'] or managed['owned']):
+            if not dry_run:
+                archive_evidence(paths['evidence_dir'], app); candidate.unlink(missing_ok=True)
             entry['evidence'] = {'action': verb+'archive', 'path': str(evidence)}
         rows.append(entry)
-    status = 'ok' if all(r['status']=='ok' for r in rows) else 'attention'
-    return {'schema_version': 1, 'dry_run': dry_run, 'status': status, 'apps': rows, 'workspace_kept': str(paths['work_root']),
-            'notice': 'Only Storytold-managed binaries and registrations pointing at them are removed; anything kept is listed with its reason.'}
+    status_value = 'ok' if all(r['status']=='ok' for r in rows) else 'attention'
+    return {'schema_version': 1, 'dry_run': dry_run, 'status': status_value, 'apps': rows, 'workspace_kept': str(paths['work_root']),
+            'notice': 'Only Storytold-managed binaries and the registrations Storytold wrote for them are removed; anything kept is listed with its reason.'}
 
 def status(*, hosts: list[str] | None, env: dict, home: Path, system: str = platform.system(), run: Runner = default_runner,
            which: Which = shutil.which, releases: dict | None = None, catalog: dict | None = None, **overrides: str | None) -> dict:
@@ -702,6 +895,6 @@ def status(*, hosts: list[str] | None, env: dict, home: Path, system: str = plat
                      'pinned_hash_matches': managed['owned'],
                      'manifest_commit_pinned': bool(pinned and pinned.get('revision')==releases['apps'][app]['commit']),
                      'probe_evidence': evidence.is_file(),
-                     'interrupted_upgrade': (staging_dir(paths, app)/PROMOTE_MARKER).is_file(),
+                     'recovery': recovery_state(paths, catalog, app)['state'],
                      'registered': [h for h in targets if host_get(h, app, run, which, env, home) is not None]})
     return {'schema_version': 1, 'paths': {k: str(v) for k, v in paths.items()}, 'hosts': targets, 'cosign': which('cosign'), 'apps': rows}
