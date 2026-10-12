@@ -3,25 +3,25 @@
     "cadcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 22592906,
-          "name": "cadcraft-0.5.0-linux-x86_64.tar.gz",
-          "sha256": "036c3b401987b6a9991b5fc7ba097d5b717e8d18522f7c3f626b0f6a363e208e"
+          "bytes": 58712855,
+          "name": "cadcraft-0.6.2-linux-x86_64.tar.gz",
+          "sha256": "4a3ec7c5350e7212bdb4f735af6c6cf319ee177c11529ec547c77c92642ad49d"
         },
         "macos": {
-          "bytes": 13746497,
-          "name": "cadcraft-cli-0.5.0-macos-universal.zip",
-          "sha256": "8834cf6fce05e62f0533915aec48241db9b89f30e3e2821c77bba5476b0e9053"
+          "bytes": 49703179,
+          "name": "cadcraft-cli-0.6.2-macos-universal.zip",
+          "sha256": "2ffe9b0a0169810e3177e4f1119807e04fb4ea96efe5e3e1599cea52b25c87a1"
         },
         "windows-x64": {
-          "bytes": 21587357,
-          "name": "cadcraft-0.5.0-windows-x64-portable.zip",
-          "sha256": "ce849d6ad1145a492b9b04bdab0ff36ee0e1cf72410d5e3a491ad006ff125614"
+          "bytes": 58045447,
+          "name": "cadcraft-0.6.2-windows-x64-portable.zip",
+          "sha256": "624f01d53407ed9078328a1ad10bbbde7656a83567e8a757654fbcba2cd97b9b"
         }
       },
-      "commit": "315751e3ec98e708bcc831dd7f80ca0433a2e3d0",
+      "commit": "00c7613f1af3c73f7157fa91d9fe2635c6f23c06",
       "smoke_tool": "inspect_drawing",
-      "tag": "v0.5.0",
-      "version": "0.5.0"
+      "tag": "v0.6.2",
+      "version": "0.6.2"
     },
     "deckcraft": {
       "assets": {
@@ -118,25 +118,25 @@
     "gridcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 17344441,
-          "name": "gridcraft-0.5.0-linux-x86_64.tar.gz",
-          "sha256": "e6505c2f929f9854c350a0df26189c4e56c8adf87cc61625f80d6a8eec2b628d"
+          "bytes": 19463556,
+          "name": "gridcraft-0.6.1-linux-x86_64.tar.gz",
+          "sha256": "61163b62d9faf814b864e1b255d15dc310a71a72ca03d8791fa8024420162745"
         },
         "macos": {
-          "bytes": 9154129,
-          "name": "gridcraft-cli-0.5.0-macos-universal.zip",
-          "sha256": "4559b42d96bafcbc4180cc7f09d5f428597ec19d447c3df2e4b458afcb4c04fc"
+          "bytes": 10773074,
+          "name": "gridcraft-cli-0.6.1-macos-universal.zip",
+          "sha256": "9995ed7f132a596a456591faef825e304e69596488422d777275e03af38d5fca"
         },
         "windows-x64": {
-          "bytes": 16161688,
-          "name": "gridcraft-0.5.0-windows-x64-portable.zip",
-          "sha256": "0d34cdd117c3a96ce8467de0f90b5ea64ca0bbe497f9b0116c95685c4251d3fd"
+          "bytes": 18213819,
+          "name": "gridcraft-0.6.1-windows-x64-portable.zip",
+          "sha256": "595604b4be6f395c02bc15f99e3e6e2babde964cb9ae17aad7824981bcc14ce0"
         }
       },
-      "commit": "9f896c1249f40d18bf182199dc03042959be5f3f",
+      "commit": "fc45b7f6d8ab79ef20f74e3c8347a2fd731e6af5",
       "smoke_tool": "inspect_workbook",
-      "tag": "v0.5.0",
-      "version": "0.5.0"
+      "tag": "v0.6.1",
+      "version": "0.6.1"
     },
     "lightcraft": {
       "assets": {
@@ -256,25 +256,25 @@
     "wordcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 90044436,
-          "name": "wordcraft-0.5.0-linux-x86_64.tar.gz",
-          "sha256": "994bb376479ef6d76735cf4029e5ef3c2d52a85a4c9acde2b37c33b19c570203"
+          "bytes": 96839306,
+          "name": "wordcraft-0.6.1-linux-x86_64.tar.gz",
+          "sha256": "79bd54c81276f6ea551222432adec15e0eaab4cb5881decee38eafd7a5ca38f9"
         },
         "macos": {
-          "bytes": 80818424,
-          "name": "wordcraft-cli-0.5.0-macos-universal.zip",
-          "sha256": "9ded04712fad32c955b32c4efccbe4468fd95eae4f18ea3e32dd3355e6674b5b"
+          "bytes": 85804516,
+          "name": "wordcraft-cli-0.6.1-macos-universal.zip",
+          "sha256": "58840293e40f845b56be90eef53169213c95d841cc078b94a78a225e4eff59e6"
         },
         "windows-x64": {
-          "bytes": 89257223,
-          "name": "wordcraft-0.5.0-windows-x64-portable.zip",
-          "sha256": "caf202e3e3604cf1083f283cbf8b69e4e8df822e86ba9f6f6e8c2db65d483bdf"
+          "bytes": 95828700,
+          "name": "wordcraft-0.6.1-windows-x64-portable.zip",
+          "sha256": "4576d76363b0513242e0c1e5038fabaee4b3369909de60821900a01fc6277261"
         }
       },
-      "commit": "e4b7d155f15a7784197ba34eeea0b54490d70eb2",
+      "commit": "7dfa6b0ee2aeeafec004c51fdd2ab9a697da3cc4",
       "smoke_tool": "inspect_document",
-      "tag": "v0.5.0",
-      "version": "0.5.0"
+      "tag": "v0.6.1",
+      "version": "0.6.1"
     }
   },
   "basis": "Latest GitHub releases of storytold/<app> on the review date; archive hashes copied from each release's SHA256SUMS.txt; smoke tools verified in the tag's MCP source. Reviewed pins, not binary execution evidence. Sigstore bundles for the extracted CLIs live in config/signatures.json.",
