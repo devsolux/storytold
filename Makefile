@@ -8,7 +8,7 @@ export PYTHONDONTWRITEBYTECODE := 1
 PLUGIN := storytold@devsolux-storytold
 REPOSITORY := devsolux/storytold
 
-.PHONY: help setup setup-probe doctor check lint test test-sdk build verify-build publish-check package source release clean host-validate install-claude install-codex install-claude-local install-codex-local
+.PHONY: help setup setup-probe doctor refresh-releases setup-confined check lint test test-sdk build verify-build publish-check package source release clean host-validate install-claude install-codex install-claude-local install-codex-local
 
 help: ## Show maintenance targets; no tools installed or started
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  %-23s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -23,6 +23,12 @@ setup-probe: setup ## Explicit network opt-in: install the reviewed optional MCP
 
 doctor: ## Report installed capabilities without starting hosts or native apps
 	"$(PYTHON)" storytold.py doctor
+
+refresh-releases: ## Maintainer network step: rewrite config/releases.json from the latest GitHub releases, then review the diff
+	"$(PYTHON)" scripts/refresh_releases.py
+
+setup-confined: ## Explicit host/app-state change (macOS): install, pin, probe and register the four root-confined apps
+	"$(PYTHON)" storytold.py setup --app photocraft --app vectorcraft --app effectcraft --app pdfcraft
 
 check: ## Validate source, links, identities, catalog, examples and inactive packaging
 	"$(PYTHON)" scripts/check.py

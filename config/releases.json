@@ -1,0 +1,164 @@
+{
+  "apple_team_id": "DJ6XS33FX8",
+  "apps": {
+    "cadcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 13746497,
+          "name": "cadcraft-cli-0.5.0-macos-universal.zip",
+          "sha256": "8834cf6fce05e62f0533915aec48241db9b89f30e3e2821c77bba5476b0e9053"
+        }
+      },
+      "commit": "315751e3ec98e708bcc831dd7f80ca0433a2e3d0",
+      "smoke_tool": "inspect_drawing",
+      "tag": "v0.5.0",
+      "version": "0.5.0"
+    },
+    "deckcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 66680532,
+          "name": "deckcraft-cli-0.5.0-macos-universal.zip",
+          "sha256": "e4f8562c4c56337d2ae4069d182e2e325ddbf700b6248272d96f3e469702990b"
+        }
+      },
+      "commit": "a98df49b21632d69a3da994d35df1ea91dab41af",
+      "smoke_tool": "list_commands",
+      "tag": "v0.5.0",
+      "version": "0.5.0"
+    },
+    "designcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 61208428,
+          "name": "designcraft-cli-0.6.0-macos-universal.zip",
+          "sha256": "bd5c43d876e51356b42360c942d35590898fc3083f367ff33c2d7c60a207ebca"
+        }
+      },
+      "commit": "a9124a0517594ce9872f73637e7b841a4967bcf9",
+      "smoke_tool": "inspect_document",
+      "tag": "v0.6.0",
+      "version": "0.6.0"
+    },
+    "effectcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 57515867,
+          "name": "effectcraft-cli-0.8.0-macos-universal.zip",
+          "sha256": "a8b133b53f29c967690295cd6652dc894257b132424ee68b680bd09908aa3553"
+        }
+      },
+      "commit": "f953cd2855bf36beffa6a4d608e9bf4b226e9442",
+      "smoke_tool": "doc_inspect",
+      "tag": "v0.8.0",
+      "version": "0.8.0"
+    },
+    "filmcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 59471173,
+          "name": "filmcraft-cli-0.6.0-macos-universal.zip",
+          "sha256": "7ede2aa3e8994ca8363618ef649526546cf951b11a8eaf895b9471101cf5bd32"
+        }
+      },
+      "commit": "2ff3f5e266838700c292a35aaf762e3d4dcef980",
+      "smoke_tool": "doc_inspect",
+      "tag": "v0.6.0",
+      "version": "0.6.0"
+    },
+    "gridcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 9154129,
+          "name": "gridcraft-cli-0.5.0-macos-universal.zip",
+          "sha256": "4559b42d96bafcbc4180cc7f09d5f428597ec19d447c3df2e4b458afcb4c04fc"
+        }
+      },
+      "commit": "9f896c1249f40d18bf182199dc03042959be5f3f",
+      "smoke_tool": "inspect_workbook",
+      "tag": "v0.5.0",
+      "version": "0.5.0"
+    },
+    "lightcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 97393588,
+          "name": "lightcraft-cli-0.6.0-macos-universal.zip",
+          "sha256": "e87014d49d4dbf00851f5ff3005ecd0d5418ccd77af4f72aa750374e3f4803ce"
+        }
+      },
+      "commit": "9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda",
+      "smoke_tool": "doc_inspect",
+      "tag": "v0.6.0",
+      "version": "0.6.0"
+    },
+    "pdfcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 58516543,
+          "name": "pdfcraft-cli-0.6.0-macos-universal.zip",
+          "sha256": "85bf80b0732f2556f3133e25693d1f1dfdd2683cd6236aa154bb19f73515b7cf"
+        }
+      },
+      "commit": "53a5880386789fc3531e54f6e6ffdef9a8e41f1a",
+      "smoke_tool": "doc_inspect",
+      "tag": "v0.6.0",
+      "version": "0.6.0"
+    },
+    "photocraft": {
+      "assets": {
+        "macos": {
+          "bytes": 64701365,
+          "name": "photocraft-cli-0.7.0-macos-universal.zip",
+          "sha256": "caf41eee1827ef740bc4495fb1fee77f6a4e0be82fb131106ad06cd591fd8091"
+        }
+      },
+      "commit": "79261615956ab21334e49ca1d384390272e647da",
+      "smoke_tool": "doc_inspect",
+      "tag": "v0.7.0",
+      "version": "0.7.0"
+    },
+    "soundcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 6169862,
+          "name": "soundcraft-cli-0.5.0-macos-universal.zip",
+          "sha256": "b02f3edf649b3ee2ac499f14965f0e8f229329fd49806d6eea64895022ea8187"
+        }
+      },
+      "commit": "4410486fc21561a9db0dc33961a2017469127e0d",
+      "smoke_tool": "inspect_session",
+      "tag": "v0.5.0",
+      "version": "0.5.0"
+    },
+    "vectorcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 69756789,
+          "name": "vectorcraft-cli-0.9.0-macos-universal.zip",
+          "sha256": "0e6fc38dd1ec432fb4a133ee1b1efe935d739f0fcb376b1925ee89473d55a61b"
+        }
+      },
+      "commit": "10f1c56a861869936af0027cef14b1cf5d8cf515",
+      "smoke_tool": "doc_inspect",
+      "tag": "v0.9.0",
+      "version": "0.9.0"
+    },
+    "wordcraft": {
+      "assets": {
+        "macos": {
+          "bytes": 80818424,
+          "name": "wordcraft-cli-0.5.0-macos-universal.zip",
+          "sha256": "9ded04712fad32c955b32c4efccbe4468fd95eae4f18ea3e32dd3355e6674b5b"
+        }
+      },
+      "commit": "e4b7d155f15a7784197ba34eeea0b54490d70eb2",
+      "smoke_tool": "inspect_document",
+      "tag": "v0.5.0",
+      "version": "0.5.0"
+    }
+  },
+  "basis": "Latest GitHub releases of storytold/<app> on the review date; zip hashes copied from each release's SHA256SUMS.txt; smoke tools verified in the tag's MCP source. Reviewed pins, not binary execution evidence.",
+  "reviewed": "2026-10-12",
+  "schema_version": 1
+}

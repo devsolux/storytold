@@ -1,4 +1,4 @@
-# Verification status — 1.0.1
+# Verification status — 1.1.0
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. One operator-installed
@@ -11,12 +11,12 @@ macOS (Darwin 27, arm64) with Python **3.11.17**:
 
 | Gate | Result |
 |---|---|
-| `make check` | Passed **57 check entries**: parsed 35 files (24 Python, 10 JSON, one TOML), checked 120 local Markdown links in source and plugin, and validated 14 native scenario definitions without executing any. |
-| `make test` | **129 tests** passed in an isolated source copy, including seven synthetic `doctor` connection cases; zero failures, errors or skips. |
-| `make build`, `make verify-build` | The committed plugin (46 files) matches its 76 allowlisted canonical inputs. |
+| `make check` | Passed **64 check entries**: parsed 41 files (29 Python, 11 JSON, one TOML), checked 119 local Markdown links in source and plugin, validated the release manifest and 14 native scenario definitions without executing any. |
+| `make test` | **160 tests** passed in an isolated source copy, including the `setup` flow with injected network, macOS signing tools and host CLIs, manifest rules and `doctor` connection cases; zero failures, errors or skips. |
+| `make build`, `make verify-build` | The committed plugin (49 files) matches its 82 allowlisted canonical inputs. |
 | `make package`, `make source` | Reproducible plugin and source ZIPs with SHA-256 files. |
 | `make test-sdk` with `mcp==2.3.0` | Passed 7 checks against the synthetic stdio fixture: initialize, two-page `tools/list`, wire aliases, typed structured content, `isError`, SDK context exit, and a native tool error not reported as success. |
-| `claude plugin validate --strict` (Claude Code 2.1.282) | 1.0.1 marketplace and plugin manifests: no errors or warnings. |
+| `claude plugin validate --strict` (Claude Code 2.1.282) | 1.1.0 marketplace and plugin manifests: no errors or warnings. |
 | Claude Code install from the local marketplace | `storytold@devsolux-storytold` 1.0.0 installed and enabled; `claude plugin details` lists one Skill (`craft`) and zero MCP servers. |
 | Codex CLI 0.162.0-alpha.17.2 install from the local marketplace | `storytold@devsolux-storytold` 1.0.0 installed and enabled; `codex debug prompt-input` lists the `storytold:craft` Skill. |
 | Portable manifests | `plugin.json` and `config/portable.mcp.example.json` validate against the published Agent Plugins 1.0.0 schemas. |
@@ -25,10 +25,55 @@ macOS (Darwin 27, arm64) with Python **3.11.17**:
 
 Host installs used throwaway `CLAUDE_CONFIG_DIR` and `CODEX_HOME` directories, so
 no real host configuration was changed. The two install rows ran for 1.0.0;
-1.0.1 changes Skill text, docs and the `doctor` helper, not manifest structure. Installation from GitHub reads the same
+1.0.1 and 1.1.0 change Skill text, docs and helper commands, not manifest structure. Installation from GitHub reads the same
 committed marketplace files and `plugins/storytold/` runtime.
 
-## Native app evidence — PhotoCraft 0.7.0
+## Native app evidence — all twelve apps via `setup`
+
+Operator-run on macOS (Darwin 27, arm64) with the one-command path:
+`python3 storytold.py setup --all --acknowledge-unconfined`, resumed twice after
+fixes found during the run (the probe did not forward the acknowledgement for
+unconfined apps; DeckCraft's headless session has no presentation open, so its
+smoke tool became `list_commands`). Final state, confirmed by `codex mcp list`,
+`claude mcp list` (every server health-checked as connected), `doctor` and
+`setup --list`:
+
+| App | Release | Probe (initialize, tools/list, read-only call) | Tools | Registered |
+|---|---|---|---|---|
+| PhotoCraft | v0.7.0 | passed (`doc_inspect`) | 21 | codex, claude |
+| VectorCraft | v0.9.0 | passed (`doc_inspect`) | 32 | codex, claude |
+| FilmCraft | v0.6.0 | passed (`doc_inspect`) | 17 | codex, claude |
+| LightCraft | v0.6.0 | passed (`doc_inspect`) | 17 | codex, claude |
+| PdfCraft | v0.6.0 | passed (`doc_inspect`) | 17 | codex, claude |
+| EffectCraft | v0.8.0 | passed (`doc_inspect`) | 27 | codex, claude |
+| DesignCraft | v0.6.0 | passed (`inspect_document`) | 25 | codex, claude |
+| GridCraft | v0.5.0 | passed (`inspect_workbook`) | 21 | codex, claude |
+| WordCraft | v0.5.0 | passed (`inspect_document`) | 16 | codex, claude |
+| DeckCraft | v0.5.0 | passed (`list_commands`) | 25 | codex, claude |
+| CADCraft | v0.5.0 | passed (`inspect_drawing`) | 11 | codex, claude |
+| SoundCraft | v0.5.0 | passed (`inspect_session`) | 17 | codex, claude |
+
+Every archive matched both `config/releases.json` and the release's
+`SHA256SUMS.txt`; every binary was accepted by `spctl` as *Notarized Developer
+ID* with team `DJ6XS33FX8`; the probe SDK was installed into
+`~/.local/state/storytold/venv` from PyPI by `setup` itself. Re-running `setup`
+afterwards reports every app as already installed and already registered.
+
+Fresh-user simulation: in a throwaway `CODEX_HOME`, `codex plugin marketplace
+add <this checkout>` and `codex plugin add storytold@devsolux-storytold`, then
+`python3 <plugin cache>/storytold.py setup --app gridcraft --host codex
+--acknowledge-unconfined` registered GridCraft only in that throwaway home; the
+real `~/.codex/config.toml` hash was unchanged.
+
+Real work: during this session a host chat on this Mac exported
+`outputs/our-world.png` (1920×1200 RGB) together with the editable
+`our-world.pcraft` through the registered PhotoCraft server; `verify-artifact`
+accepted the PNG signature and dimensions, and the image was reviewed visually.
+This is an M0/M1-level result for PhotoCraft only; edit, export, root-denial,
+isolation and fidelity tests (M1–M3) have not run for the other eleven apps, and
+no Windows or Linux machine was used.
+
+### Earlier manual PhotoCraft run (1.0.1)
 
 Operator-run on macOS (Darwin 27, arm64), following [operations](operations.md):
 
@@ -40,8 +85,7 @@ Operator-run on macOS (Darwin 27, arm64), following [operations](operations.md):
 | `probe` smoke call | `doc_inspect` with `{}` (annotated read-only) returned `isError: false` and an empty session (`document: null`). |
 | `configure --host codex` | Generated `[mcp_servers.photocraft]` with absolute command, root flags and workspace `cwd`; after registration, `codex mcp get photocraft` (Codex CLI 0.162.0-alpha.17.2) lists it as enabled stdio. |
 
-This is M0-level evidence only: no edit, export, root-denial, isolation or
-fidelity test (M1–M3) ran, and no Codex chat invoked the tools.
+That manual run is M0-level evidence only; the `setup` run above supersedes it.
 
 ## What the offline checks exercise
 
@@ -62,9 +106,10 @@ Host manifest schemas remain authoritative.
 
 ## Not verified
 
-- **Craft apps.** Eleven of the twelve CLIs were not installed. PhotoCraft passed
-  the probe only; no native edit, export, isolation or fidelity test (M1–M3) has
-  run for any app.
+- **Craft apps.** All twelve CLIs passed discovery and one read-only call on one
+  macOS machine; only PhotoCraft has produced a real export. Native edit,
+  export, root-denial, isolation and fidelity tests (M1–M3) have not run for the
+  other eleven apps.
 - **CI matrix.** GitHub Actions for Linux/macOS/Windows × Python 3.11/3.13 is
   configured but was not executed here. Windows-specific branches (binary-mode
   reads, read-only publication order) are covered by simulations on macOS.

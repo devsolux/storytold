@@ -23,14 +23,25 @@ class DoctorTests(unittest.TestCase):
         (self.apps/'PhotoCraft.app').mkdir()
         _,apps=self.run_report()
         self.assertEqual(apps['photocraft']['status'],'desktop_app_only')
-        self.assertIn('photocraft-cli-<version>-macos-universal.zip',apps['photocraft']['next'])
+        self.assertIn('setup --app photocraft`',apps['photocraft']['next']);self.assertNotIn('--acknowledge-unconfined',apps['photocraft']['next'])
         self.assertEqual(apps['vectorcraft']['status'],'not_installed')
+        self.assertIn('setup --app cadcraft --acknowledge-unconfined',apps['cadcraft']['next'])
+        self.assertEqual(apps['cadcraft']['manifest_release'],'v0.5.0');self.assertIsNone(apps['cadcraft']['pinned_version'])
 
     def test_cli_found_but_unregistered(self):
         self.binary('photocraft-cli');self.env['CRAFT_BIN_DIR']=str(self.base/'bin')
         _,apps=self.run_report()
         self.assertEqual(apps['photocraft']['status'],'cli_not_registered')
         self.assertEqual(apps['photocraft']['cli'],str(self.base/'bin/photocraft-cli'))
+
+    def test_recorded_setup_state_locates_cli_and_pin(self):
+        cmd=self.binary('gridcraft-cli');state=self.home/'.local/state/storytold';state.mkdir(parents=True)
+        (state/'setup.json').write_text(json.dumps({'schema_version':1,'bin_dir':str(self.base/'bin'),'work_root':str(self.base/'w'),
+            'output_root':str(self.base/'w/outputs'),'lock':str(state/'installations.lock.json'),'evidence_dir':str(state/'evidence'),'updated_at':'2026-10-12T00:00:00+00:00'}))
+        (state/'installations.lock.json').write_text(json.dumps({'schema_version':1,'platform':{},'apps':{'gridcraft':{'revision':'x','version':'0.5.0 (test)','sha256':'y'}}}))
+        r,apps=self.run_report()
+        self.assertTrue(r['setup_state_recorded']);self.assertEqual(apps['gridcraft']['status'],'cli_not_registered')
+        self.assertEqual(apps['gridcraft']['cli'],str(cmd));self.assertEqual(apps['gridcraft']['pinned_version'],'0.5.0 (test)')
 
     def test_cli_on_path_is_found(self):
         self.binary('photocraft-cli');self.env['PATH']=str(self.base/'bin')

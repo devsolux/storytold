@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.1.0 — 2026-10-12
+
+One command now takes a plugin user from "tools aren't connected" to twelve
+registered native servers on macOS.
+
+- `storytold.py setup --app <app> | --all [--acknowledge-unconfined]`: downloads
+  the CLI release pinned in the new reviewed manifest `config/releases.json`,
+  verifies the archive against the manifest and the release's `SHA256SUMS.txt`,
+  requires Apple notarization by the ArtCraft team, installs to
+  `~/.local/opt/craft/bin`, pins the hash in the private lock, runs `preflight`
+  and the official-SDK probe (initialize, tools/list, one read-only call), and
+  registers the server with `codex mcp add` / `claude mcp add --scope user`.
+  Downloads are limited to GitHub release hosts; one registration per name;
+  `--dry-run`, `--list`, `--upgrade`, `--replace`, `--skip-probe`, `--remove`.
+  macOS only in this release; Windows/Linux installers already ship the CLI.
+- Apps without file roots are installed but registered only with
+  `--acknowledge-unconfined`, matching the existing preflight policy.
+- `config/releases.json` pins all twelve latest releases (tag, commit, zip
+  hash, size, smoke tool); `make refresh-releases` regenerates it for review
+  and `make check` enforces its shape. Chosen paths are recorded in
+  `~/.local/state/storytold/setup.json`, so `preflight`, `probe`, `configure`
+  and `doctor` need no exported variables afterwards.
+- `doctor` prints the exact `setup` command per missing app plus manifest and
+  pinned versions; the `craft` Skill proposes that command, runs it only after
+  the user agrees in chat, and never installs anything unasked.
+- `storytold.py` explains the Python 3.11 requirement instead of failing with
+  a syntax error on macOS system Python.
+- Tests: 159 offline tests (setup flow with injected network, macOS tools and
+  host CLIs; manifest rules; recorded state).
+
 ## 1.0.1 — 2026-10-12
 
 Fixes "PhotoCraft's native tools aren't connected / `photocraft-cli` isn't on

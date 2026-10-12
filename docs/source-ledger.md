@@ -55,7 +55,15 @@ definitions, Windows/Linux/macOS packaging and release assets:
   fingerprints, so they change only with a reviewed catalog update.
 
 This is source review, not binary testing; only PhotoCraft 0.7.0 was executed
-(see [verification](verification.md)). The local installation lock must use full
+(see [verification](verification.md)).
+
+`config/releases.json` is the reviewed pin set for `storytold.py setup`: tag and
+tag commit from the GitHub API, the macOS CLI zip name/size from the release
+assets, its SHA-256 copied from the release's `SHA256SUMS.txt`, the smoke tool
+from the tag's MCP source, and the Apple team `DJ6XS33FX8` observed on the
+notarized PhotoCraft CLI and `PhotoCraft.app`. At install time `setup` re-reads
+the published sums and the binary's signature, so the manifest is a consistency
+gate, not the sole authenticity root. The local installation lock must use full
 immutable revisions and trusted executable hashes; this repository deliberately
 does not invent binary pins.
 

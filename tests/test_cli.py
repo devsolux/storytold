@@ -11,12 +11,22 @@ class CliTests(WorkspaceCase):
         env=os.environ.copy()
         for key in ('CRAFT_BIN_DIR','CRAFT_WORK_ROOT','CRAFT_OUTPUT_ROOT'):env.pop(key,None)
         env['CODEX_HOME']=str(self.base/'codex-home')  # never read the operator's real Codex config
+        env['STORYTOLD_STATE_DIR']=str(self.base/'state')  # nor the paths recorded by a real setup run
         return subprocess.run([sys.executable,str(ROOT/'storytold.py'),*args],capture_output=True,text=True,env=env)
     def test_doctor_never_executes(self):
         r=self.run_cli('doctor');self.assertEqual(r.returncode,0,r.stderr)
         report=json.loads(r.stdout);self.assertFalse(report['native_apps_executed'])
         self.assertEqual(report['storytold'],json.loads((ROOT/'packaging/project.json').read_text())['version'])
         self.assertEqual(len(report['connections']['apps']),12)
+    def test_setup_requires_an_explicit_selection(self):
+        r=self.run_cli('setup');self.assertNotEqual(r.returncode,0);self.assertEqual(r.stdout,'');self.assertIn('--app',r.stderr)
+    def test_setup_dry_run_plans_without_touching_anything(self):
+        r=self.run_cli('setup','--dry-run','--app','cadcraft','--bin-dir',str(self.base/'bin'))
+        if sys.platform!='darwin':
+            self.assertNotEqual(r.returncode,0);self.assertIn('macOS',r.stderr);return
+        self.assertEqual(r.returncode,0,r.stderr);plan=json.loads(r.stdout)
+        self.assertTrue(plan['dry_run']);self.assertEqual(plan['apps'][0]['install_to'],str(self.base/'bin/cadcraft-cli'))
+        self.assertTrue(plan['apps'][0]['needs_acknowledge_unconfined']);self.assertFalse((self.base/'state').exists())
     def test_apps_lists_twelve(self):
         r=self.run_cli('apps');self.assertEqual(len(json.loads(r.stdout)['apps']),12)
     def test_missing_env_fails_closed(self):

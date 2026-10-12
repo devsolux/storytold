@@ -12,6 +12,7 @@ from urllib.parse import unquote, urlsplit
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from storytold_tools.build import allowlist, project, render, source_map
 from storytold_tools.catalog import APP_IDS, load_catalog, templates
+from storytold_tools.releases import load_releases
 from storytold_tools.common import ROOT, StorytoldError, digest, encoded, parse_json, require
 
 ORIGINAL_HASHES = {
@@ -89,6 +90,12 @@ def check() -> dict:
     for name, data in templates(catalog).items():
         require(files['config/' + name] == data, f'launch template drift: {name}')
         checks.append('template:' + name)
+    releases = load_releases()
+    require(files['config/releases.json'] == encoded(releases),
+            'config/releases.json must be canonical JSON; regenerate it with scripts/refresh_releases.py')
+    for app, row in releases['apps'].items():
+        require(row['assets']['macos']['name'].startswith(catalog[app]['executable'] + '-'), f'{app}: manifest asset is not the catalog executable')
+    checks.append('release-manifest-twelve-reviewed-pins')
     for filename, expected in ORIGINAL_HASHES.items():
         require(digest(files['docs/sources/' + filename]) == expected, 'supplied source modified: ' + filename)
         checks.append('source-sha256:' + filename)

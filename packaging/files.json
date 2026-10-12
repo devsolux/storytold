@@ -20,6 +20,7 @@
     "config/env.example",
     "config/installations.lock.example.json",
     "config/portable.mcp.example.json",
+    "config/releases.json",
     "docs/acceptance.md",
     "docs/architecture.md",
     "docs/operations.md",
@@ -35,6 +36,7 @@
     "requirements-probe.txt",
     "scripts/build.py",
     "scripts/check.py",
+    "scripts/refresh_releases.py",
     "scripts/test.py",
     "scripts/test_sdk.py",
     "skills/craft/SKILL.md",
@@ -62,6 +64,8 @@
     "storytold_tools/configuration.py",
     "storytold_tools/doctor.py",
     "storytold_tools/probe.py",
+    "storytold_tools/releases.py",
+    "storytold_tools/setup.py",
     "storytold_tools/workspace.py",
     "tests/__init__.py",
     "tests/fixtures/brief.txt",
@@ -76,6 +80,8 @@
     "tests/test_doctor.py",
     "tests/test_files.py",
     "tests/test_probe.py",
+    "tests/test_releases.py",
+    "tests/test_setup.py",
     "tests/test_workspace.py"
   ],
   "plugin": [
@@ -87,6 +93,7 @@
     "config/env.example",
     "config/installations.lock.example.json",
     "config/portable.mcp.example.json",
+    "config/releases.json",
     "docs/acceptance.md",
     "docs/architecture.md",
     "docs/operations.md",
@@ -120,6 +127,8 @@
     "storytold_tools/configuration.py",
     "storytold_tools/doctor.py",
     "storytold_tools/probe.py",
+    "storytold_tools/releases.py",
+    "storytold_tools/setup.py",
     "storytold_tools/workspace.py"
   ]
 }

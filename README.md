@@ -30,7 +30,7 @@ User + Claude Code / local Codex
                       native engines → durable files
 ```
 
-**Release 1.0.1.** The offline core suite, the official MCP SDK contract test,
+**Release 1.1.0.** The offline core suite, the official MCP SDK contract test,
 strict Claude manifest validation and Claude Code/Codex install with Skill
 discovery have been run. Craft apps are not bundled and need your own pinned
 builds; PhotoCraft 0.7.0 has passed the native discovery and smoke-call probe on
@@ -120,40 +120,44 @@ against a clearly synthetic stdio fixture. It does not run the twelve Craft apps
 `make release` orders checks, core tests and reproducible packaging; it does not
 claim native acceptance or publish anything. [Makefile](Makefile) lists all targets.
 
-## Configure the native apps locally
+## Set up the native apps (macOS, one command)
 
-Follow [operations](docs/operations.md) in order. Keep the app binaries outside
-this repository and outside the writable workspace. Obtain/build them from
-reviewed immutable upstream revisions; no installer/downloader is supplied.
+Each app's MCP server is its CLI, `<app>-cli`. On macOS the ArtCraft Launcher
+and the `.dmg` install only the `.app`; the CLI is a separate notarized release
+asset (Windows MSI/portable ZIP and Linux `.deb`/`.rpm` packages include it).
+Until it is installed **and** registered with your host, the Skill correctly
+reports that the app's native tools aren't connected. One explicit command fixes
+that per app, or for all twelve:
 
-> **The desktop app is not an MCP server.** Each app's MCP server is its CLI,
-> `<app>-cli`. On macOS the ArtCraft Launcher and the `.dmg` install only the
-> `.app`; the CLI is a separate `<app>-cli-<version>-macos-universal.zip` release
-> asset. Windows MSI/portable ZIP and Linux `.deb`/`.rpm` packages include it.
-> Until it is installed **and** registered with your host, the Skill correctly
-> reports that the app's native tools aren't connected.
+```bash
+python3 storytold.py setup --app photocraft
+```
 
-1. Install each app's `<app>-cli` from its upstream release and verify the
-   published checksum and signature ([operations, section 0](docs/operations.md#0-get-each-apps-cli-not-only-the-desktop-app)).
-2. Create a new private workspace with `storytold.py workspace-init` and set
-   `CRAFT_BIN_DIR`, `CRAFT_WORK_ROOT`, and `CRAFT_OUTPUT_ROOT` to absolute paths.
-3. Use `inventory` to hash executables **without executing them**. Populate a
-   private installation lock with trusted source revisions, build versions and
-   verified binary hashes; the example lock intentionally fails validation.
-4. Run `preflight`. Explicitly acknowledge any OS-only apps for non-sensitive
-   testing, or run under a genuinely tested OS-isolated environment.
-5. With the optional SDK installed, `probe` each app for initialization, paginated
-   discovery and one explicitly reviewed fixture-only smoke call. Missing apps,
-   hash changes, absent schemas, tool errors and timeouts are not success.
-6. Generate a **new** Claude project `.mcp.json` or Codex TOML configuration from
-   matching native probe evidence. Existing files are never overwritten/merged.
-   Register it in the host (Codex: `~/.codex/config.toml` or a trusted project's
-   `.codex/config.toml`), start a new session, then complete M0–M3 and host acceptance.
+```bash
+python3 storytold.py setup --all --acknowledge-unconfined
+```
 
-Tools still missing? `python3 storytold.py doctor` reports, without executing
-anything, which apps have only the desktop app, a CLI without a host
-registration, or a registration whose binary is gone. See
-[troubleshooting](docs/operations.md#troubleshooting-native-tools-arent-connected).
+Run it from a clone or from the installed plugin directory (Codex:
+`~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/`; Claude Code:
+the plugin cache under `~/.claude/plugins/`); `python3 storytold.py doctor`
+prints the exact command for each app that is missing. For each app, `setup`
+downloads the release pinned in [`config/releases.json`](config/releases.json),
+checks the archive against that manifest **and** the release's own
+`SHA256SUMS.txt`, requires Apple notarization by the ArtCraft team, installs to
+`~/.local/opt/craft/bin`, pins the binary hash in a private lock, probes
+initialize, tools/list and one read-only call through the official MCP SDK, and
+registers the server with every host CLI on PATH (`codex mcp add`,
+`claude mcp add --scope user`). Then start a new session. `--dry-run` previews,
+`--list` shows state, `--upgrade` moves to a newer manifest release, `--remove`
+undoes. Nothing runs unless you invoke it; Python 3.11+ is required.
+
+PhotoCraft, VectorCraft, EffectCraft and PdfCraft are confined to the workspace
+by native root flags and register by default. The other eight can read and
+write anything your user can, so they register only with
+`--acknowledge-unconfined`: keep them for non-sensitive work or run them under
+OS isolation. Windows, Linux, air-gapped machines and custom pins use the manual
+chain in [operations](docs/operations.md): download, lock, `preflight`, `probe`,
+`configure`, register.
 
 The complete Unix launch templates are under `config/`. They are examples only,
 not active host configuration. Real config generation chooses `.exe` on native
@@ -184,7 +188,7 @@ appropriate permissions. See [security](SECURITY.md).
 | Path | Responsibility |
 |---|---|
 | `skills/craft/` | One instructional Skill, twelve app cards and two workflows |
-| `config/` | Reviewed launch catalog, inactive templates, example lock/env |
+| `config/` | Reviewed launch catalog, release manifest, inactive templates, example lock/env |
 | `storytold_tools/`, `storytold.py` | Deterministic CLI and optional short-lived SDK probe |
 | `scripts/`, `Makefile` | Offline checks, tests, guarded builds and packaging |
 | `tests/` | Core regression tests, synthetic SDK fixture, native acceptance scenarios |

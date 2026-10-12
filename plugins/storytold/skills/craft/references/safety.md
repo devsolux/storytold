@@ -17,6 +17,9 @@ Do not enable control ports, --connect, --bridge, scripts, macros, move-import o
 unrelated-target replacement automatically. Keep one writer per artifact/library.
 Do not remove lock files or bypass host approvals. The default Skill has no
 allowed-tools grant, hooks, automatic host enablement or hidden execution step.
+The explicit `storytold.py setup` command is the only helper that downloads a
+binary or writes a host registration; it does so through the host's own CLI,
+only when an operator runs it, and the Skill may propose it but never run it unasked.
 
 After a mutating timeout, state is unknown. Preserve files and inspect using
 native state/job APIs. An existing output may be partial. A batch may have applied

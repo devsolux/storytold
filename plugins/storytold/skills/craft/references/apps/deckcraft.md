@@ -21,7 +21,7 @@ Discover presentation/slide inspection, shape/text/chart operations, save and ex
 
 ## Workflow and risky operations
 
-Preserve approved narrative/data and make layout changes only within scope. No native file-root flag is established. batch stops at the first error without rollback. Save a separate editable native deck and requested interchange export when required.
+Preserve approved narrative/data and make layout changes only within scope. No native file-root flag is established. batch stops at the first error without rollback. A headless session starts with no presentation open (verified on 0.5.0: inspect_document returns "no presentation open"); call new_presentation or open_presentation first. Save a separate editable native deck and requested interchange export when required.
 
 ## Durable verification
 
