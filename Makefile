@@ -120,7 +120,8 @@ GITHUB_TOPICS ?= claude-code,claude-code-plugin,codex,codex-plugin,mcp,model-con
 GIT_REMOTE_SSH ?= git@github.com:$(GITHUB_FULL).git
 
 .PHONY: git-check github-check github-auth git-init git-main github-initial-commit \
-	github-repo-create github-metadata github-remote-ssh github-verify github-pull github-push github-bootstrap
+	github-repo-create github-metadata github-remote-ssh github-verify github-pull github-push github-bootstrap \
+	github-allow-action github-run-workflow
 
 git-check:
 	@command -v git >/dev/null 2>&1 || { echo "error: git is required"; exit 1; }
@@ -201,7 +202,11 @@ github-verify: ## Show git remotes and branches
 # - Local commits ahead of origin/main: no-op; use github-push when ready.
 # - Remote commits ahead of local main: fast-forward only.
 # - Diverged history or a dirty worktree during an update: stop without changing files.
-github-pull: git-check ## Fast-forward main from origin/main when GitHub is ahead
+# The daily release workflow merges into main on its own, so local and remote
+# main diverge routinely; the fix is always a rebase of the local commits.
+REBASE_HELP := "error: rebase stopped on a conflict. If it is plugins/storytold/.storytold-build.json: run make build, git add plugins/storytold, git rebase --continue; otherwise resolve, git add, git rebase --continue. Then rerun this target. To abandon: git rebase --abort"
+
+github-pull: git-check ## Bring main up to date with origin/main (fast-forward, or rebase local commits onto it)
 	@git rev-parse --git-dir >/dev/null 2>&1 || { echo "error: not a git repository"; exit 1; }
 	@git remote get-url origin >/dev/null 2>&1 || { echo "error: no origin remote (run: make github-repo-create or github-remote-ssh)"; exit 1; }
 	@BRANCH=$$(git symbolic-ref --quiet --short HEAD 2>/dev/null || true); \
@@ -238,8 +243,12 @@ github-pull: git-check ## Fast-forward main from origin/main when GitHub is ahea
 		git merge --ff-only origin/main && \
 		echo "Updated main: $$LOCAL -> $$REMOTE"; \
 	else \
-		echo "error: local main and origin/main have diverged; resolve with an explicit merge or rebase"; \
-		exit 1; \
+		if [ -n "$$(git status --porcelain)" ]; then \
+			echo "error: local main and origin/main have diverged and the worktree is not clean; commit or stash local changes first"; \
+			exit 1; \
+		fi; \
+		git rebase origin/main || { echo $(REBASE_HELP); exit 1; }; \
+		echo "Rebased local commits onto origin/main ($$REMOTE)."; \
 	fi
 
 # Stages all changes, commits with message = short local datetime (YYYYMMDD-HHMMSS) if needed, then pushes.
@@ -247,7 +256,9 @@ github-pull: git-check ## Fast-forward main from origin/main when GitHub is ahea
 GITHUB_COMMIT_MSG ?=
 
 # Refuses to push a stale committed marketplace, which would break public installs.
-github-push: github-check publish-check ## Publishes: commit all changes (timestamp message) and push main
+# Order: commit local changes → pull --rebase onto origin/main → re-check the
+# generated plugin → push. Equivalent to: git pull --rebase origin main && git push origin main
+github-push: github-check publish-check ## Publishes: commit all changes (timestamp message), pull --rebase onto origin/main, push main
 	@git rev-parse --git-dir >/dev/null 2>&1 || { echo "error: not a git repository"; exit 1; }
 	@git remote get-url origin >/dev/null 2>&1 || { echo "error: no origin remote (run: make github-repo-create or github-remote-ssh)"; exit 1; }
 	@# Never break a lock that a running git process may still own.
@@ -266,6 +277,8 @@ github-push: github-check publish-check ## Publishes: commit all changes (timest
 			git commit -m "$$STAMP" && echo "Committed: $$STAMP"; \
 		fi; \
 	fi
+	@git pull --rebase origin main || { echo $(REBASE_HELP); exit 1; }
+	@"$(PYTHON)" scripts/build.py check >/dev/null || { echo "error: the rebase changed generated plugin inputs; run make build, commit, then make github-push again"; exit 1; }
 	git push -u origin main
 
 # Full flow (sequential — safe with make -j): check → init → main → commit → gh create → verify
@@ -278,8 +291,8 @@ github-bootstrap: ## Publishes: validate, git init, first commit, create public 
 	@$(MAKE) github-repo-create
 	@$(MAKE) github-verify
 
-github-allow-action:
-	gh api -X PUT repos/devsolux/storytold/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true
+github-allow-action: github-check ## Repo setting: let the daily workflow open pull requests with github.token
+	gh api -X PUT repos/$(GITHUB_FULL)/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true
 
-github-run-workflow:
-	gh workflow run releases.yml --repo devsolux/storytold
+github-run-workflow: github-check ## Trigger the daily release refresh now (refresh, sign, three-OS verify, PR, auto-merge if enabled)
+	gh workflow run releases.yml --repo $(GITHUB_FULL)
