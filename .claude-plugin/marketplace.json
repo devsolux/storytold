@@ -1,0 +1,16 @@
+{
+  "name": "devsolux-storytold",
+  "owner": {
+    "name": "devsolux"
+  },
+  "metadata": {
+    "description": "Devsolux Storytold native Craft workflows"
+  },
+  "plugins": [
+    {
+      "name": "storytold",
+      "source": "./plugins/storytold",
+      "description": "Local native Craft MCP workflows, safe file staging, and deterministic integration checks."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "storytold",
+  "version": "1.0.0",
+  "marketplace": "devsolux-storytold",
+  "repository": "devsolux/storytold",
+  "license": "MIT",
+  "description": "Local native Craft MCP workflows, safe file staging, and deterministic integration checks."
+}

@@ -1,0 +1,2 @@
+Synthetic local integration fixture. No customer data.
+Unicode: café — 東京.

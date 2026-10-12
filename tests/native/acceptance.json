@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "basis": "Native MCP Project Plan M0–M4",
+  "scenarios": [
+    {
+      "id": "photocraft",
+      "app": "photocraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Confirm pixel dimensions, layers where relevant, colour/profile expectations and visual appearance after reopening. PSD/interchange need not retain every native feature. A successful tool call is not a durable save."
+    },
+    {
+      "id": "vectorcraft",
+      "app": "vectorcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Check artboard count, coordinates, paths, fonts and import/export warnings. Reopen SVG/PDF/native output as appropriate and inspect the rendered result. Synchronous native operations may not support active cancellation."
+    },
+    {
+      "id": "filmcraft",
+      "app": "filmcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Check duration, frame rate, timeline, audio and all media references. An export can leave a file while reporting failure because offline placeholders were rendered. Neither file existence nor a retry resolves that warning."
+    },
+    {
+      "id": "lightcraft",
+      "app": "lightcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Verify RAW/develop expectations, rendered pixels, output filename and image properties. Exports may choose a new name on collision; repeated calls are not idempotent. No denoise service or live connect is started by this plugin."
+    },
+    {
+      "id": "pdfcraft",
+      "app": "pdfcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Reopen the saved PDF and check page count, text and rendering. For redactions, use a genuine content-removal audit and inspect sanitized output; visual rectangles are not enough. The helper only checks PDF markers, not validity or confidentiality."
+    },
+    {
+      "id": "effectcraft",
+      "app": "effectcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Check composition dimensions, timing, layer offset/stretch, expected frames and media. Preserve native warnings. Native batch rollback semantics are engine-specific; they do not promise cross-file or cross-app atomicity. Autosave is not enabled implicitly."
+    },
+    {
+      "id": "designcraft",
+      "app": "designcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Inspect overset text, fonts, linked images, pages and exported layout. Validate the actual saved/exported file and render relevant pages. CLI export options may apply only to following exports; do not use shell fallback without an explicit unique need."
+    },
+    {
+      "id": "gridcraft",
+      "app": "gridcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Save XLSX where supported, reopen, compare formulas and recalculated/typed values, and surface error cells. A structurally valid OOXML ZIP is not a formula/fidelity pass. Keep exported data provenance for downstream slide/document work."
+    },
+    {
+      "id": "wordcraft",
+      "app": "wordcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Reopen DOCX and review text, tracked changes, fonts, pagination and exported PDF appearance. Legacy DOC may be read-only. Formats supported for reading are not automatically writable or semantically equivalent."
+    },
+    {
+      "id": "deckcraft",
+      "app": "deckcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Reopen PPTX/native output, check slide count/content and render every slide. Review text overflow, charts, fonts, notes/handouts and warnings. A ZIP/XML check does not establish PowerPoint fidelity."
+    },
+    {
+      "id": "cadcraft",
+      "app": "cadcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Compare known geometry, dimensions, entity counts and model-space units after reopening. View/window framing affects rendered outputs, not necessarily saved geometry. SVG/PNG/PDF export may leave the editable drawing unsaved."
+    },
+    {
+      "id": "soundcraft",
+      "app": "soundcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Check missing media before bouncing. Verify actual audio duration, sample rate, channels and expected mix; listen when the task requires audio-quality judgment. Save the editable session separately. PCM parsing alone is not a mix or loudness approval."
+    },
+    {
+      "id": "cross-photo-layout-pdf",
+      "apps": [
+        "photocraft",
+        "designcraft",
+        "pdfcraft"
+      ],
+      "status": "not_run",
+      "required_evidence": [
+        "verified_png",
+        "layout_inspection",
+        "reopened_pdf",
+        "artifact_hash_chain",
+        "original_hashes_unchanged"
+      ]
+    },
+    {
+      "id": "cross-motion-film-audio",
+      "apps": [
+        "effectcraft",
+        "filmcraft",
+        "soundcraft"
+      ],
+      "status": "not_run",
+      "required_evidence": [
+        "verified_media",
+        "timebase_checks",
+        "single_audio_owner",
+        "no_offline_media",
+        "verified_final_export"
+      ]
+    }
+  ]
+}

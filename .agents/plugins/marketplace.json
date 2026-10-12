@@ -1,0 +1,20 @@
+{
+  "name": "devsolux-storytold",
+  "interface": {
+    "displayName": "Devsolux Storytold"
+  },
+  "plugins": [
+    {
+      "name": "storytold",
+      "source": {
+        "source": "local",
+        "path": "./plugins/storytold"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

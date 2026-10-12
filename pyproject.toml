@@ -1,0 +1,5 @@
+[tool.storytold]
+python-requires = ">=3.11"
+canonical-version = "packaging/project.json"
+# Core utilities/tests are standard-library-only; no Python package install needed.
+# Optional SDK dependencies are in requirements-probe.txt.

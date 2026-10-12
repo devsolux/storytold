@@ -1,0 +1,31 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "author": {
+    "name": "devsolux"
+  },
+  "description": "Local native Craft MCP workflows, safe file staging, and deterministic integration checks.",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "category": "Productivity",
+        "developerName": "devsolux",
+        "displayName": "Storytold",
+        "longDescription": "One craft Skill for twelve local, headless Craft MCP servers: staged copies, native edits, deliberate exports and verified files. Craft apps are not bundled.",
+        "shortDescription": "Local native Craft workflows and integration checks",
+        "websiteURL": "https://github.com/devsolux/storytold"
+      }
+    }
+  },
+  "homepage": "https://github.com/devsolux/storytold",
+  "keywords": [
+    "craft",
+    "native-mcp",
+    "local",
+    "headless",
+    "workflows"
+  ],
+  "license": "MIT",
+  "name": "storytold",
+  "repository": "https://github.com/devsolux/storytold",
+  "version": "1.0.0"
+}

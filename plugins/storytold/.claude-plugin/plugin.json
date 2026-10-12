@@ -1,0 +1,18 @@
+{
+  "author": {
+    "name": "devsolux"
+  },
+  "description": "Local native Craft MCP workflows, safe file staging, and deterministic integration checks.",
+  "homepage": "https://github.com/devsolux/storytold",
+  "keywords": [
+    "craft",
+    "native-mcp",
+    "local",
+    "headless",
+    "workflows"
+  ],
+  "license": "MIT",
+  "name": "storytold",
+  "repository": "https://github.com/devsolux/storytold",
+  "version": "1.0.0"
+}

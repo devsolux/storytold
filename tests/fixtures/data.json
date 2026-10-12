@@ -1,0 +1,10 @@
+{
+  "label": "synthetic",
+  "number": 12.5,
+  "flag": true,
+  "missing": null,
+  "formula_error": {
+    "type": "error",
+    "code": "DIV0"
+  }
+}

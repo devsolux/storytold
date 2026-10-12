@@ -1,0 +1,93 @@
+{
+  "mcpServers": {
+    "cadcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/cadcraft-cli"
+    },
+    "deckcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/deckcraft-cli"
+    },
+    "designcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/designcraft-cli"
+    },
+    "effectcraft": {
+      "args": [
+        "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
+      ],
+      "command": "${CRAFT_BIN_DIR}/effectcraft-cli"
+    },
+    "filmcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/filmcraft-cli"
+    },
+    "gridcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/gridcraft-cli"
+    },
+    "lightcraft": {
+      "args": [
+        "mcp",
+        "--compact"
+      ],
+      "command": "${CRAFT_BIN_DIR}/lightcraft-cli"
+    },
+    "pdfcraft": {
+      "args": [
+        "mcp",
+        "--root",
+        "${CRAFT_WORK_ROOT}",
+        "--compact"
+      ],
+      "command": "${CRAFT_BIN_DIR}/pdfcraft-cli"
+    },
+    "photocraft": {
+      "args": [
+        "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
+      ],
+      "command": "${CRAFT_BIN_DIR}/photocraft-cli"
+    },
+    "soundcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/soundcraft-cli"
+    },
+    "vectorcraft": {
+      "args": [
+        "mcp",
+        "--headless",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
+      ],
+      "command": "${CRAFT_BIN_DIR}/vectorcraft-cli"
+    },
+    "wordcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/wordcraft-cli"
+    }
+  }
+}

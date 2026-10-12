@@ -1,0 +1,106 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "cadcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/cadcraft-cli",
+      "type": "stdio"
+    },
+    "deckcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/deckcraft-cli",
+      "type": "stdio"
+    },
+    "designcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/designcraft-cli",
+      "type": "stdio"
+    },
+    "effectcraft": {
+      "args": [
+        "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
+      ],
+      "command": "${CRAFT_BIN_DIR}/effectcraft-cli",
+      "type": "stdio"
+    },
+    "filmcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/filmcraft-cli",
+      "type": "stdio"
+    },
+    "gridcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/gridcraft-cli",
+      "type": "stdio"
+    },
+    "lightcraft": {
+      "args": [
+        "mcp",
+        "--compact"
+      ],
+      "command": "${CRAFT_BIN_DIR}/lightcraft-cli",
+      "type": "stdio"
+    },
+    "pdfcraft": {
+      "args": [
+        "mcp",
+        "--root",
+        "${CRAFT_WORK_ROOT}",
+        "--compact"
+      ],
+      "command": "${CRAFT_BIN_DIR}/pdfcraft-cli",
+      "type": "stdio"
+    },
+    "photocraft": {
+      "args": [
+        "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
+      ],
+      "command": "${CRAFT_BIN_DIR}/photocraft-cli",
+      "type": "stdio"
+    },
+    "soundcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/soundcraft-cli",
+      "type": "stdio"
+    },
+    "vectorcraft": {
+      "args": [
+        "mcp",
+        "--headless",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
+      ],
+      "command": "${CRAFT_BIN_DIR}/vectorcraft-cli",
+      "type": "stdio"
+    },
+    "wordcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/wordcraft-cli",
+      "type": "stdio"
+    }
+  }
+}

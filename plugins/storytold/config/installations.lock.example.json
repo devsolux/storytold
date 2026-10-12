@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "platform": {
+    "system": null,
+    "machine": null
+  },
+  "apps": {
+    "photocraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "vectorcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "filmcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "lightcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "pdfcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "effectcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "designcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "gridcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "wordcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "deckcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "cadcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "soundcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    }
+  }
+}

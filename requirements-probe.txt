@@ -1,0 +1,4 @@
+# Optional official SDK for the short-lived native conformance probe.
+# Latest PyPI release on 2026-10-12; make test-sdk passed against it (synthetic
+# stdio fixture only). Direct pin only: the transitive graph is not locked.
+mcp==2.3.0

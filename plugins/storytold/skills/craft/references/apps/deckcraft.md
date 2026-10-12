@@ -1,0 +1,33 @@
+# DeckCraft
+
+## Choose this app
+
+Slide decks and presentations. Native server key: `deckcraft`. Plugin-provided or
+host-specific namespacing may change the callable tool prefix; discover it.
+
+## Launch and scope
+
+Native executable: `deckcraft-cli` (`.exe` on native Windows).
+The source-derived launch arguments live in the single reviewed
+[app catalog](../../../../config/apps.json), not in a copied engine registry.
+No native MCP root restriction is established here. Assume OS-user-wide access.
+
+## Discover before execution
+
+Discover presentation/slide inspection, shape/text/chart operations, save and export. Use the actual export schema: descriptive tool text has previously differed from supported PDF options.
+
+## Workflow and risky operations
+
+Preserve approved narrative/data and make layout changes only within scope. No native file-root flag is established. Save a separate editable native deck and requested interchange export when required.
+
+## Durable verification
+
+Reopen PPTX/native output, check slide count/content and render every slide. Review text overflow, charts, fonts, notes/handouts and warnings. A ZIP/XML check does not establish PowerPoint fidelity.
+
+## Evidence and maintenance
+
+Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
+Reference, app-specific section. This card is source-grounded guidance, not a
+runtime-tested capability contract. [Upstream source/documentation](https://github.com/storytold/deckcraft/blob/main/docs/mcp.md).
+Pin the source revision and executable hash, verify help/flags and current
+`tools/list`, then run the app's non-sensitive acceptance fixture before real work.

@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+.venv/
+.build/
+dist/
+.storytold-build.lock
+.storytold/
+.env
+.env.*
+!.env.example
+*.lock.local.json
+installations.lock.json
+.mcp.json
+mcp.json
+.codex/config.toml
+.claude/settings.local.json
+.DS_Store
+*.whl
+*.tar.gz
+# Keep private native workspaces, binary directories and evidence OUTSIDE this repo.
+# plugins/storytold is generated but intentionally tracked for marketplace installs.

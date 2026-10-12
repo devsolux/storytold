@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "basis": "User-supplied native MCP plan, 2026-10-12; source-level launch candidates, not binary verification.",
+  "apps": [
+    {
+      "id": "photocraft",
+      "name": "PhotoCraft",
+      "purpose": "Raster images, layers, masks and PSD",
+      "executable": "photocraft-cli",
+      "confinement": "read_write",
+      "args": [
+        "mcp",
+        "--automation-read-root",
+        "{work}",
+        "--automation-write-root",
+        "{outputs}"
+      ],
+      "repository": "https://github.com/storytold/photocraft",
+      "documentation": "https://github.com/storytold/photocraft/blob/main/docs/development.md"
+    },
+    {
+      "id": "vectorcraft",
+      "name": "VectorCraft",
+      "purpose": "Vector illustrations and artboards",
+      "executable": "vectorcraft-cli",
+      "confinement": "read_write",
+      "args": [
+        "mcp",
+        "--headless",
+        "--automation-read-root",
+        "{work}",
+        "--automation-write-root",
+        "{outputs}"
+      ],
+      "repository": "https://github.com/storytold/vectorcraft",
+      "documentation": "https://github.com/storytold/vectorcraft/blob/main/apps/vectorcraft-cli/src/main.rs"
+    },
+    {
+      "id": "filmcraft",
+      "name": "FilmCraft",
+      "purpose": "Video sequences, timeline and final movie assembly",
+      "executable": "filmcraft-cli",
+      "confinement": "os_only",
+      "args": [
+        "mcp"
+      ],
+      "repository": "https://github.com/storytold/filmcraft",
+      "documentation": "https://github.com/storytold/filmcraft/blob/main/docs/agents.md"
+    },
+    {
+      "id": "lightcraft",
+      "name": "LightCraft",
+      "purpose": "RAW development and photo catalogs",
+      "executable": "lightcraft-cli",
+      "confinement": "os_only",
+      "args": [
+        "mcp",
+        "--compact"
+      ],
+      "repository": "https://github.com/storytold/lightcraft",
+      "documentation": "https://github.com/storytold/lightcraft/blob/main/docs/mcp.md"
+    },
+    {
+      "id": "pdfcraft",
+      "name": "PdfCraft",
+      "purpose": "PDF inspection, operations and validation",
+      "executable": "pdfcraft-cli",
+      "confinement": "single_root",
+      "args": [
+        "mcp",
+        "--root",
+        "{work}",
+        "--compact"
+      ],
+      "repository": "https://github.com/storytold/pdfcraft",
+      "documentation": "https://github.com/storytold/pdfcraft/blob/main/README.md"
+    },
+    {
+      "id": "effectcraft",
+      "name": "EffectCraft",
+      "purpose": "Motion graphics, compositions and keyframes",
+      "executable": "effectcraft-cli",
+      "confinement": "read_write",
+      "args": [
+        "mcp",
+        "--automation-read-root",
+        "{work}",
+        "--automation-write-root",
+        "{outputs}"
+      ],
+      "repository": "https://github.com/storytold/effectcraft",
+      "documentation": "https://github.com/storytold/effectcraft/blob/main/docs/mcp.md"
+    },
+    {
+      "id": "designcraft",
+      "name": "DesignCraft",
+      "purpose": "Page layout, stories and publishing",
+      "executable": "designcraft-cli",
+      "confinement": "os_only",
+      "args": [
+        "mcp"
+      ],
+      "repository": "https://github.com/storytold/designcraft",
+      "documentation": "https://github.com/storytold/designcraft/blob/main/docs/mcp.md"
+    },
+    {
+      "id": "gridcraft",
+      "name": "GridCraft",
+      "purpose": "Workbooks, typed values and formulas",
+      "executable": "gridcraft-cli",
+      "confinement": "os_only",
+      "args": [
+        "mcp"
+      ],
+      "repository": "https://github.com/storytold/gridcraft",
+      "documentation": "https://github.com/storytold/gridcraft/blob/main/docs/mcp.md"
+    },
+    {
+      "id": "wordcraft",
+      "name": "WordCraft",
+      "purpose": "Rich text, tracked changes and documents",
+      "executable": "wordcraft-cli",
+      "confinement": "os_only",
+      "args": [
+        "mcp"
+      ],
+      "repository": "https://github.com/storytold/wordcraft",
+      "documentation": "https://github.com/storytold/wordcraft/blob/main/docs/mcp.md"
+    },
+    {
+      "id": "deckcraft",
+      "name": "DeckCraft",
+      "purpose": "Slide decks and presentations",
+      "executable": "deckcraft-cli",
+      "confinement": "os_only",
+      "args": [
+        "mcp"
+      ],
+      "repository": "https://github.com/storytold/deckcraft",
+      "documentation": "https://github.com/storytold/deckcraft/blob/main/docs/mcp.md"
+    },
+    {
+      "id": "cadcraft",
+      "name": "CADCraft",
+      "purpose": "Drawing entities, units and geometry",
+      "executable": "cadcraft-cli",
+      "confinement": "os_only",
+      "args": [
+        "mcp"
+      ],
+      "repository": "https://github.com/storytold/cadcraft",
+      "documentation": "https://github.com/storytold/cadcraft/blob/main/docs/mcp.md"
+    },
+    {
+      "id": "soundcraft",
+      "name": "SoundCraft",
+      "purpose": "Offline audio sessions and mix bounce",
+      "executable": "soundcraft-cli",
+      "confinement": "os_only",
+      "args": [
+        "mcp"
+      ],
+      "repository": "https://github.com/storytold/soundcraft",
+      "documentation": "https://github.com/storytold/soundcraft/blob/main/docs/mcp.md"
+    }
+  ]
+}
