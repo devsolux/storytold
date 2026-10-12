@@ -7,27 +7,31 @@ host-specific namespacing may change the callable tool prefix; discover it.
 
 ## Launch and scope
 
-Native executable: `effectcraft-cli` (`.exe` on native Windows).
+Native executable: `effectcraft-cli` (`.exe` on native Windows). On macOS the `.app` (from
+the `.dmg` or the ArtCraft Launcher) holds only the desktop app: install the separate
+`effectcraft-cli-<version>-macos-universal.zip` release asset. Windows MSI/portable ZIP and
+Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/effectcraft-cli`).
 The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
 Native source documents distinct read/write roots; still test the pinned binary and OS boundary.
 
 ## Discover before execution
 
-Discover compositions, layer/property schemas, keyframe operations, native batches and frame/export jobs. Use the native progress/status APIs where present rather than adding a queue.
+Discover compositions, layer/property schemas, keyframe operations, native batches and frame/export jobs. Use the native progress/status APIs where present (progress notifications, renderQueue.list/renderQueue.stop) rather than adding a queue. Tools at 0.8.0 include get_project, get_comp, get_layer, get_property, set_property, add_keyframe, render_frame, save_project, batch and command_batch.
 
 ## Workflow and risky operations
 
-The source-documented read/write roots enable restricted mode that refuses scripting. Do not bypass it. Keyframe-setting time may be layer time while sampling/render time is composition time; use the tool-specific timeBase when required.
+The source-documented read/write roots enable restricted mode that refuses scripting and UI/control tools. Do not bypass it. Both roots must exist at launch; without a write root nothing is written. Keyframe-setting time may be layer time while sampling/render time is composition time; use the tool-specific timeBase when required.
 
 ## Durable verification
 
-Check composition dimensions, timing, layer offset/stretch, expected frames and media. Preserve native warnings. Native batch rollback semantics are engine-specific; they do not promise cross-file or cross-app atomicity. Autosave is not enabled implicitly.
+Check composition dimensions, timing, layer offset/stretch, expected frames and media. Preserve native warnings. batch rolls back when a step fails, while command_batch keeps one undo step per edit and stops at the first error; neither spans files or apps. Autosave is not enabled implicitly.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section. This card is source-grounded guidance, not a
-runtime-tested capability contract. [Upstream source/documentation](https://github.com/storytold/effectcraft/blob/main/docs/mcp.md).
+Reference, app-specific section, rechecked on 2026-10-12 against the v0.8.0 release
+source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
+not a runtime-tested capability contract. Upstream: [agent guide at v0.8.0](https://github.com/storytold/effectcraft/blob/v0.8.0/docs/agents.md) and [confinement notes at v0.8.0](https://github.com/storytold/effectcraft/blob/v0.8.0/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.

@@ -1,0 +1,71 @@
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from storytold_tools.doctor import report
+
+class DoctorTests(unittest.TestCase):
+    """Synthetic files only; doctor must never execute anything it finds."""
+    def setUp(self):
+        temp=tempfile.TemporaryDirectory(prefix='storytold-doctor-');self.addCleanup(temp.cleanup)
+        self.base=Path(temp.name).resolve()
+        self.home=self.base/'home';self.cwd=self.base/'project';self.apps=self.base/'Applications'
+        for d in (self.home/'.codex',self.cwd,self.apps,self.base/'bin'): d.mkdir(parents=True)
+        self.env={'PATH':''}
+    def binary(self,name):
+        p=self.base/'bin'/name;p.write_bytes(b'SYNTHETIC; MUST NOT EXECUTE');p.chmod(0o755);return p
+    def codex(self,body): (self.home/'.codex/config.toml').write_text(body)
+    def run_report(self):
+        r=report(self.env,self.cwd,self.home,[self.apps])
+        return r,{a['app']:a for a in r['apps']}
+
+    def test_desktop_app_without_cli_points_to_cli_asset(self):
+        (self.apps/'PhotoCraft.app').mkdir()
+        _,apps=self.run_report()
+        self.assertEqual(apps['photocraft']['status'],'desktop_app_only')
+        self.assertIn('photocraft-cli-<version>-macos-universal.zip',apps['photocraft']['next'])
+        self.assertEqual(apps['vectorcraft']['status'],'not_installed')
+
+    def test_cli_found_but_unregistered(self):
+        self.binary('photocraft-cli');self.env['CRAFT_BIN_DIR']=str(self.base/'bin')
+        _,apps=self.run_report()
+        self.assertEqual(apps['photocraft']['status'],'cli_not_registered')
+        self.assertEqual(apps['photocraft']['cli'],str(self.base/'bin/photocraft-cli'))
+
+    def test_cli_on_path_is_found(self):
+        self.binary('photocraft-cli');self.env['PATH']=str(self.base/'bin')
+        _,apps=self.run_report()
+        self.assertEqual(apps['photocraft']['status'],'cli_not_registered')
+
+    def test_codex_registration_with_runnable_command(self):
+        cmd=self.binary('photocraft-cli')
+        self.codex('[mcp_servers.photocraft]\ncommand = '+json.dumps(str(cmd))+'\nargs = ["mcp"]\n'
+                   '[mcp_servers.unrelated]\ncommand = "x"\n')
+        r,apps=self.run_report()
+        self.assertEqual(apps['photocraft']['status'],'registered')
+        self.assertEqual([x['host'] for x in apps['photocraft']['registrations']],['codex'])
+        self.assertEqual(r['host_config_errors'],[])
+
+    def test_codex_home_env_overrides_default(self):
+        other=self.base/'codex-home';other.mkdir()
+        (other/'config.toml').write_text('[mcp_servers.photocraft]\ncommand = "/missing/photocraft-cli"\n')
+        self.env['CODEX_HOME']=str(other)
+        _,apps=self.run_report()
+        self.assertEqual(apps['photocraft']['status'],'registered_command_missing')
+
+    def test_project_configs_are_read(self):
+        cmd=self.binary('pdfcraft-cli')
+        (self.cwd/'.mcp.json').write_text(json.dumps({'mcpServers':{'pdfcraft':{'command':str(cmd),'args':['mcp']}}}))
+        (self.cwd/'.codex').mkdir()
+        (self.cwd/'.codex/config.toml').write_text('[mcp_servers.gridcraft]\ncommand = "relative-cli"\n')
+        _,apps=self.run_report()
+        self.assertEqual(apps['pdfcraft']['status'],'registered')
+        self.assertEqual(apps['pdfcraft']['registrations'][0]['host'],'claude_project')
+        self.assertEqual(apps['gridcraft']['status'],'registered_command_missing')
+
+    def test_malformed_config_is_reported_not_raised(self):
+        self.codex('[mcp_servers.photocraft\n')
+        (self.cwd/'.mcp.json').write_text('{"mcpServers": []}')
+        r,apps=self.run_report()
+        self.assertEqual({e['host'] for e in r['host_config_errors']},{'codex','claude_project'})
+        self.assertEqual(apps['photocraft']['status'],'not_installed')

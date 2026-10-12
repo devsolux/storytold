@@ -2,8 +2,60 @@
 
 These are operator steps, not actions performed by installing the plugin. Use
 non-sensitive fixtures until [acceptance](acceptance.md) passes. The release was
-checked with Claude Code, Codex and the optional SDK, but not with Craft binaries;
-see [verification](verification.md).
+checked with Claude Code, Codex and the optional SDK; one native binary
+(PhotoCraft 0.7.0) has passed the discovery probe. See [verification](verification.md).
+
+## 0. Get each app's CLI, not only the desktop app
+
+Every MCP server is an app's command-line tool, `<app>-cli` (for example
+`photocraft-cli mcp`). On macOS the `.dmg` and the ArtCraft Launcher install the
+GUI only: `PhotoCraft.app` contains no `photocraft-cli`, so a host has nothing to
+connect to. Every Craft app publishes the macOS CLI as a separate signed and
+notarized release asset, `<app>-cli-<version>-macos-universal.zip`, listed in
+that release's `SHA256SUMS.txt`. On Windows the MSI and portable ZIP install
+`<app>-cli.exe` next to the app (not on PATH); on Linux the `.deb`/`.rpm` install
+`/usr/bin/<app>-cli`. Pin whichever copy you use, preferably the version that
+matches your desktop app.
+
+Latest releases on 2026-10-12 (newer ones may exist; re-check the tag commit):
+
+| App | Release | macOS CLI asset | Tag commit (lock `revision`) | File roots in this release |
+|---|---|---|---|---|
+| PhotoCraft | v0.7.0 | `photocraft-cli-0.7.0-macos-universal.zip` | `79261615956ab21334e49ca1d384390272e647da` | separate read/write |
+| VectorCraft | v0.9.0 | `vectorcraft-cli-0.9.0-macos-universal.zip` | `10f1c56a861869936af0027cef14b1cf5d8cf515` | separate read/write |
+| FilmCraft | v0.6.0 | `filmcraft-cli-0.6.0-macos-universal.zip` | `2ff3f5e266838700c292a35aaf762e3d4dcef980` | none |
+| LightCraft | v0.6.0 | `lightcraft-cli-0.6.0-macos-universal.zip` | `9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda` | none |
+| PdfCraft | v0.6.0 | `pdfcraft-cli-0.6.0-macos-universal.zip` | `53a5880386789fc3531e54f6e6ffdef9a8e41f1a` | one root |
+| EffectCraft | v0.8.0 | `effectcraft-cli-0.8.0-macos-universal.zip` | `f953cd2855bf36beffa6a4d608e9bf4b226e9442` | separate read/write |
+| DesignCraft | v0.6.0 | `designcraft-cli-0.6.0-macos-universal.zip` | `a9124a0517594ce9872f73637e7b841a4967bcf9` | none |
+| GridCraft | v0.5.0 | `gridcraft-cli-0.5.0-macos-universal.zip` | `9f896c1249f40d18bf182199dc03042959be5f3f` | none |
+| WordCraft | v0.5.0 | `wordcraft-cli-0.5.0-macos-universal.zip` | `e4b7d155f15a7784197ba34eeea0b54490d70eb2` | none (upstream `main` adds read/write) |
+| DeckCraft | v0.5.0 | `deckcraft-cli-0.5.0-macos-universal.zip` | `a98df49b21632d69a3da994d35df1ea91dab41af` | none |
+| CADCraft | v0.5.0 | `cadcraft-cli-0.5.0-macos-universal.zip` | `315751e3ec98e708bcc831dd7f80ca0433a2e3d0` | none |
+| SoundCraft | v0.5.0 | `soundcraft-cli-0.5.0-macos-universal.zip` | `4410486fc21561a9db0dc33961a2017469127e0d` | none |
+
+On macOS, install one app at a time; set `APP` and `VER` from a table row:
+
+```bash
+APP=photocraft VER=0.7.0
+ZIP="$APP-cli-$VER-macos-universal.zip"
+mkdir -p "$HOME/Downloads/$APP-cli-$VER" && cd "$HOME/Downloads/$APP-cli-$VER"
+gh release download "v$VER" --repo "storytold/$APP" --pattern "$ZIP" --pattern SHA256SUMS.txt
+grep " $ZIP\$" SHA256SUMS.txt | shasum -a 256 -c -
+ditto -x -k "$ZIP" .
+BIN=$(find . -type f -name "$APP-cli" | head -n 1)
+spctl --assess --type install -vv "$BIN"
+mkdir -p "$HOME/.local/opt/craft/bin" && chmod 0755 "$HOME/.local/opt/craft/bin"
+install -m 0755 "$BIN" "$HOME/.local/opt/craft/bin/"
+gh api "repos/storytold/$APP/commits/v$VER" --jq .sha
+```
+
+`spctl` must report `source=Notarized Developer ID` with the same team as the
+desktop app (for example `codesign -dv /Applications/PhotoCraft.app`). The last
+command prints the tag's full commit for the lock's `revision`. Without `gh`,
+download both files from the release page. Storytold never downloads or installs
+apps. Apps without file roots can read and write anywhere your user can; see
+section 2 before registering them.
 
 ## 1. Establish paths and native provenance
 
@@ -134,12 +186,24 @@ python3 "$STORYTOLD/storytold.py" configure \
   --evidence-dir "$CRAFT_EVIDENCE_DIR" --output "$CRAFT_EVIDENCE_DIR/codex-mcp.toml"
 ```
 
-This emits a TOML fragment with concrete command/args/cwd. Review and merge only
-these tables into the appropriate trusted project's `.codex/config.toml`, keeping
-unrelated settings and approvals. The kit never edits a global Codex file or
-assumes Claude's environment-variable expansion works in TOML. Check `codex mcp
-list` and `/mcp` in the intended local Codex session. Web/mobile execution is not
-implied. See current host sources in [source ledger](source-ledger.md).
+This emits a TOML fragment with concrete command/args/cwd. Review it, back up the
+target, then append only its `[mcp_servers.<app>]` tables to one of:
+
+- `~/.codex/config.toml` (or `$CODEX_HOME/config.toml`): every local Codex
+  session, including Codex app chats;
+- a trusted project's `.codex/config.toml`: only sessions opened in that project.
+
+```bash
+cp -p ~/.codex/config.toml ~/.codex/config.toml.bak
+sed -n '/^\[mcp_servers\./,$p' "$CRAFT_EVIDENCE_DIR/codex-mcp.toml" >> ~/.codex/config.toml
+codex mcp get photocraft
+```
+
+Keep unrelated settings and approvals; never register one app twice. The kit
+itself never edits Codex files or assumes Claude's environment-variable expansion
+works in TOML. Codex loads MCP servers when a session starts: open a **new**
+chat/session, then check `/mcp`. Web/mobile execution is not implied. See current
+host sources in [source ledger](source-ledger.md).
 
 Add the remaining apps one at a time after evidence is captured. To expand an
 existing `.mcp.json`, create a new reviewed config in a separate test workspace or
@@ -170,6 +234,33 @@ active content. None establishes native reopen, visual quality, complete format
 fidelity or business approval. Native/app-specific verification remains mandatory.
 Staging/inspection is capped at 128 MiB; larger media needs a separately reviewed
 OS-level staging process, not a silent limit bypass or writable original.
+
+## Troubleshooting: "native tools aren't connected"
+
+If the Skill reports that an app's native tools aren't connected, or that
+`<app>-cli` isn't on PATH, the host has no MCP server for that app. Installing
+the Storytold plugin or a desktop app never registers one. Run the read-only
+diagnostic from the repository or the installed plugin:
+
+```bash
+python3 "$STORYTOLD/storytold.py" doctor
+```
+
+For each app, `connections.apps[]` shows the desktop app, a CLI in
+`CRAFT_BIN_DIR` or on PATH, Codex (`~/.codex`, `./.codex`) and Claude
+(`./.mcp.json`) registrations, a `status` and the `next` step:
+
+| `status` | Fix |
+|---|---|
+| `desktop_app_only` | Install the CLI release asset (section 0). |
+| `cli_not_registered` | Sections 1–5: lock, preflight, probe, configure, register. |
+| `registered_command_missing` | The binary moved or was removed; reinstall it, re-run preflight and the probe, regenerate config. |
+| `registered` | Start a new host session; check `codex mcp get <app>` or `claude mcp get <app>` and approve the server. |
+
+PATH does not matter for the connection: hosts launch the absolute `command` from
+their config. Claude user-scope servers are outside this static check; use
+`claude mcp list`. Never let an agent work around a missing server by running
+`<app>-cli` from a shell.
 
 ## Failures, update and rollback
 

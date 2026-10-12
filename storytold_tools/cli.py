@@ -11,6 +11,7 @@ import sys
 from .catalog import load_catalog,selected,inventory,preflight
 from .common import ROOT,StorytoldError,absolute,create_new,encoded,load_json,local,require
 from .configuration import write_config
+from .doctor import default_app_dirs,report as connection_report
 from .probe import probe
 from .workspace import init_workspace,stage,verify_inputs,verify_artifact
 
@@ -18,7 +19,7 @@ from .workspace import init_workspace,stage,verify_inputs,verify_artifact
 def parser() -> argparse.ArgumentParser:
     p=argparse.ArgumentParser(description='Local Craft integration helpers. No MCP server or automatic host/app installation.')
     sub=p.add_subparsers(dest='command',required=True)
-    sub.add_parser('doctor',help='Report capabilities without executing or installing hosts/apps')
+    sub.add_parser('doctor',help='Report capabilities and per-app MCP connection gaps without executing or installing hosts/apps')
     sub.add_parser('apps',help='Show the twelve source-documented app entries')
     s=sub.add_parser('workspace-init',help='Create a NEW private inputs/outputs workspace')
     s.add_argument('--root',required=True)
@@ -76,6 +77,7 @@ def main(argv: list[str] | None=None) -> int:
             except importlib.metadata.PackageNotFoundError: sdk=None
             result={'storytold':storytold_version(),'python':sys.version.split()[0],'mcp_sdk':sdk,
                     'claude':shutil.which('claude'),'codex':shutil.which('codex'),
+                    'connections':connection_report(os.environ,Path.cwd(),Path.home(),default_app_dirs(Path.home())),
                     'native_apps_executed':False,'network_used':False}
         elif cmd=='apps': result={'apps':list(load_catalog().values())}
         elif cmd=='workspace-init': result=init_workspace(required_path(args.root,'root'))

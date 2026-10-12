@@ -10,11 +10,13 @@ class CliTests(WorkspaceCase):
     def run_cli(self,*args):
         env=os.environ.copy()
         for key in ('CRAFT_BIN_DIR','CRAFT_WORK_ROOT','CRAFT_OUTPUT_ROOT'):env.pop(key,None)
+        env['CODEX_HOME']=str(self.base/'codex-home')  # never read the operator's real Codex config
         return subprocess.run([sys.executable,str(ROOT/'storytold.py'),*args],capture_output=True,text=True,env=env)
     def test_doctor_never_executes(self):
         r=self.run_cli('doctor');self.assertEqual(r.returncode,0,r.stderr)
         report=json.loads(r.stdout);self.assertFalse(report['native_apps_executed'])
         self.assertEqual(report['storytold'],json.loads((ROOT/'packaging/project.json').read_text())['version'])
+        self.assertEqual(len(report['connections']['apps']),12)
     def test_apps_lists_twelve(self):
         r=self.run_cli('apps');self.assertEqual(len(json.loads(r.stdout)['apps']),12)
     def test_missing_env_fails_closed(self):

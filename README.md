@@ -30,10 +30,11 @@ User + Claude Code / local Codex
                       native engines → durable files
 ```
 
-**Release 1.0.0.** The offline core suite, the official MCP SDK contract test,
+**Release 1.0.1.** The offline core suite, the official MCP SDK contract test,
 strict Claude manifest validation and Claude Code/Codex install with Skill
-discovery have been run. The twelve native Craft apps have not: they are not
-bundled and need your own pinned builds. Read [verification](docs/verification.md).
+discovery have been run. Craft apps are not bundled and need your own pinned
+builds; PhotoCraft 0.7.0 has passed the native discovery and smoke-call probe on
+macOS, the other eleven have not been run. Read [verification](docs/verification.md).
 Installing the plugin installs guidance and inactive templates, not Craft apps,
 permissions, executable pins or automatically running MCP processes. Business
 use requires the local acceptance gates in [acceptance](docs/acceptance.md).
@@ -125,19 +126,34 @@ Follow [operations](docs/operations.md) in order. Keep the app binaries outside
 this repository and outside the writable workspace. Obtain/build them from
 reviewed immutable upstream revisions; no installer/downloader is supplied.
 
-1. Create a new private workspace with `storytold.py workspace-init` and set
+> **The desktop app is not an MCP server.** Each app's MCP server is its CLI,
+> `<app>-cli`. On macOS the ArtCraft Launcher and the `.dmg` install only the
+> `.app`; the CLI is a separate `<app>-cli-<version>-macos-universal.zip` release
+> asset. Windows MSI/portable ZIP and Linux `.deb`/`.rpm` packages include it.
+> Until it is installed **and** registered with your host, the Skill correctly
+> reports that the app's native tools aren't connected.
+
+1. Install each app's `<app>-cli` from its upstream release and verify the
+   published checksum and signature ([operations, section 0](docs/operations.md#0-get-each-apps-cli-not-only-the-desktop-app)).
+2. Create a new private workspace with `storytold.py workspace-init` and set
    `CRAFT_BIN_DIR`, `CRAFT_WORK_ROOT`, and `CRAFT_OUTPUT_ROOT` to absolute paths.
-2. Use `inventory` to hash executables **without executing them**. Populate a
+3. Use `inventory` to hash executables **without executing them**. Populate a
    private installation lock with trusted source revisions, build versions and
    verified binary hashes; the example lock intentionally fails validation.
-3. Run `preflight`. Explicitly acknowledge any OS-only apps for non-sensitive
+4. Run `preflight`. Explicitly acknowledge any OS-only apps for non-sensitive
    testing, or run under a genuinely tested OS-isolated environment.
-4. With the optional SDK installed, `probe` each app for initialization, paginated
+5. With the optional SDK installed, `probe` each app for initialization, paginated
    discovery and one explicitly reviewed fixture-only smoke call. Missing apps,
    hash changes, absent schemas, tool errors and timeouts are not success.
-5. Generate a **new** Claude project `.mcp.json` or Codex TOML configuration from
+6. Generate a **new** Claude project `.mcp.json` or Codex TOML configuration from
    matching native probe evidence. Existing files are never overwritten/merged.
-   Review and activate it in the host, then complete M0–M3 and host acceptance.
+   Register it in the host (Codex: `~/.codex/config.toml` or a trusted project's
+   `.codex/config.toml`), start a new session, then complete M0–M3 and host acceptance.
+
+Tools still missing? `python3 storytold.py doctor` reports, without executing
+anything, which apps have only the desktop app, a CLI without a host
+registration, or a registration whose binary is gone. See
+[troubleshooting](docs/operations.md#troubleshooting-native-tools-arent-connected).
 
 The complete Unix launch templates are under `config/`. They are examples only,
 not active host configuration. Real config generation chooses `.exe` on native

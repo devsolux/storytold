@@ -31,9 +31,14 @@ instructions, not an authorization layer, execution service or new agent.
 1. Establish the requested input, output format, scope and allowed changes. Reuse
    already approved intent and constraints; do not repeat upstream research.
 2. Confirm the specific native server is connected in this local host. Resolve
-   its actual namespaced tools. If absent, report the missing app/configuration;
-   never fabricate results, install binaries, use a remote service, start a GUI
-   bridge, or substitute an unrestricted shell backend silently.
+   its actual namespaced tools. If absent, stop and tell the user which server
+   is missing and how to fix it: the operator needs the app's `<app>-cli` (on
+   macOS a separate release download; the `.app` has none), registers it with
+   this host, then starts a new session. Point to the plugin's
+   [operations guide](../../docs/operations.md) and `storytold.py doctor`, which
+   reports what is missing. Never fabricate results, install binaries, use a
+   remote service, start a GUI bridge, or substitute an unrestricted shell
+   backend (including a `<app>-cli` found on PATH) silently.
 3. Read [safety](references/safety.md) and only the needed app card. Discover
    authoritative current tool names and argument schemas from the connected
    server. Cards contain source-reported hints, not frozen command registries.

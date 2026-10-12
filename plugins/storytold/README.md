@@ -19,7 +19,10 @@ unexecuted native and host acceptance. App cards are source-derived guidance;
 the connected binary's schemas remain authoritative.
 
 `python /absolute/path/to/this/plugin/storytold.py doctor` reports local capability
-without execution. All other deterministic helper commands are documented in
+and, per app, the desktop app, CLI and host registration it finds, without
+execution. A desktop app is not an MCP server: on macOS install the app's separate
+`<app>-cli` release asset, and on every platform register the CLI with your host
+(operations, section 0 and troubleshooting). All other deterministic helper commands are documented in
 operations. Core helpers require Python 3.11+ and no third-party packages. Only
 the explicit native probe requires the reviewed optional MCP client dependency
 listed in `requirements-probe.txt`; install that in your separately managed

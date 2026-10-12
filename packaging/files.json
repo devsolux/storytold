@@ -60,6 +60,7 @@
     "storytold_tools/cli.py",
     "storytold_tools/common.py",
     "storytold_tools/configuration.py",
+    "storytold_tools/doctor.py",
     "storytold_tools/probe.py",
     "storytold_tools/workspace.py",
     "tests/__init__.py",
@@ -72,6 +73,7 @@
     "tests/test_build.py",
     "tests/test_catalog.py",
     "tests/test_cli.py",
+    "tests/test_doctor.py",
     "tests/test_files.py",
     "tests/test_probe.py",
     "tests/test_workspace.py"
@@ -116,6 +118,7 @@
     "storytold_tools/cli.py",
     "storytold_tools/common.py",
     "storytold_tools/configuration.py",
+    "storytold_tools/doctor.py",
     "storytold_tools/probe.py",
     "storytold_tools/workspace.py"
   ]

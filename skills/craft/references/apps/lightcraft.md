@@ -7,14 +7,17 @@ host-specific namespacing may change the callable tool prefix; discover it.
 
 ## Launch and scope
 
-Native executable: `lightcraft-cli` (`.exe` on native Windows).
+Native executable: `lightcraft-cli` (`.exe` on native Windows). On macOS the `.app` (from
+the `.dmg` or the ArtCraft Launcher) holds only the desktop app: install the separate
+`lightcraft-cli-<version>-macos-universal.zip` release asset. Windows MSI/portable ZIP and
+Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/lightcraft-cli`).
 The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
 No native MCP root restriction is established here. Assume OS-user-wide access.
 
 ## Discover before execution
 
-The documented --compact mode keeps discovery/dispatch while reducing generated tools. Discover photo query/import, controls, develop state, preview and export schemas as needed.
+The documented --compact mode keeps discovery/dispatch while reducing generated tools. Discover photo query/import, controls, develop state, preview and export schemas as needed; at 0.6.0 compact mode keeps command_list, command_run, command_batch, doc_inspect, render_preview and helpers such as query_photos, get_develop, set_develop, render_photo and export.
 
 ## Workflow and risky operations
 
@@ -22,12 +25,13 @@ Default to an ephemeral headless session. Persistent --library is deliberately n
 
 ## Durable verification
 
-Verify RAW/develop expectations, rendered pixels, output filename and image properties. Exports may choose a new name on collision; repeated calls are not idempotent. No denoise service or live connect is started by this plugin.
+Verify RAW/develop expectations, rendered pixels, output filename and image properties. Exports may choose a new name on collision; repeated calls are not idempotent. Denoise runs in-process from per-user model folders (no weights are bundled); this plugin starts no denoise server or live --connect session.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section. This card is source-grounded guidance, not a
-runtime-tested capability contract. [Upstream source/documentation](https://github.com/storytold/lightcraft/blob/main/docs/mcp.md).
+Reference, app-specific section, rechecked on 2026-10-12 against the v0.6.0 release
+source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
+not a runtime-tested capability contract. Upstream: [MCP documentation at v0.6.0](https://github.com/storytold/lightcraft/blob/v0.6.0/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.

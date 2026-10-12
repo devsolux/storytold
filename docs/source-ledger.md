@@ -33,11 +33,31 @@ patterns, not Engineer's domain commands, server code, license or agents.
 | [EffectCraft MCP](https://github.com/storytold/effectcraft/blob/main/docs/mcp.md) | Native root restrictions, scripts and headless operation. | Actual denial behavior is an M3 test, not an assertion from a tool description. |
 | [LightCraft MCP](https://github.com/storytold/lightcraft/blob/main/docs/mcp.md) | Compact discovery, library and import risks. | No persistent library, live connection or denoise service is enabled by default. |
 
-FilmCraft, DesignCraft, GridCraft, WordCraft, DeckCraft, CADCraft and SoundCraft
-cards are based on the supplied reference; a fresh complete source audit of these
-seven projects was **not** performed. All app links to `main` are mutable. The
-local installation lock must use full immutable revisions and trusted executable
-hashes; this repository deliberately does not invent current binary pins.
+## Release-tag review of all twelve apps — 2026-10-12
+
+Every app card was rechecked against that app's latest release tag, not `main`:
+PhotoCraft v0.7.0, VectorCraft v0.9.0, FilmCraft v0.6.0, LightCraft v0.6.0,
+PdfCraft v0.6.0, EffectCraft v0.8.0, DesignCraft v0.6.0, GridCraft v0.5.0,
+WordCraft v0.5.0, DeckCraft v0.5.0, CADCraft v0.5.0 and SoundCraft v0.5.0. The
+review read each CLI's `mcp` argument parser, MCP/agent docs, MCP tool
+definitions, Windows/Linux/macOS packaging and release assets:
+
+- Every catalog launch flag is accepted by the released CLI. WordCraft 0.5.0
+  rejects the root flags that its `main` branch added after release, and
+  FilmCraft 0.6.0 rejects them by test, so both stay `os_only`.
+- Only macOS separates the CLI from the desktop app (`.app` plus a
+  `<app>-cli-<version>-macos-universal.zip` asset listed in `SHA256SUMS.txt`).
+  Windows MSI/portable ZIP and Linux `.deb`/`.rpm` packaging install the CLI.
+  The ArtCraft Launcher is not documented in these repositories; its macOS
+  behavior was observed locally (installed `.app` bundles contain no CLI).
+- Card links are pinned to those tags. The catalog's `documentation` links still
+  point at mutable `main`; changing them would invalidate existing probe
+  fingerprints, so they change only with a reviewed catalog update.
+
+This is source review, not binary testing; only PhotoCraft 0.7.0 was executed
+(see [verification](verification.md)). The local installation lock must use full
+immutable revisions and trusted executable hashes; this repository deliberately
+does not invent binary pins.
 
 ## Build infrastructure
 
