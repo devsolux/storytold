@@ -15,6 +15,11 @@ step, and the main CI matrix on Linux and Windows.
 - A doctor test hard-coded CADCraft's manifest tag, so the first genuine
   upstream release (CADCraft 0.6.2) failed the workflow's test step right
   after the refresh; tests now read expected versions from the manifest.
+- Documentation pass: README, operations, security, architecture, contributing
+  and the plugin README now describe install, update (`setup --list`,
+  `--upgrade`), re-registration (`--replace`) and removal (`--remove`) as the
+  code behaves, say that all twelve apps have been verified on three OSes, and
+  point at `config/releases.json` instead of a release table that went stale.
 - Documented the three repository settings the daily workflow needs to run
   hands-off (Actions may open pull requests, approval policy for new-to-GitHub
   accounts only, `STORYTOLD_AUTO_MERGE`); PR creation is now non-fatal.

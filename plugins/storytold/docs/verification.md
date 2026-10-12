@@ -117,14 +117,16 @@ Host manifest schemas remain authoritative.
   macOS machine; only PhotoCraft has produced a real export. Native edit,
   export, root-denial, isolation and fidelity tests (M1–M3) have not run for the
   other eleven apps.
-- **Linux and Windows.** `setup` for `linux-x86_64` and `windows-x64` is
-  covered by simulated-platform tests only; the first real runs happen in the
-  release workflow's verify matrix after this change is pushed. Until that
-  workflow has run and its pull request is merged, `config/signatures.json` is
-  empty, so Linux/Windows users need `--trust-upstream-sums`.
-- **Sigstore signing.** `scripts/sign_releases.py`, keyless signing and
-  `cosign verify-blob` were not executed here (cosign is not installed on this
-  Mac); the workflow exercises both.
+- **Linux and Windows.** Real runs exist only on GitHub-hosted runners: the
+  release workflow's verify matrix (run 38278727530, 2026-10-12) installed,
+  probed and Sigstore-verified all twelve apps on `ubuntu-latest`,
+  `windows-latest` and `macos-latest`. No host CLI was present there, so
+  registration on Linux/Windows is covered by simulated tests only, and no
+  Linux or Windows desktop machine has been used.
+- **Sigstore signing.** Keyless signing and `cosign verify-blob` ran in that
+  workflow, not on this Mac (cosign is not installed here). Until the bot's
+  pull request is merged, `config/signatures.json` on `main` is empty and
+  Linux/Windows users need `--trust-upstream-sums`.
 - **CI matrix.** GitHub Actions for Linux/macOS/Windows × Python 3.11/3.13 is
   configured but was not executed here. Windows-specific branches (binary-mode
   reads, read-only publication order) are covered by simulations on macOS.

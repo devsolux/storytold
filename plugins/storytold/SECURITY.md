@@ -5,10 +5,18 @@ all enabled host shell/file tools run with real OS/process privileges. The
 instructional Skill, annotations, launch config and local receipts cannot confer
 or constrain those privileges by themselves.
 
-Defaults: headless stdio, no HTTP/live bridge/control port, no automated installer,
-no hooks or tool auto-grants, no replacement of originals, no mutation retries,
-no optional scripts/macros enabled automatically. The default plugin ships only
-inactive launch templates. Real config needs matching local pins/probe evidence.
+Defaults: headless stdio, no HTTP/live bridge/control port, no implicit
+installer, no hooks or tool auto-grants, no replacement of originals, no
+mutation retries, no optional scripts/macros enabled automatically. Binaries
+are downloaded and host registrations written only by the explicit `setup`
+command: from GitHub release hosts only, checked against the reviewed manifest
+and upstream `SHA256SUMS.txt`, then Apple notarization by the pinned team
+(macOS) or the Sigstore bundle the daily workflow signed keyless (Linux and
+Windows; macOS too when cosign is present), then preflight and the official-SDK
+probe before `codex mcp add` / `claude mcp add` run. `--trust-upstream-sums`
+and `--skip-probe` weaken that chain and are recorded in the lock or report.
+The default plugin ships inactive launch templates; `configure` needs matching
+local pins and probe evidence.
 
 Required for business data: a restricted account/container/VM or equivalent tested
 OS controls for unconfined apps, trusted immutable executable deployment, private

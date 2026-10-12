@@ -17,8 +17,9 @@ and verified exports.
 Storytold is Devsolux's local integration kit for twelve existing Craft CLI MCP
 servers. One compact `craft` Skill guides the host; the apps keep their own
 schemas, editing state, rendering and save semantics. Deterministic helpers
-handle installation checks, file staging, evidence-bound config generation and
-limited artifact verification. **No thirteenth MCP server or second AI agent.**
+install and pin the twelve CLIs on explicit command, stage files, generate
+evidence-bound config and verify artifacts within stated limits. **No
+thirteenth MCP server or second AI agent.**
 
 ```text
 User + Claude Code / local Codex
@@ -32,12 +33,14 @@ User + Claude Code / local Codex
 
 **Release 1.2.1.** The offline core suite, the official MCP SDK contract test,
 strict Claude manifest validation and Claude Code/Codex install with Skill
-discovery have been run. Craft apps are not bundled and need your own pinned
-builds; PhotoCraft 0.7.0 has passed the native discovery and smoke-call probe on
-macOS, the other eleven have not been run. Read [verification](docs/verification.md).
-Installing the plugin installs guidance and inactive templates, not Craft apps,
-permissions, executable pins or automatically running MCP processes. Business
-use requires the local acceptance gates in [acceptance](docs/acceptance.md).
+discovery have been run, and `setup` has installed, probed and
+Sigstore-verified all twelve Craft CLIs on macOS, Linux and Windows runners as
+well as a developer Mac; read [verification](docs/verification.md). Craft apps
+are not bundled: installing the plugin installs guidance, the reviewed release
+manifest and inactive templates, never binaries, permissions or running MCP
+processes. Only the explicit `setup` command below installs and registers the
+CLIs. Business use requires the local acceptance gates in
+[acceptance](docs/acceptance.md).
 
 ## Install the Skill/plugin
 
@@ -62,6 +65,15 @@ claude plugin uninstall storytold@devsolux-storytold
 codex plugin marketplace upgrade devsolux-storytold
 codex plugin remove storytold@devsolux-storytold
 ```
+
+A plugin update brings the Skill, docs and the refreshed release manifest; it
+never touches installed CLIs or host registrations. Afterwards
+`python3 storytold.py setup --list` shows which pins moved
+(`manifest_commit_pinned: false`), and `setup --all --upgrade
+--acknowledge-unconfined` re-downloads only those apps, re-probes them and
+leaves registrations as they are. Before `plugin uninstall`,
+`setup --remove --all` unregisters and deletes all twelve CLIs and their pins;
+the workspace and its outputs stay.
 
 The generated `plugins/storytold/` runtime is committed, so both hosts install
 straight from the public repository; nothing is built during installation. From
@@ -118,7 +130,10 @@ make clean
 explicit network opt-in for `mcp==2.3.0`; then `make test-sdk` checks the real SDK
 against a clearly synthetic stdio fixture. It does not run the twelve Craft apps.
 `make release` orders checks, core tests and reproducible packaging; it does not
-claim native acceptance or publish anything. [Makefile](Makefile) lists all targets.
+claim native acceptance or publish anything. `make refresh-releases` and
+`make sign-releases` are the network steps the daily workflow runs (the second
+needs cosign); `make setup-confined` installs the four root-confined apps on
+this machine. [Makefile](Makefile) lists all targets.
 
 ## Set up the native apps (one command)
 
@@ -138,8 +153,8 @@ python3 storytold.py setup --all --acknowledge-unconfined
 
 Run it from a clone or from the installed plugin directory (Codex:
 `~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/`; Claude Code:
-the plugin cache under `~/.claude/plugins/`); `python3 storytold.py doctor`
-prints the exact command for each app that is missing. For each app, `setup`
+the plugin cache under `~/.claude/plugins/cache/`); `python3 storytold.py doctor`
+prints the exact command, with the right path, for each app that is missing. For each app, `setup`
 downloads the archive pinned for your platform in
 [`config/releases.json`](config/releases.json) (the macOS CLI zip, the Linux
 tarball or the Windows portable zip), checks it against that manifest **and**
@@ -149,9 +164,14 @@ it, checks provenance, installs it (`~/.local/opt/craft/bin`, or
 private lock, probes initialize, tools/list and one read-only call through the
 official MCP SDK, and registers the server with every host CLI on PATH
 (`codex mcp add`, `claude mcp add --scope user`). Then start a new session.
-`--dry-run` previews, `--list` shows state, `--upgrade` moves to a newer
-manifest release, `--remove` undoes. Nothing runs unless you invoke it; Python
-3.11+ is required.
+Re-running `setup` is idempotent: an app whose installed binary matches its
+pin and the manifest is skipped, a registration that already matches is kept.
+`--dry-run` previews; `--list` shows manifest, installed, pinned and registered
+state; `--upgrade` moves an app whose pin changed to the manifest release;
+`--replace` re-registers a same-name server that points elsewhere;
+`--skip-probe` registers without exercising the binary and says so;
+`--remove` unregisters, deletes the binary and drops the pin. Nothing runs
+unless you invoke it; Python 3.11+ is required.
 
 **Provenance.** On macOS the binary must be Apple-notarized by the ArtCraft
 team. Upstream does not code-sign Linux or Windows builds, so the
@@ -208,12 +228,13 @@ appropriate permissions. See [security](SECURITY.md).
 | Path | Responsibility |
 |---|---|
 | `skills/craft/` | One instructional Skill, twelve app cards and two workflows |
-| `config/` | Reviewed launch catalog, release manifest, inactive templates, example lock/env |
+| `config/` | Reviewed launch catalog, release manifest and Sigstore bundle store, inactive templates, example lock/env |
 | `storytold_tools/`, `storytold.py` | Deterministic CLI and optional short-lived SDK probe |
 | `scripts/`, `Makefile` | Offline checks, tests, guarded builds and packaging |
 | `tests/` | Core regression tests, synthetic SDK fixture, native acceptance scenarios |
 | `docs/` | Architecture, operations, security limits, sources and verification |
 | `plugins/storytold/` | Generated shared runtime; never edit independently |
+| `.github/workflows/` | Offline CI matrix and the daily release refresh, signing and three-OS verify |
 
 [Architecture](docs/architecture.md) records why the native plan takes precedence
 over the older gateway reference and which component owns what.

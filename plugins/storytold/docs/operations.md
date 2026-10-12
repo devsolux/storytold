@@ -1,9 +1,10 @@
 # Local setup, operation and rollback
 
 These are operator steps, not actions performed by installing the plugin. Use
-non-sensitive fixtures until [acceptance](acceptance.md) passes. The release was
-checked with Claude Code, Codex and the optional SDK; one native binary
-(PhotoCraft 0.7.0) has passed the discovery probe. See [verification](verification.md).
+non-sensitive fixtures until [acceptance](acceptance.md) passes. `setup` has
+installed, probed and Sigstore-verified all twelve CLIs on macOS, Linux and
+Windows runners and on a developer Mac; that is M0-level evidence, not the
+M1–M3 gates. See [verification](verification.md).
 
 ## One-command setup (macOS, Linux x86_64, Windows x64)
 
@@ -45,17 +46,21 @@ at the first failure, and prints a JSON report:
      bundle or cosign, `--trust-upstream-sums` proceeds on the manifest and
      `SHA256SUMS.txt` alone and records "upstream sums only" in the lock.
    - macOS also verifies the bundle when cosign is present.
-4. Install with mode 0755 (`--upgrade` to replace an existing file), then the
-   binary hash, tag commit and release label are merged into the lock.
+4. Install with mode 0755, then merge the binary hash, tag commit and release
+   label into the lock. An installed binary whose lock entry already matches
+   the manifest commit is skipped without a download, so re-runs resume and
+   are idempotent; a binary with a different pin is replaced only with
+   `--upgrade` (identical bytes are reported as unchanged).
 5. `preflight`, then the native probe (initialize, `tools/list`, one read-only
    `smoke_tool` call from the manifest) through the official SDK in
    `~/.local/state/storytold/venv` (created once from PyPI). `--skip-probe`
    registers an unexercised binary and says so.
 6. Registration through the host's own CLI, user scope, absolute command and the
    exact catalog args: `codex mcp add` and/or `claude mcp add --scope user`,
-   for every host CLI on PATH (`--host` limits). A same-name registration with a
-   different command is refused unless `--replace`. Nothing else in the host
-   configuration is touched. Start a new session afterwards.
+   for every host CLI on PATH (`--host` limits). A registration that already
+   matches is kept; a same-name registration with a different command is
+   refused unless `--replace`. Nothing else in the host configuration is
+   touched. Start a new session afterwards.
 
 Apps without root flags are installed but registered only with
 `--acknowledge-unconfined`, which records your decision for non-sensitive work
@@ -98,24 +103,20 @@ that release's `SHA256SUMS.txt`. On Windows the MSI and portable ZIP install
 `/usr/bin/<app>-cli`. Pin whichever copy you use, preferably the version that
 matches your desktop app.
 
-Latest releases on 2026-10-12 (newer ones may exist; re-check the tag commit):
+The reviewed pins live in `config/releases.json`, which the daily workflow
+keeps current: per app the release tag, its commit (the lock's `revision`),
+and per platform the archive name, size and SHA-256 from upstream's
+`SHA256SUMS.txt`. Print them instead of copying from a document that would go
+stale:
 
-| App | Release | macOS CLI asset | Tag commit (lock `revision`) | File roots in this release |
-|---|---|---|---|---|
-| PhotoCraft | v0.7.0 | `photocraft-cli-0.7.0-macos-universal.zip` | `79261615956ab21334e49ca1d384390272e647da` | separate read/write |
-| VectorCraft | v0.9.0 | `vectorcraft-cli-0.9.0-macos-universal.zip` | `10f1c56a861869936af0027cef14b1cf5d8cf515` | separate read/write |
-| FilmCraft | v0.6.0 | `filmcraft-cli-0.6.0-macos-universal.zip` | `2ff3f5e266838700c292a35aaf762e3d4dcef980` | none |
-| LightCraft | v0.6.0 | `lightcraft-cli-0.6.0-macos-universal.zip` | `9e6c4c6fc9c7a7f192ce846c00ceb531e0f64dda` | none |
-| PdfCraft | v0.6.0 | `pdfcraft-cli-0.6.0-macos-universal.zip` | `53a5880386789fc3531e54f6e6ffdef9a8e41f1a` | one root |
-| EffectCraft | v0.8.0 | `effectcraft-cli-0.8.0-macos-universal.zip` | `f953cd2855bf36beffa6a4d608e9bf4b226e9442` | separate read/write |
-| DesignCraft | v0.6.0 | `designcraft-cli-0.6.0-macos-universal.zip` | `a9124a0517594ce9872f73637e7b841a4967bcf9` | none |
-| GridCraft | v0.5.0 | `gridcraft-cli-0.5.0-macos-universal.zip` | `9f896c1249f40d18bf182199dc03042959be5f3f` | none |
-| WordCraft | v0.5.0 | `wordcraft-cli-0.5.0-macos-universal.zip` | `e4b7d155f15a7784197ba34eeea0b54490d70eb2` | none (upstream `main` adds read/write) |
-| DeckCraft | v0.5.0 | `deckcraft-cli-0.5.0-macos-universal.zip` | `a98df49b21632d69a3da994d35df1ea91dab41af` | none |
-| CADCraft | v0.5.0 | `cadcraft-cli-0.5.0-macos-universal.zip` | `315751e3ec98e708bcc831dd7f80ca0433a2e3d0` | none |
-| SoundCraft | v0.5.0 | `soundcraft-cli-0.5.0-macos-universal.zip` | `4410486fc21561a9db0dc33961a2017469127e0d` | none |
+```bash
+python3 -c "import json;m=json.load(open('config/releases.json'));[print(a,r['tag'],r['commit'],r['assets']['macos']['name']) for a,r in m['apps'].items()]"
+```
 
-On macOS, install one app at a time; set `APP` and `VER` from a table row:
+Which apps have native file roots is recorded in `config/apps.json`
+(`confinement`) and on each app card.
+
+On macOS, install one app at a time; set `APP` and `VER` from the manifest:
 
 ```bash
 APP=photocraft VER=0.7.0
@@ -134,9 +135,9 @@ gh api "repos/storytold/$APP/commits/v$VER" --jq .sha
 `spctl` must report `source=Notarized Developer ID` with the same team as the
 desktop app (for example `codesign -dv /Applications/PhotoCraft.app`). The last
 command prints the tag's full commit for the lock's `revision`. Without `gh`,
-download both files from the release page. Storytold never downloads or installs
-apps. Apps without file roots can read and write anywhere your user can; see
-section 2 before registering them.
+download both files from the release page. Nothing in Storytold downloads or
+installs apps except the explicit `setup` command. Apps without file roots can
+read and write anywhere your user can; see section 2 before registering them.
 
 ## 1. Establish paths and native provenance
 
@@ -241,6 +242,9 @@ there is no retry. Native result blocks retain typed content and `isError`.
 
 ## 5. Generate local configuration without overwriting other settings
 
+`setup` registers servers through `codex mcp add` and `claude mcp add --scope
+user` instead; the generated files below are the manual, project-scoped path.
+
 Claude Code:
 
 ```bash
@@ -338,6 +342,9 @@ For each app, `connections.apps[]` shows the desktop app, a CLI in
 | `registered_command_missing` | The binary moved or was removed; re-run `setup` (with `--upgrade` if a stale file remains) or reinstall and re-probe by hand. |
 | `registered` | Start a new host session; check `codex mcp get <app>` or `claude mcp get <app>` and approve the server. |
 
+`python3 storytold.py setup --list` adds, per app, whether the installed
+binary matches its pin and whether that pin is still the manifest's commit.
+
 PATH does not matter for the connection: hosts launch the absolute `command` from
 their config. Claude user-scope servers are outside this static check; use
 `claude mcp list`. Never let an agent work around a missing server by running
@@ -351,6 +358,16 @@ ignore missing media, auto-retry mutations or claim completion from tool success
 Keep a known-good native binary/lock outside writable areas. Upgrade one app at
 a time: trusted revision/hash → preflight → discovery diff → acceptance. Review
 catalog changes in code; the generator rejects ad-hoc executable/flag overrides.
+
+With `setup`, an update is: update the plugin (new manifest), `setup --list`
+to see which pins moved, then `setup --app <app> --upgrade` per app (or
+`--all --upgrade`; unchanged apps are skipped). The binary is replaced only
+after download, hash, provenance and probe succeed, the lock entry is rewritten
+atomically, and the host registration is left alone because the command path
+does not change. To roll back, `setup --remove --app <app>` and either install
+the earlier release by hand (section 0, with its hash in the lock) or run
+`setup --app <app> --upgrade` from a checkout of the Storytold commit whose
+manifest pinned it. `setup --remove` never touches the workspace or outputs.
 
 The helpers check paths before operations but do not defeat concurrent malicious
 same-user file replacement. Use trusted private parents and OS-enforced isolation.
