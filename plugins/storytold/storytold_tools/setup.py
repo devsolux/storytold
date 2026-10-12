@@ -51,7 +51,12 @@ def platform_key(system: str = platform.system(), machine: str = platform.machin
                          'Install the CLI by hand and follow docs/operations.md sections 1-5.')
 
 def exe_name(catalog: dict, app: str) -> str:
+    """Installed file name on this OS."""
     return catalog[app]['executable'] + ('.exe' if os.name=='nt' else '')
+
+def member_name(catalog: dict, app: str, plat: str) -> str:
+    """CLI file name inside an archive built for `plat`."""
+    return catalog[app]['executable'] + ('.exe' if plat=='windows-x64' else '')
 
 # ---------------------------------------------------------------- state/paths
 def state_dir(env: dict, home: Path, system: str = platform.system()) -> Path:
@@ -144,14 +149,14 @@ def _safe_member(name: str) -> None:
     require(name and not name.startswith('/') and '\\' not in name and '..' not in name.split('/') and ':' not in name.split('/')[0],
             f'unsafe archive path: {name}')
 
-def extract_cli(archive: Path, dest_dir: Path, exe: str) -> Path:
-    """Take exactly the one regular `<app>-cli` member; ignore the rest, refuse anything unsafe.
+def extract_cli(archive: Path, dest_dir: Path, exe: str, out_name: str | None = None) -> Path:
+    """Take exactly the one regular `exe` member; ignore the rest, refuse anything unsafe.
 
     Full-application archives (Linux tarballs, Windows portable zips) also carry
-    the desktop binary; only the CLI is copied out.
+    the desktop binary; only the CLI is copied out, as `out_name` (default `exe`).
     """
     dest_dir.mkdir(mode=0o700)
-    target = dest_dir/exe
+    target = dest_dir/(out_name or exe)
     name = archive.name
     if name.endswith('.zip'):
         with zipfile.ZipFile(archive) as z:
@@ -244,7 +249,7 @@ def pinned_entry(lock_path: Path, app: str) -> dict | None:
 
 def install_app(app: str, plat: str, releases: dict, signatures: dict, catalog: dict, paths: dict, *, fetch: Fetcher, run: Runner,
                 which: Which, upgrade: bool, trust_upstream_sums: bool, log: Logger) -> dict:
-    row = releases['apps'][app]; asset = row['assets'][plat]; exe = exe_name(catalog, app)
+    row = releases['apps'][app]; asset = row['assets'][plat]; exe = exe_name(catalog, app); member = member_name(catalog, app, plat)
     target = paths['bin_dir']/exe
     previous = None
     if target.exists():
@@ -265,7 +270,7 @@ def install_app(app: str, plat: str, releases: dict, signatures: dict, catalog: 
         fetch(sums_url(app, row), tmp/'SHA256SUMS.txt', 1024*1024)
         published = published_hash((tmp/'SHA256SUMS.txt').read_bytes(), asset['name'])
         require(published==zip_sha, f"{app}: upstream SHA256SUMS.txt disagrees with the manifest for {asset['name']}; stop and review the release")
-        binary = extract_cli(archive, tmp/'extract', exe)
+        binary = extract_cli(archive, tmp/'extract', member, exe)
         sha, nbytes, body = snapshot(binary, body=True)
         provenance = check_provenance(binary, sha, asset['name'], plat, releases, signatures, run=run, which=which,
                                       trust_upstream_sums=trust_upstream_sums, tmp=tmp, log=log)

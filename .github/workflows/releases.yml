@@ -59,13 +59,13 @@ jobs:
           git add config/releases.json config/signatures.json plugins/storytold
           git commit -m "Refresh Craft release pins and Sigstore bundles ($(date -u +%F))"
           git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" bot/releases
+          echo "changed=true" >> "$GITHUB_OUTPUT"
           body="Automated refresh of config/releases.json and config/signatures.json from the latest upstream releases on $(date -u +%F). Review the diff: a changed app needs its card and smoke tool rechecked at the new tag. The verify jobs below ran the real setup on Linux, Windows and macOS runners."
           if gh pr view bot/releases --json number >/dev/null 2>&1; then
-            gh pr edit bot/releases --body "$body"
-          else
-            gh pr create --base main --head bot/releases --title "Refresh Craft release pins ($(date -u +%F))" --body "$body"
+            gh pr edit bot/releases --body "$body" || echo "::warning::Could not update the pull request body."
+          elif ! gh pr create --base main --head bot/releases --title "Refresh Craft release pins ($(date -u +%F))" --body "$body"; then
+            echo "::warning::bot/releases was pushed but no pull request could be opened. Enable 'Allow GitHub Actions to create and approve pull requests' under Settings > Actions > General, or open it yourself: https://github.com/${GITHUB_REPOSITORY}/compare/main...bot/releases"
           fi
-          echo "changed=true" >> "$GITHUB_OUTPUT"
   verify:
     needs: refresh
     if: always() && needs.refresh.result == 'success'
@@ -101,4 +101,9 @@ jobs:
       - name: Merge the reviewed-by-CI pull request
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh pr merge bot/releases --repo "$GITHUB_REPOSITORY" --squash --delete-branch
+        run: |
+          if gh pr view bot/releases --repo "$GITHUB_REPOSITORY" --json number >/dev/null 2>&1; then
+            gh pr merge bot/releases --repo "$GITHUB_REPOSITORY" --squash --delete-branch
+          else
+            echo "::warning::No pull request exists for bot/releases; nothing merged."
+          fi

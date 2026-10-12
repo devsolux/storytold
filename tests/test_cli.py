@@ -21,11 +21,15 @@ class CliTests(WorkspaceCase):
     def test_setup_requires_an_explicit_selection(self):
         r=self.run_cli('setup');self.assertNotEqual(r.returncode,0);self.assertEqual(r.stdout,'');self.assertIn('--app',r.stderr)
     def test_setup_dry_run_plans_without_touching_anything(self):
+        import platform
+        from storytold_tools.common import StorytoldError
+        from storytold_tools.setup import platform_key
         r=self.run_cli('setup','--dry-run','--app','cadcraft','--bin-dir',str(self.base/'bin'))
-        if sys.platform!='darwin':
-            self.assertNotEqual(r.returncode,0);self.assertIn('macOS',r.stderr);return
+        try: platform_key(platform.system(),platform.machine())
+        except StorytoldError:
+            self.assertNotEqual(r.returncode,0);self.assertIn('setup supports',r.stderr);return
         self.assertEqual(r.returncode,0,r.stderr);plan=json.loads(r.stdout)
-        self.assertTrue(plan['dry_run']);self.assertEqual(plan['apps'][0]['install_to'],str(self.base/'bin/cadcraft-cli'))
+        self.assertTrue(plan['dry_run']);self.assertEqual(plan['apps'][0]['install_to'],str(self.base/'bin'/('cadcraft-cli'+('.exe' if os.name=='nt' else ''))))
         self.assertTrue(plan['apps'][0]['needs_acknowledge_unconfined']);self.assertFalse((self.base/'state').exists())
     def test_apps_lists_twelve(self):
         r=self.run_cli('apps');self.assertEqual(len(json.loads(r.stdout)['apps']),12)

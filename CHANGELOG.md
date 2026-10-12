@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.2.1 — 2026-10-12
+
+Fixes the first run of the daily release workflow, which failed in its test
+step, and the main CI matrix on Linux and Windows.
+
+- The archive member `setup` extracts is now named for the archive's platform
+  (`<app>-cli.exe` only inside Windows zips) while the installed file is named
+  for the running OS; the tests that simulate other platforms relied on that
+  distinction and failed on Windows runners. No change for real installs.
+- Tests: the CLI dry-run test accepted only macOS; doctor tests created
+  `<app>-cli` without `.exe` and wrote state under `~/.local` on Windows.
+- The workflow's first run had already refreshed the manifest (WordCraft
+  0.6.1) and signed all 36 archives keyless before the test step stopped it,
+  so extraction against the real macOS, Linux and Windows archives is
+  confirmed; that run's signatures were discarded with the runner and are
+  regenerated on the next run.
+
 ## 1.2.0 — 2026-10-12
 
 `setup` now covers Linux x86_64 and Windows x64, and the release pins refresh

@@ -30,7 +30,7 @@ User + Claude Code / local Codex
                       native engines → durable files
 ```
 
-**Release 1.2.0.** The offline core suite, the official MCP SDK contract test,
+**Release 1.2.1.** The offline core suite, the official MCP SDK contract test,
 strict Claude manifest validation and Claude Code/Codex install with Skill
 discovery have been run. Craft apps are not bundled and need your own pinned
 builds; PhotoCraft 0.7.0 has passed the native discovery and smoke-call probe on

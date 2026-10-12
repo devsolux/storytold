@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -13,7 +14,7 @@ class DoctorTests(unittest.TestCase):
         for d in (self.home/'.codex',self.cwd,self.apps,self.base/'bin'): d.mkdir(parents=True)
         self.env={'PATH':''}
     def binary(self,name):
-        p=self.base/'bin'/name;p.write_bytes(b'SYNTHETIC; MUST NOT EXECUTE');p.chmod(0o755);return p
+        p=self.base/'bin'/(name+('.exe' if os.name=='nt' else ''));p.write_bytes(b'SYNTHETIC; MUST NOT EXECUTE');p.chmod(0o755);return p
     def codex(self,body): (self.home/'.codex/config.toml').write_text(body)
     def run_report(self):
         r=report(self.env,self.cwd,self.home,[self.apps])
@@ -35,7 +36,8 @@ class DoctorTests(unittest.TestCase):
         self.assertEqual(apps['photocraft']['cli'],str(self.base/'bin/photocraft-cli'))
 
     def test_recorded_setup_state_locates_cli_and_pin(self):
-        cmd=self.binary('gridcraft-cli');state=self.home/'.local/state/storytold';state.mkdir(parents=True)
+        from storytold_tools.setup import state_dir
+        cmd=self.binary('gridcraft-cli');state=state_dir(self.env,self.home);state.mkdir(parents=True)
         (state/'setup.json').write_text(json.dumps({'schema_version':1,'bin_dir':str(self.base/'bin'),'work_root':str(self.base/'w'),
             'output_root':str(self.base/'w/outputs'),'lock':str(state/'installations.lock.json'),'evidence_dir':str(state/'evidence'),'updated_at':'2026-10-12T00:00:00+00:00'}))
         (state/'installations.lock.json').write_text(json.dumps({'schema_version':1,'platform':{},'apps':{'gridcraft':{'revision':'x','version':'0.5.0 (test)','sha256':'y'}}}))

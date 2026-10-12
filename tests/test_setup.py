@@ -19,14 +19,14 @@ SIGNER='^https://github\\.com/devsolux/storytold/\\.github/workflows/releases\\.
 def synthetic_zip(exe,body=b'SYNTHETIC CLI; MUST NOT EXECUTE',extra=()):
     out=io.BytesIO()
     with zipfile.ZipFile(out,'w') as z:
-        for name,mode,data in ((f'{exe}-0.0.1/{exe}',0o755,body),(f'{exe}-0.0.1/README.md',0o644,b'readme'),(f'{exe}-0.0.1/{exe.removesuffix("-cli")}',0o755,b'GUI'),*extra):
+        for name,mode,data in ((f'{exe}-0.0.1/{exe}',0o755,body),(f'{exe}-0.0.1/README.md',0o644,b'readme'),(f'{exe}-0.0.1/{exe.replace("-cli","")}',0o755,b'GUI'),*extra):
             info=zipfile.ZipInfo(name);info.external_attr=(stat.S_IFREG|mode)<<16;z.writestr(info,data)
     return out.getvalue()
 
 def synthetic_tar(exe,body=b'SYNTHETIC CLI; MUST NOT EXECUTE',extra=()):
     out=io.BytesIO()
     with tarfile.open(fileobj=out,mode='w:gz') as t:
-        for name,mode,data in ((f'{exe}-0.0.1/bin/{exe}',0o755,body),(f'{exe}-0.0.1/bin/{exe.removesuffix("-cli")}',0o755,b'GUI'),(f'{exe}-0.0.1/share/x.txt',0o644,b'x'),*extra):
+        for name,mode,data in ((f'{exe}-0.0.1/bin/{exe}',0o755,body),(f'{exe}-0.0.1/bin/{exe.replace("-cli","")}',0o755,b'GUI'),(f'{exe}-0.0.1/share/x.txt',0o644,b'x'),*extra):
             info=tarfile.TarInfo(name);info.size=len(data);info.mode=mode;t.addfile(info,io.BytesIO(data))
     return out.getvalue()
 
@@ -40,13 +40,13 @@ class FakeWorld:
         self.archives={};self.hosts={'codex':{},'claude':{}};self.available={'codex','claude'};self.calls=[];self.logs=[]
         self.notarized=True;self.team='TESTTEAM00';self.cosign_ok=True;self.probe_status='discovery_and_call_passed';self.sums_override=None
         for app,row in self.releases['apps'].items():
-            exe=app+'-cli'
             for plat,asset in row['assets'].items():
-                data=synthetic_tar(exe,b'SYNTHETIC '+app.encode()) if asset['name'].endswith('.tar.gz') else synthetic_zip(exe,b'SYNTHETIC '+app.encode())
+                member=app+'-cli'+('.exe' if plat=='windows-x64' else '')
+                data=synthetic_tar(member,b'SYNTHETIC '+app.encode()) if asset['name'].endswith('.tar.gz') else synthetic_zip(member,b'SYNTHETIC '+app.encode())
                 self.archives[asset['name']]=data;asset.update(sha256=digest(data),bytes=len(data))
     def sign(self,app):
         asset=self.releases['apps'][app]['assets'][self.plat]
-        self.signatures['bundles'][asset['name']]={'binary':app+'-cli','binary_sha256':digest(b'SYNTHETIC '+app.encode()),'archive_sha256':asset['sha256'],
+        self.signatures['bundles'][asset['name']]={'binary':app+'-cli'+('.exe' if self.plat=='windows-x64' else ''),'binary_sha256':digest(b'SYNTHETIC '+app.encode()),'archive_sha256':asset['sha256'],
             'bundle':{'mediaType':'application/vnd.dev.sigstore.bundle.v0.3+json','verificationMaterial':{'x':1},'messageSignature':{'y':2}}}
     def fetch(self,url,dest,limit):
         s.check_url(url);name=url.rsplit('/',1)[1];self.calls.append(['fetch',url])
@@ -98,6 +98,7 @@ class SetupCase(unittest.TestCase):
         options.update(kw);return s.setup(apps,**options)
     @property
     def bin(self): return s.resolve_paths(self.env,self.home,self.world.system)['bin_dir']
+    def installed(self,app): return self.bin/(app+'-cli'+('.exe' if os.name=='nt' else ''))
     @property
     def lock(self): return s.resolve_paths(self.env,self.home,self.world.system)['lock']
 
@@ -110,7 +111,7 @@ class MacSetupTests(SetupCase):
     def test_confined_app_installs_pins_probes_and_registers(self):
         r=self.setup(['photocraft']);entry=r['apps'][0]
         self.assertEqual(r['status'],'passed',entry);self.assertEqual(entry['status'],'registered')
-        binary=self.bin/'photocraft-cli';self.assertTrue(binary.is_file())
+        binary=self.installed('photocraft');self.assertTrue(binary.is_file())
         if os.name!='nt': self.assertEqual(binary.stat().st_mode&0o777,0o755)
         self.assertEqual(binary.read_bytes(),b'SYNTHETIC photocraft')
         lock=load_json(self.lock);self.assertEqual(lock['apps']['photocraft']['revision'],self.world.releases['apps']['photocraft']['commit'])
@@ -134,14 +135,14 @@ class MacSetupTests(SetupCase):
     def test_unconfined_app_needs_explicit_acknowledgement(self):
         r=self.setup(['cadcraft']);entry=r['apps'][0]
         self.assertEqual(entry['status'],'installed_not_registered');self.assertIn('--acknowledge-unconfined',entry['next'])
-        self.assertTrue((self.bin/'cadcraft-cli').is_file());self.assertEqual(self.world.hosts,{'codex':{},'claude':{}})
+        self.assertTrue((self.installed('cadcraft')).is_file());self.assertEqual(self.world.hosts,{'codex':{},'claude':{}})
         r=self.setup(['cadcraft'],acknowledge_unconfined=True)
         self.assertEqual(r['apps'][0]['status'],'registered');self.assertEqual(self.world.hosts['codex']['cadcraft']['args'],['mcp'])
 
     def test_manifest_hash_mismatch_aborts_before_install(self):
         self.world.releases['apps']['photocraft']['assets']['macos']['sha256']='0'*64
         r=self.setup(['photocraft']);self.assertEqual(r['status'],'failed');self.assertIn('config/releases.json',r['apps'][0]['error'])
-        self.assertFalse((self.bin/'photocraft-cli').exists())
+        self.assertFalse((self.installed('photocraft')).exists())
 
     def test_upstream_sums_disagreement_aborts(self):
         name=self.world.releases['apps']['photocraft']['assets']['macos']['name'];self.world.sums_override='f'*64+'  '+name+'\n'
@@ -150,7 +151,7 @@ class MacSetupTests(SetupCase):
     def test_notarization_failure_installs_nothing(self):
         self.world.notarized=False
         r=self.setup(['photocraft']);self.assertEqual(r['status'],'failed');self.assertIn('notarized',r['apps'][0]['error'])
-        self.assertFalse((self.bin/'photocraft-cli').exists())
+        self.assertFalse((self.installed('photocraft')).exists())
         self.assertEqual([p.name for p in (self.home/'.local/state/storytold').iterdir() if p.name.startswith('storytold-download-')],[])
 
     def test_wrong_signing_team_is_refused(self):
@@ -171,7 +172,7 @@ class MacSetupTests(SetupCase):
         self.world.releases['apps']['photocraft']['assets']['macos'].update(sha256=digest(data),bytes=len(data))
         r=self.setup(['photocraft'],upgrade=True);entry=r['apps'][0]
         self.assertEqual(entry['status'],'registered');self.assertEqual(entry['install']['previous_sha256'],digest(b'SYNTHETIC photocraft'))
-        self.assertEqual((self.bin/'photocraft-cli').read_bytes(),b'SYNTHETIC v2');self.assertEqual(entry['registrations'][0]['status'],'already_registered')
+        self.assertEqual((self.installed('photocraft')).read_bytes(),b'SYNTHETIC v2');self.assertEqual(entry['registrations'][0]['status'],'already_registered')
 
     def test_lock_merge_keeps_other_apps(self):
         self.setup(['photocraft']);self.setup(['vectorcraft'])
@@ -181,7 +182,7 @@ class MacSetupTests(SetupCase):
         self.world.hosts['codex']['photocraft']={'command':'/elsewhere/photocraft-cli','args':['mcp']}
         r=self.setup(['photocraft']);self.assertEqual(r['status'],'failed');self.assertIn('--replace',r['apps'][0]['error'])
         r=self.setup(['photocraft'],replace=True);self.assertEqual(r['apps'][0]['status'],'registered')
-        self.assertEqual(self.world.hosts['codex']['photocraft']['command'],str(self.bin/'photocraft-cli'))
+        self.assertEqual(self.world.hosts['codex']['photocraft']['command'],str(self.installed('photocraft')))
 
     def test_only_hosts_on_path_are_registered(self):
         self.world.available={'codex'}
@@ -206,7 +207,7 @@ class MacSetupTests(SetupCase):
         self.setup(['photocraft'])
         r=s.remove(['photocraft'],hosts=None,env=self.env,home=self.home,system='Darwin',run=self.world.run,which=self.world.which,log=self.world.logs.append,catalog=self.world.catalog)
         entry=r['apps'][0];self.assertEqual(sorted(entry['hosts']),['claude','codex']);self.assertTrue(entry['binary_removed'] and entry['pin_removed'])
-        self.assertFalse((self.bin/'photocraft-cli').exists());self.assertEqual(load_json(self.lock)['apps'],{})
+        self.assertFalse((self.installed('photocraft')).exists());self.assertEqual(load_json(self.lock)['apps'],{})
         self.assertTrue((self.home/'craft-work-storytold/outputs').is_dir());self.assertEqual(self.world.hosts,{'codex':{},'claude':{}})
 
     def test_status_lists_all_twelve(self):
@@ -229,13 +230,13 @@ class LinuxSetupTests(SetupCase):
         self.world.sign('photocraft')
         r=self.setup(['photocraft']);entry=r['apps'][0];self.assertEqual(r['status'],'passed',entry)
         self.assertEqual(r['platform_key'],'linux-x86_64');self.assertTrue(entry['install']['sigstore']);self.assertNotIn('notarized',entry['install'])
-        self.assertEqual((self.bin/'photocraft-cli').read_bytes(),b'SYNTHETIC photocraft');self.assertIn('sigstore',load_json(self.lock)['apps']['photocraft']['version'])
+        self.assertEqual((self.installed('photocraft')).read_bytes(),b'SYNTHETIC photocraft');self.assertIn('sigstore',load_json(self.lock)['apps']['photocraft']['version'])
         self.assertTrue(any(c[0]=='fetch' and c[1].endswith('linux-x86_64.tar.gz') for c in self.world.calls))
         self.assertTrue(any(Path(c[0]).name=='cosign' and c[1]=='verify-blob' for c in self.world.calls))
 
     def test_missing_bundle_fails_closed_unless_upstream_sums_trusted(self):
         r=self.setup(['photocraft']);self.assertEqual(r['status'],'failed');self.assertIn('--trust-upstream-sums',r['apps'][0]['error'])
-        self.assertFalse((self.bin/'photocraft-cli').exists())
+        self.assertFalse((self.installed('photocraft')).exists())
         r=self.setup(['photocraft'],trust_upstream_sums=True);self.assertEqual(r['status'],'passed',r['apps'][0])
         self.assertEqual(r['apps'][0]['install']['provenance'],'upstream_sums_only');self.assertIn('upstream sums only',load_json(self.lock)['apps']['photocraft']['version'])
         self.assertTrue(any('WARNING' in line for line in self.world.logs))
@@ -267,7 +268,7 @@ class WindowsSetupTests(SetupCase):
         except importlib.metadata.PackageNotFoundError: has_sdk=False
         probe_python=[c[0] for c in self.world.calls if 'probe' in c][0]
         self.assertEqual(probe_python,sys.executable) if has_sdk else self.assertTrue(probe_python.endswith(os.path.join('Scripts','python.exe')))
-        self.assertEqual(self.world.hosts['claude']['photocraft']['command'],str(self.bin/('photocraft-cli'+('.exe' if os.name=='nt' else ''))))
+        self.assertEqual(self.world.hosts['claude']['photocraft']['command'],str(self.installed('photocraft')))
 
 class PlatformTests(unittest.TestCase):
     def test_platform_keys(self):
