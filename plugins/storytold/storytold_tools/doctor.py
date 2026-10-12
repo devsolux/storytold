@@ -32,13 +32,20 @@ def default_app_dirs(home: Path) -> list[Path]:
     return [Path('/Applications'), home/'Applications'] if platform.system()=='Darwin' else []
 
 def host_configs(env: Mapping[str,str], cwd: Path, home: Path) -> list[tuple[str,Path,str]]:
+    """Static registration sources, user scope first: what `setup` writes and what a host reads at start."""
     codex_home = Path(env['CODEX_HOME']) if env.get('CODEX_HOME') else home/'.codex'
+    claude_home = Path(env['CLAUDE_CONFIG_DIR']) if env.get('CLAUDE_CONFIG_DIR') else home
     return [('codex', codex_home/'config.toml', 'mcp_servers'),
+            ('claude_user', claude_home/'.claude.json', 'mcpServers'),
             ('codex_project', cwd/'.codex'/'config.toml', 'mcp_servers'),
             ('claude_project', cwd/'.mcp.json', 'mcpServers')]
 
 def registrations(path: Path, key: str) -> dict[str,object]:
-    """Server name -> configured command, from one TOML or JSON host config."""
+    """Server name -> configured command, from one TOML or JSON host config.
+
+    Only the `command` of each server is kept; `~/.claude.json` and
+    `config.toml` also hold account data and settings that doctor never reports.
+    """
     data = snapshot(path, limit=MAX_JSON, body=True)[2] or b''
     parsed = tomllib.loads(data.decode('utf-8')) if path.suffix=='.toml' else parse_json(data)
     require(isinstance(parsed, dict), 'host config must be an object/table')
@@ -91,4 +98,6 @@ def report(env: Mapping[str,str], cwd: Path, home: Path, app_dirs: list[Path], p
                      'manifest_release': releases['apps'][app]['tag'], 'pinned_version': pinned.get(app),
                      'setup_command': cmd, 'next': NEXT[status].format(cmd=cmd, exe=catalog[app]['executable'])})
     return {'apps': rows, 'host_config_errors': errors, 'setup_state_recorded': bool(state),
-            'notice': 'Static view of files only; a host loads MCP servers at session start and may still need approval.'}
+            'scopes_inspected': [host for host, _, _ in host_configs(env, cwd, home)],
+            'notice': 'Static view of registration files only (Codex user and project scope, Claude user and project scope). '
+                      'A host loads MCP servers at session start and may still need approval; this is not a probe or a confinement check.'}

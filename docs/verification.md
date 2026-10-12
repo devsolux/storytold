@@ -1,9 +1,10 @@
-# Verification status — 1.2.2
+# Verification status — 1.3.0
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
-repository neither ships nor executes Craft binaries. One operator-installed
-binary, PhotoCraft 0.7.0, has passed the native probe (below). This report
-separates the checks actually executed for the release from documentary evidence.
+repository neither ships nor executes Craft binaries. All twelve operator- or
+runner-installed CLIs have passed the native probe (tables below); that is
+M0-level evidence, not acceptance. This report separates the checks actually
+executed for the release from documentary evidence.
 
 ## Executed for this release — October 12, 2026
 
@@ -11,12 +12,12 @@ macOS (Darwin 27, arm64) with Python **3.11.17**:
 
 | Gate | Result |
 |---|---|
-| `make check` | Passed **68 check entries**: parsed 43 files (30 Python, 12 JSON, one TOML), checked 119 local Markdown links in source and plugin, validated the three-platform release manifest, the signature store, the release workflow rules and 14 native scenario definitions without executing any. |
-| `make test` | **169 tests** passed in an isolated source copy, including the `setup` flow on simulated macOS, Linux and Windows with injected network, notarization, cosign and host CLIs, manifest and signature-store rules and `doctor` connection cases; zero failures, errors or skips. |
-| `make build`, `make verify-build` | The committed plugin (50 files) matches its 85 allowlisted canonical inputs. |
+| `make check` | Passed **69 check entries**: parsed 44 files (31 Python, 12 JSON, one TOML), checked 153 local Markdown links in source, translations and plugin, validated the three-platform release manifest, the signature store, the release workflow rules and 14 native scenario definitions without executing any. |
+| `make test` | **194 tests** passed in an isolated source copy, including the staged `setup`/upgrade flow and ownership-checked removal on simulated macOS, Linux and Windows with injected network, notarization, cosign and host CLIs, signature-store rotation with a fake signer, manifest rules and `doctor` scopes; zero failures, errors or skips. |
+| `make build`, `make verify-build` | The generated plugin (50 files) matches its 88 allowlisted canonical inputs. |
 | `make package`, `make source` | Reproducible plugin and source ZIPs with SHA-256 files. |
 | `make test-sdk` with `mcp==2.3.0` | Passed 7 checks against the synthetic stdio fixture: initialize, two-page `tools/list`, wire aliases, typed structured content, `isError`, SDK context exit, and a native tool error not reported as success. |
-| `claude plugin validate --strict` (Claude Code 2.1.282) | 1.2.2 marketplace and plugin manifests: no errors or warnings. |
+| `claude plugin validate --strict` (Claude Code 2.1.282) | 1.3.0 marketplace and plugin manifests: no errors or warnings. |
 | Claude Code install from the local marketplace | `storytold@devsolux-storytold` 1.0.0 installed and enabled; `claude plugin details` lists one Skill (`craft`) and zero MCP servers. |
 | Codex CLI 0.162.0-alpha.17.2 install from the local marketplace | `storytold@devsolux-storytold` 1.0.0 installed and enabled; `codex debug prompt-input` lists the `storytold:craft` Skill. |
 | Portable manifests | `plugin.json` and `config/portable.mcp.example.json` validate against the published Agent Plugins 1.0.0 schemas. |
@@ -27,6 +28,16 @@ Host installs used throwaway `CLAUDE_CONFIG_DIR` and `CODEX_HOME` directories, s
 no real host configuration was changed. The two install rows ran for 1.0.0;
 1.0.1 through 1.2.0 change Skill text, docs and helper commands, not manifest structure. Installation from GitHub reads the same
 committed marketplace files and `plugins/storytold/` runtime.
+
+## 1.3.0 behavior changes: offline evidence only
+
+The staged upgrade (probe before promotion, marker-based recovery), the
+ownership checks in `setup --remove`, the read-only `--remove --dry-run`, the
+Claude registration parsing and the signature-store rotation were verified by
+the offline suite above with injected network, signing and host CLIs. No live
+`setup`, upgrade, removal, signing run or host-configuration change was
+executed for 1.3.0; the native evidence below predates it and still describes
+the installed binaries, which 1.3.0 does not touch.
 
 ## Native app evidence — all twelve apps via `setup`
 

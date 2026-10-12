@@ -77,9 +77,36 @@ class DoctorTests(unittest.TestCase):
         self.assertEqual(apps['pdfcraft']['registrations'][0]['host'],'claude_project')
         self.assertEqual(apps['gridcraft']['status'],'registered_command_missing')
 
+    def test_claude_user_scope_is_seen_and_secrets_are_not_reported(self):
+        cmd=self.binary('photocraft-cli')
+        (self.home/'.claude.json').write_text(json.dumps({'oauthAccount':{'emailAddress':'secret@example.invalid','accessToken':'SECRET-TOKEN'},
+            'mcpServers':{'photocraft':{'type':'stdio','command':str(cmd),'args':['mcp'],'env':{}}},'projects':{}}))
+        r,apps=self.run_report()
+        self.assertEqual(apps['photocraft']['status'],'registered');self.assertEqual([x['host'] for x in apps['photocraft']['registrations']],['claude_user'])
+        self.assertNotIn('SECRET',json.dumps(r));self.assertNotIn('secret@example.invalid',json.dumps(r));self.assertIn('claude_user',r['scopes_inspected'])
+
+    def test_claude_config_dir_override_and_paths_with_spaces(self):
+        other=self.base/'claude config dir';other.mkdir();bindir=self.base/'bin with spaces';bindir.mkdir()
+        cmd=bindir/('gridcraft-cli'+('.exe' if os.name=='nt' else ''));cmd.write_bytes(b'SYNTHETIC');cmd.chmod(0o755)
+        (other/'.claude.json').write_text(json.dumps({'mcpServers':{'gridcraft':{'command':str(cmd),'args':['mcp']}}}))
+        self.env['CLAUDE_CONFIG_DIR']=str(other)
+        _,apps=self.run_report()
+        self.assertEqual(apps['gridcraft']['status'],'registered');self.assertEqual(apps['gridcraft']['registrations'][0]['command'],str(cmd))
+        self.assertTrue(apps['gridcraft']['registrations'][0]['command_runnable'])
+
+    def test_registration_collisions_across_scopes_are_all_reported(self):
+        cmd=self.binary('pdfcraft-cli')
+        self.codex('[mcp_servers.pdfcraft]\ncommand = '+json.dumps(str(cmd))+'\n')
+        (self.home/'.claude.json').write_text(json.dumps({'mcpServers':{'pdfcraft':{'command':'/elsewhere/pdfcraft-cli','args':['mcp']}}}))
+        (self.cwd/'.mcp.json').write_text(json.dumps({'mcpServers':{'pdfcraft':{'command':str(cmd),'args':['mcp']}}}))
+        _,apps=self.run_report();regs={x['host']:x for x in apps['pdfcraft']['registrations']}
+        self.assertEqual(sorted(regs),['claude_project','claude_user','codex']);self.assertFalse(regs['claude_user']['command_runnable'])
+        self.assertEqual(apps['pdfcraft']['status'],'registered_command_missing')  # one of the three points nowhere runnable
+
     def test_malformed_config_is_reported_not_raised(self):
         self.codex('[mcp_servers.photocraft\n')
         (self.cwd/'.mcp.json').write_text('{"mcpServers": []}')
+        (self.home/'.claude.json').write_text('{not json')
         r,apps=self.run_report()
-        self.assertEqual({e['host'] for e in r['host_config_errors']},{'codex','claude_project'})
+        self.assertEqual({e['host'] for e in r['host_config_errors']},{'codex','claude_project','claude_user'})
         self.assertEqual(apps['photocraft']['status'],'not_installed')

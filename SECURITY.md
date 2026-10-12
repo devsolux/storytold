@@ -15,6 +15,11 @@ and upstream `SHA256SUMS.txt`, then Apple notarization by the pinned team
 Windows; macOS too when cosign is present), then preflight and the official-SDK
 probe before `codex mcp add` / `claude mcp add` run. `--trust-upstream-sums`
 and `--skip-probe` weaken that chain and are recorded in the lock or report.
+A candidate is probed where it was staged and promoted only afterwards, so a
+failed upgrade cannot leave a host launching an unverified binary. Removal
+deletes only a plain file whose SHA-256 equals the lock entry Storytold wrote
+and unregisters only entries whose command is that managed path; `--dry-run`
+previews removal without any side effect.
 The default plugin ships inactive launch templates; `configure` needs matching
 local pins and probe evidence.
 

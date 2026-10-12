@@ -37,8 +37,8 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument('--trust-upstream-sums',action='store_true',help='Linux/Windows: proceed on the manifest and SHA256SUMS.txt when no Sigstore bundle or cosign is available')
     s.add_argument('--upgrade',action='store_true',help='Replace an already installed binary with the manifest release')
     s.add_argument('--replace',action='store_true',help='Replace a differing existing host registration of the same name')
-    s.add_argument('--dry-run',action='store_true',help='Print downloads, paths and registrations without doing anything')
-    s.add_argument('--remove',action='store_true',help='Unregister and delete the selected apps (workspace is kept)')
+    s.add_argument('--dry-run',action='store_true',help='Preview: with install, the downloads, paths and registrations; with --remove, exactly what would be unregistered or deleted. Changes nothing')
+    s.add_argument('--remove',action='store_true',help='Unregister and delete the selected apps that Storytold provably manages (workspace is kept); combine with --dry-run for a read-only preview')
     s.add_argument('--list',action='store_true',help='Show manifest, installed, pinned and registered state')
     s.add_argument('--timeout',type=float,default=60,help='Probe timeout in seconds')
     for flag,key in (('--bin-dir','bin_dir'),('--work-root','work_root'),('--lock','lock'),('--evidence-dir','evidence_dir')):
@@ -105,11 +105,19 @@ def main(argv: list[str] | None=None) -> int:
         elif cmd=='setup':
             common=dict(hosts=args.host,env=dict(os.environ),home=Path.home(),bin_dir=args.bin_dir,work_root=args.work_root,
                         lock=args.lock,evidence_dir=args.evidence_dir)
-            if args.list: result=setup_status(**common)
+            chosen={name for name in ('app','all','remove','dry_run','upgrade','replace','skip_probe','trust_upstream_sums','acknowledge_unconfined')
+                    if getattr(args,name)}
+            if args.list:
+                require(not chosen,'--list is read-only and takes no other setup flags')
+                result=setup_status(**common)
             else:
                 require(args.app or args.all,'choose --app <name> (repeatable) or --all')
                 apps=selected(args.app)
-                if args.remove: result=setup_remove(apps,**common)
+                if args.remove:
+                    clash=sorted(chosen&{'upgrade','replace','skip_probe','trust_upstream_sums','acknowledge_unconfined'})
+                    require(not clash,'--remove cannot be combined with --'+', --'.join(c.replace('_','-') for c in clash))
+                    result=setup_remove(apps,dry_run=args.dry_run,**common)
+                    code=0 if result['status']=='ok' else 1
                 else:
                     result=run_setup(apps,acknowledge_unconfined=args.acknowledge_unconfined,skip_probe=args.skip_probe,upgrade=args.upgrade,
                                      replace=args.replace,dry_run=args.dry_run,timeout=args.timeout,trust_upstream_sums=args.trust_upstream_sums,**common)

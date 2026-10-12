@@ -7,8 +7,8 @@ from storytold_tools.common import ROOT
 from tests.support import WorkspaceCase
 
 class CliTests(WorkspaceCase):
-    def run_cli(self,*args):
-        env=os.environ.copy()
+    def run_cli(self,*args,extra_env=None):
+        env=os.environ.copy();env.update(extra_env or {})
         for key in ('CRAFT_BIN_DIR','CRAFT_WORK_ROOT','CRAFT_OUTPUT_ROOT'):env.pop(key,None)
         env['CODEX_HOME']=str(self.base/'codex-home')  # never read the operator's real Codex config
         env['STORYTOLD_STATE_DIR']=str(self.base/'state')  # nor the paths recorded by a real setup run
@@ -18,6 +18,17 @@ class CliTests(WorkspaceCase):
         report=json.loads(r.stdout);self.assertFalse(report['native_apps_executed'])
         self.assertEqual(report['storytold'],json.loads((ROOT/'packaging/project.json').read_text())['version'])
         self.assertEqual(len(report['connections']['apps']),12)
+    def test_setup_refuses_contradictory_flags(self):
+        for argv,needle in ((('setup','--remove','--all','--upgrade'),'--remove cannot be combined with --upgrade'),
+                            (('setup','--remove','--all','--skip-probe','--replace'),'--replace, --skip-probe'),
+                            (('setup','--list','--app','photocraft'),'--list is read-only')):
+            r=self.run_cli(*argv);self.assertNotEqual(r.returncode,0,argv);self.assertEqual(r.stdout,'');self.assertIn(needle,r.stderr)
+    def test_remove_dry_run_reaches_the_preview_and_changes_nothing(self):
+        env_path=str(self.base/'empty-path');(self.base/'empty-path').mkdir()
+        r=self.run_cli('setup','--remove','--dry-run','--app','photocraft','--bin-dir',str(self.base/'bin'),extra_env={'PATH':env_path})
+        self.assertEqual(r.returncode,0,r.stderr);report=json.loads(r.stdout)
+        self.assertTrue(report['dry_run']);self.assertEqual(report['status'],'ok');self.assertEqual(report['apps'][0]['binary']['action'],'none')
+        self.assertEqual(report['hosts'] if 'hosts' in report else [],[]);self.assertEqual(sorted(p.name for p in self.base.iterdir() if p.name=='state'),[])
     def test_setup_requires_an_explicit_selection(self):
         r=self.run_cli('setup');self.assertNotEqual(r.returncode,0);self.assertEqual(r.stdout,'');self.assertIn('--app',r.stderr)
     def test_setup_dry_run_plans_without_touching_anything(self):

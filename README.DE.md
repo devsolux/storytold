@@ -35,7 +35,7 @@ Nutzer + Claude Code / lokaler Codex
                       native Engines → dauerhafte Dateien
 ```
 
-**Release 1.2.2.** Die Offline-Kerntests, der Vertragstest mit dem offiziellen
+Die Offline-Kerntests, der Vertragstest mit dem offiziellen
 MCP-SDK, die strikte Validierung der Claude-Manifeste und die Installation in
 Claude Code/Codex mit Skill-Erkennung wurden ausgeführt, und `setup` hat alle
 zwölf Craft-CLIs auf macOS-, Linux- und Windows-Runnern sowie auf einem
@@ -95,9 +95,11 @@ claude plugin uninstall storytold@devsolux-storytold
 codex plugin remove storytold@devsolux-storytold
 ```
 
-`setup --remove --all` hebt zuerst die Registrierung aller zwölf CLIs auf und
-löscht sie samt Pins (Workspace und Ausgaben bleiben); ein bloßes
-Deinstallieren des Plugins ließe die Server registriert und lauffähig zurück.
+`setup --remove --all` hebt zuerst die Registrierung der zwölf von Storytold
+verwalteten CLIs auf und löscht sie samt Pins (Workspace und Ausgaben bleiben,
+ebenso alles, was das Lock nicht als von Storytold installiert ausweist); ein
+bloßes Deinstallieren des Plugins ließe die Server registriert und lauffähig
+zurück.
 
 Die generierte Laufzeit `plugins/storytold/` ist eingecheckt, daher
 installieren beide Hosts direkt aus dem öffentlichen Repository; bei der
@@ -188,20 +190,25 @@ jede App lädt `setup` das für deine Plattform in
 [`config/releases.json`](config/releases.json) gepinnte Archiv (die
 macOS-CLI-Zip, den Linux-Tarball oder die portable Windows-Zip), prüft es gegen
 dieses Manifest **und** die `SHA256SUMS.txt` des Releases, entnimmt genau die
-eine `<app>-cli`, prüft die Herkunft, installiert sie (`~/.local/opt/craft/bin`
-bzw. `%LOCALAPPDATA%\Storytold\craft\bin` unter Windows), pinnt den Binär-Hash
-in einem privaten Lock, prüft initialize, tools/list und einen
-Nur-Lese-Aufruf über das offizielle MCP-SDK und registriert den Server bei
-jeder Host-CLI im PATH (`codex mcp add`, `claude mcp add --scope user`).
-Danach eine neue Sitzung starten. Ein erneutes `setup` ist idempotent: Eine
+eine `<app>-cli`, prüft die Herkunft, legt sie neben der aktiven Installation
+bereit, führt Preflight und die Prüfung über das offizielle MCP-SDK
+(initialize, tools/list, ein Nur-Lese-Aufruf) gegen diesen bereitgestellten
+Kandidaten aus und befördert ihn erst dann (`~/.local/opt/craft/bin` bzw.
+`%LOCALAPPDATA%\Storytold\craft\bin` unter Windows), pinnt den Binär-Hash in
+einem privaten Lock und registriert den Server bei jeder Host-CLI im PATH
+(`codex mcp add`, `claude mcp add --scope user`). Ein Kandidat, der an
+irgendeinem Schritt scheitert, lässt die bisherige Binärdatei, ihren Pin und
+die Registrierungen unberührt. Danach eine neue Sitzung starten. Ein erneutes `setup` ist idempotent: Eine
 App, deren installierte Binärdatei zu ihrem Pin und zum Manifest passt, wird
 übersprungen; eine bereits passende Registrierung bleibt bestehen. `--dry-run`
 zeigt die Vorschau; `--list` zeigt Manifest-, Installations-, Pin- und
 Registrierungsstand; `--upgrade` bringt eine App mit geändertem Pin auf das
 Manifest-Release; `--replace` registriert einen gleichnamigen Server neu, der
 woanders hinzeigt; `--skip-probe` registriert, ohne die Binärdatei
-auszuführen, und sagt das auch; `--remove` hebt die Registrierung auf, löscht
-die Binärdatei und entfernt den Pin. Nichts läuft, ohne dass du es aufrufst;
+auszuführen, und sagt das auch; `--remove` hebt nur Registrierungen auf, die auf die verwaltete Binärdatei
+zeigen, und löscht nur eine Binärdatei, deren Bytes zum Lock passen; alles
+andere bleibt und wird gemeldet. `--remove --dry-run` zeigt genau das als
+Vorschau, ohne etwas zu ändern. Nichts läuft, ohne dass du es aufrufst;
 Python 3.11+ ist erforderlich.
 
 **Herkunft.** Unter macOS muss die Binärdatei vom ArtCraft-Team bei Apple
@@ -226,7 +233,7 @@ mergen). Nutzer erhalten die neuen Pins mit dem nächsten Plugin-Update.
 PhotoCraft, VectorCraft, EffectCraft und PdfCraft sind durch native
 Wurzel-Flags auf den Workspace beschränkt und werden standardmäßig registriert.
 Die anderen acht können alles lesen und schreiben, was dein Benutzer darf, und
-werden daher nur mit `--acknowledge-unconfined` registriert: Nutze sie für
+werden daher nur mit `--acknowledge-unconfined` installiert und registriert: Nutze sie für
 unkritische Arbeit oder lass sie unter OS-Isolation laufen. Andere Plattformen,
 abgeschottete Rechner und eigene Pins nutzen die manuelle Kette in
 [Betrieb](docs/operations.md): herunterladen, Lock, `preflight`, `probe`,

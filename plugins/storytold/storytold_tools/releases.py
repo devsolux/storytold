@@ -51,21 +51,48 @@ def load_releases(root: Path = ROOT) -> dict:
             require(type(asset['bytes']) is int and 0<asset['bytes']<=MAX_ASSET, f'{app}: asset size out of range')
     return data
 
-def load_signatures(root: Path = ROOT, releases: dict | None = None) -> dict:
-    data = keys(load_json(root/'config/signatures.json'), {'schema_version','signed_by','bundles'}, label='signature store')
+def pinned_archives(releases: dict) -> dict[str, str]:
+    """Archive name -> SHA-256 for every asset the manifest currently pins."""
+    return {a['name']: a['sha256'] for row in releases['apps'].values() for a in row['assets'].values()}
+
+def _store_shape(data: object, releases: dict) -> dict:
+    """Structural, schema and signer-identity checks shared by the strict and the rotating loaders."""
+    data = keys(data, {'schema_version','signed_by','bundles'}, label='signature store')
     require(type(data['schema_version']) is int and data['schema_version']==1, 'unsupported signature store version')
-    releases = releases or load_releases(root)
     require(data['signed_by']==releases['signers']['sigstore_identity_regexp'], 'signature store identity differs from the manifest signers')
-    known = {a['name']: a['sha256'] for row in releases['apps'].values() for a in row['assets'].values()}
-    require(isinstance(data['bundles'], dict) and set(data['bundles'])<=set(known), 'signature store names an archive the manifest does not pin')
+    require(isinstance(data['bundles'], dict), 'signature store bundles must be an object')
     require(list(data['bundles'])==sorted(data['bundles']), 'signature store must be sorted')
     for name, entry in data['bundles'].items():
+        text(name, 'archive name', 256)
         keys(entry, {'binary','binary_sha256','archive_sha256','bundle'}, label=f'signature {name}')
-        text(entry['binary'], 'binary name', 64); sha(entry['binary_sha256'])
-        require(sha(entry['archive_sha256'])==known[name], f'{name}: bundle was made for a different archive; re-sign')
+        text(entry['binary'], 'binary name', 64); sha(entry['binary_sha256']); sha(entry['archive_sha256'])
         require(isinstance(entry['bundle'], dict) and 'mediaType' in entry['bundle'] and 'verificationMaterial' in entry['bundle'],
                 f'{name}: not a Sigstore bundle')
     return data
+
+def validate_signature_store(data: object, releases: dict) -> dict:
+    """Strict: every bundle must belong to an archive the manifest pins, with the pinned hash."""
+    data = _store_shape(data, releases)
+    known = pinned_archives(releases)
+    require(set(data['bundles'])<=set(known), 'signature store names an archive the manifest does not pin')
+    for name, entry in data['bundles'].items():
+        require(entry['archive_sha256']==known[name], f'{name}: bundle was made for a different archive; re-sign')
+    return data
+
+def partition_signature_store(data: object, releases: dict) -> tuple[dict, dict]:
+    """For rotation: the same shape and signer checks, then (still current, stale) by archive name and hash.
+
+    Malformed entries and signer drift still raise; only entries the manifest no
+    longer pins, or whose archive hash moved, are reported as stale.
+    """
+    data = _store_shape(data, releases)
+    known = pinned_archives(releases)
+    current = {n: e for n, e in data['bundles'].items() if n in known and e['archive_sha256']==known[n]}
+    stale = {n: e for n, e in data['bundles'].items() if n not in current}
+    return current, stale
+
+def load_signatures(root: Path = ROOT, releases: dict | None = None) -> dict:
+    return validate_signature_store(load_json(root/'config/signatures.json'), releases or load_releases(root))
 
 def asset_url(app: str, row: dict, plat: str) -> str:
     return f"https://github.com/storytold/{app}/releases/download/{row['tag']}/{row['assets'][plat]['name']}"

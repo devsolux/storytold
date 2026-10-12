@@ -1,5 +1,55 @@
 # Changelog
 
+## 1.3.0 — 2026-10-12
+
+Reliability and safety fixes for `setup`, the signature store and `doctor`.
+No new architecture: the same twelve stdio servers, Skill, SDK probe and
+deterministic helpers.
+
+- `setup --remove --dry-run` previously ignored `--dry-run` and removed for
+  real. It is now a read-only preview (`would unregister`, `would delete`,
+  `would drop`, `would archive`), and contradictory flag combinations
+  (`--remove` with `--upgrade`/`--replace`/`--skip-probe`/
+  `--trust-upstream-sums`/`--acknowledge-unconfined`, `--list` with anything)
+  are refused before any side effect.
+- Removal proves ownership first: a binary is deleted only when it is a plain,
+  unlinked file at the managed path whose SHA-256 equals the lock entry; a
+  registration is unregistered only when its command is that managed path.
+  Anything else is kept and reported with its reason (report `attention`,
+  exit 1). There is no force flag.
+- Upgrades are staged: download, checksum, provenance, preflight and the
+  official-SDK probe all run against a candidate in
+  `state/staging/<app>/`; promotion (atomic replace), the lock rewrite and
+  registration happen only after they pass, so a failed upgrade leaves the
+  previous binary, pin, evidence and registrations untouched. A marker makes
+  the window between replace and lock rewrite recoverable on the next run.
+  Identical bytes at a new commit only move the pin. A file at the install
+  path the lock cannot vouch for is never overwritten, even with `--upgrade`.
+  Apps without file roots need `--acknowledge-unconfined` before anything is
+  downloaded (the candidate cannot be probed without it).
+- Host registration is reported per host: a failing host no longer hides the
+  others' results (`partially_registered`).
+- Claude Code registrations: `claude mcp get` prints `Args:` joined by spaces,
+  so argument boundaries cannot be recovered from text. For user scope the
+  structured entry in `.claude.json` is used; otherwise the whole `Args:` line
+  is compared, never split. Output that names no command marks the
+  registration as present but unreadable, and it is never modified. Codex
+  JSON that fails to parse is treated the same way.
+- `doctor` now also reads the Claude Code user scope
+  (`$CLAUDE_CONFIG_DIR/.claude.json`, the scope `setup` writes), reports each
+  scope's command only, and lists the scopes it inspected.
+- Signature rotation: the daily job loaded the previous store with the strict
+  runtime validator, so the first manifest advance after bundles existed on
+  `main` would have failed before pruning. The previous store is now shape-
+  and signer-checked, stale entries (unpinned archives, moved hashes) are
+  dropped, missing ones are signed, and the complete store is strictly
+  validated and published by atomic replace; any failure leaves the old file
+  untouched. Malformed bundles and signer drift still fail.
+- Tests: 194 offline tests, including removal previews and ownership refusals,
+  failed-upgrade preservation, interrupted-promotion recovery, Claude
+  parsing with paths containing spaces, doctor scopes and collisions, and
+  signature rotation with injected downloads and a fake signer.
+
 ## 1.2.2 — 2026-10-12
 
 Documentation release; no code change.

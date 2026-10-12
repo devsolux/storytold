@@ -87,6 +87,7 @@
     "tests/test_probe.py",
     "tests/test_releases.py",
     "tests/test_setup.py",
+    "tests/test_sign.py",
     "tests/test_workspace.py"
   ],
   "plugin": [

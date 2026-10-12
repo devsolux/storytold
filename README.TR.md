@@ -36,7 +36,7 @@ Kullanıcı + Claude Code / yerel Codex
                       yerel motorlar → kalıcı dosyalar
 ```
 
-**Sürüm 1.2.2.** Çevrimdışı çekirdek testleri, resmi MCP SDK sözleşme testi,
+Çevrimdışı çekirdek testleri, resmi MCP SDK sözleşme testi,
 sıkı Claude manifest doğrulaması ve Skill keşfiyle Claude Code/Codex kurulumu
 çalıştırıldı; `setup`, on iki Craft CLI'nin tamamını macOS, Linux ve Windows
 runner'larında ve bir geliştirici Mac'inde kurdu, yokladı ve Sigstore ile
@@ -94,9 +94,11 @@ claude plugin uninstall storytold@devsolux-storytold
 codex plugin remove storytold@devsolux-storytold
 ```
 
-`setup --remove --all` önce on iki CLI'nin tamamının kaydını kaldırır, ikili
-dosyaları ve sabitlemeleri siler (çalışma alanı ve çıktılar kalır); yalnızca
-eklentiyi kaldırmak sunucuları kayıtlı ve çalışır durumda bırakır.
+`setup --remove --all` önce Storytold'un yönettiği on iki CLI'nin kaydını
+kaldırır, ikili dosyaları ve sabitlemeleri siler (çalışma alanı ve çıktılar
+kalır; kilidin Storytold tarafından kurulduğunu kanıtlayamadığı hiçbir şey de
+silinmez); yalnızca eklentiyi kaldırmak sunucuları kayıtlı ve çalışır durumda
+bırakır.
 
 Üretilen `plugins/storytold/` çalışma zamanı depoya işlenmiştir; bu yüzden her
 iki host da doğrudan herkese açık depodan kurar, kurulum sırasında hiçbir şey
@@ -185,20 +187,24 @@ uygulama için platformunuza göre
 [`config/releases.json`](config/releases.json) içinde sabitlenmiş arşivi
 (macOS CLI zip'i, Linux tarball'ı ya da Windows taşınabilir zip'i) indirir, onu
 bu manifeste **ve** sürümün kendi `SHA256SUMS.txt` dosyasına karşı denetler,
-içinden yalnızca tek `<app>-cli` dosyasını çıkarır, kaynağını doğrular, kurar
-(`~/.local/opt/craft/bin` ya da Windows'ta
-`%LOCALAPPDATA%\Storytold\craft\bin`), ikili dosyanın özetini özel bir kilide
-sabitler, resmi MCP SDK üzerinden initialize, tools/list ve tek bir salt okunur
-çağrıyı yoklar ve sunucuyu PATH'teki her host CLI'sine kaydeder
-(`codex mcp add`, `claude mcp add --scope user`). Ardından yeni bir oturum
-başlatın. `setup`'ı yeniden çalıştırmak idempotenttir: kurulu ikili dosyası
+içinden yalnızca tek `<app>-cli` dosyasını çıkarır, kaynağını doğrular, etkin
+kurulumun yanında hazırlar, preflight'ı ve resmi MCP SDK yoklamasını
+(initialize, tools/list, tek bir salt okunur çağrı) bu hazırlanmış adaya karşı
+çalıştırır ve ancak ondan sonra onu yükseltir (`~/.local/opt/craft/bin` ya da
+Windows'ta `%LOCALAPPDATA%\Storytold\craft\bin`), ikili dosyanın özetini özel
+bir kilide sabitler ve sunucuyu PATH'teki her host CLI'sine kaydeder
+(`codex mcp add`, `claude mcp add --scope user`). Herhangi bir adımda
+başarısız olan bir aday, önceki ikili dosyayı, sabitlemesini ve kayıtları
+olduğu gibi bırakır. Ardından yeni bir oturum başlatın. `setup`'ı yeniden çalıştırmak idempotenttir: kurulu ikili dosyası
 sabitlemesiyle ve manifestle eşleşen bir uygulama atlanır, zaten eşleşen bir
 kayıt korunur. `--dry-run` önizleme yapar; `--list` manifest, kurulum,
 sabitleme ve kayıt durumunu gösterir; `--upgrade` sabitlemesi değişen bir
 uygulamayı manifest sürümüne taşır; `--replace` başka bir yere işaret eden aynı
 adlı sunucuyu yeniden kaydeder; `--skip-probe` ikili dosyayı çalıştırmadan
-kaydeder ve bunu belirtir; `--remove` kaydı kaldırır, ikili dosyayı siler ve
-sabitlemeyi düşürür. Siz çağırmadıkça hiçbir şey çalışmaz; Python 3.11+
+kaydeder ve bunu belirtir; `--remove` yalnızca yönetilen ikili dosyaya işaret eden kayıtları kaldırır ve
+yalnızca baytları kilitle eşleşen bir ikili dosyayı siler; geri kalan her şey
+korunur ve raporlanır. `--remove --dry-run` hiçbir şeyi değiştirmeden tam
+olarak bunu önizler. Siz çağırmadıkça hiçbir şey çalışmaz; Python 3.11+
 gerekir.
 
 **Kaynak doğrulama.** macOS'ta ikili dosya ArtCraft ekibi tarafından Apple
@@ -223,7 +229,7 @@ bir sonraki eklenti güncellemesiyle alır.
 PhotoCraft, VectorCraft, EffectCraft ve PdfCraft yerel kök bayraklarıyla
 çalışma alanına sınırlıdır ve varsayılan olarak kaydedilir. Diğer sekizi
 kullanıcınızın erişebildiği her şeyi okuyup yazabilir; bu yüzden yalnızca
-`--acknowledge-unconfined` ile kaydedilir: onları hassas olmayan işler için
+`--acknowledge-unconfined` ile kurulur ve kaydedilir: onları hassas olmayan işler için
 kullanın ya da işletim sistemi yalıtımı altında çalıştırın. Diğer platformlar,
 ağdan yalıtılmış makineler ve özel sabitlemeler
 [işletim](docs/operations.md) belgesindeki elle yapılan zinciri kullanır:

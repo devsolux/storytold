@@ -33,7 +33,7 @@ User + Claude Code / local Codex
                       native engines → durable files
 ```
 
-**Release 1.2.2.** The offline core suite, the official MCP SDK contract test,
+The offline core suite, the official MCP SDK contract test,
 strict Claude manifest validation and Claude Code/Codex install with Skill
 discovery have been run, and `setup` has installed, probed and
 Sigstore-verified all twelve Craft CLIs on macOS, Linux and Windows runners as
@@ -91,9 +91,10 @@ claude plugin uninstall storytold@devsolux-storytold
 codex plugin remove storytold@devsolux-storytold
 ```
 
-`setup --remove --all` first unregisters and deletes all twelve CLIs and their
-pins (the workspace and its outputs stay); uninstalling the plugin alone would
-leave the servers registered and running.
+`setup --remove --all` first unregisters and deletes the twelve
+Storytold-managed CLIs and their pins (the workspace and its outputs stay, and
+so does anything the lock cannot prove Storytold installed); uninstalling the
+plugin alone would leave the servers registered and running.
 
 The generated `plugins/storytold/` runtime is committed, so both hosts install
 straight from the public repository; nothing is built during installation. From
@@ -180,19 +181,24 @@ downloads the archive pinned for your platform in
 [`config/releases.json`](config/releases.json) (the macOS CLI zip, the Linux
 tarball or the Windows portable zip), checks it against that manifest **and**
 the release's own `SHA256SUMS.txt`, takes exactly the one `<app>-cli` out of
-it, checks provenance, installs it (`~/.local/opt/craft/bin`, or
+it, checks provenance, stages it beside the active install, runs preflight and
+the official MCP SDK probe (initialize, tools/list, one read-only call) against
+that staged candidate, and only then promotes it (`~/.local/opt/craft/bin`, or
 `%LOCALAPPDATA%\Storytold\craft\bin` on Windows), pins the binary hash in a
-private lock, probes initialize, tools/list and one read-only call through the
-official MCP SDK, and registers the server with every host CLI on PATH
-(`codex mcp add`, `claude mcp add --scope user`). Then start a new session.
+private lock and registers the server with every host CLI on PATH
+(`codex mcp add`, `claude mcp add --scope user`). A candidate that fails any
+step leaves the previous binary, its pin and the registrations untouched. Then
+start a new session.
 Re-running `setup` is idempotent: an app whose installed binary matches its
 pin and the manifest is skipped, a registration that already matches is kept.
 `--dry-run` previews; `--list` shows manifest, installed, pinned and registered
 state; `--upgrade` moves an app whose pin changed to the manifest release;
 `--replace` re-registers a same-name server that points elsewhere;
 `--skip-probe` registers without exercising the binary and says so;
-`--remove` unregisters, deletes the binary and drops the pin. Nothing runs
-unless you invoke it; Python 3.11+ is required.
+`--remove` unregisters only entries that point at the managed binary and
+deletes only a binary whose bytes match the lock, reporting anything it leaves
+alone; `--remove --dry-run` previews exactly that without changing anything.
+Nothing runs unless you invoke it; Python 3.11+ is required.
 
 **Provenance.** On macOS the binary must be Apple-notarized by the ArtCraft
 team. Upstream does not code-sign Linux or Windows builds, so the
@@ -214,7 +220,7 @@ new pins with the next plugin update.
 
 PhotoCraft, VectorCraft, EffectCraft and PdfCraft are confined to the workspace
 by native root flags and register by default. The other eight can read and
-write anything your user can, so they register only with
+write anything your user can, so they are installed and registered only with
 `--acknowledge-unconfined`: keep them for non-sensitive work or run them under
 OS isolation. Other platforms, air-gapped machines and custom pins use the
 manual chain in [operations](docs/operations.md): download, lock, `preflight`,
