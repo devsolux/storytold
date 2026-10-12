@@ -55,25 +55,43 @@ codex plugin marketplace add devsolux/storytold
 codex plugin add storytold@devsolux-storytold
 ```
 
-Update or remove later:
+Update later (step 1 of 2):
 
 ```bash
 claude plugin marketplace update devsolux-storytold
 claude plugin update storytold@devsolux-storytold
-claude plugin uninstall storytold@devsolux-storytold
 
 codex plugin marketplace upgrade devsolux-storytold
+codex plugin add storytold@devsolux-storytold
+```
+
+Codex has no `plugin update`: `marketplace upgrade` refreshes the Git snapshot
+and running `plugin add` again installs the newer version from it. A plugin
+update brings the Skill, docs and the refreshed release manifest; it never
+touches installed CLIs or host registrations, and the plugin directory now
+carries the new version number. Step 2 of 2 moves the Craft CLIs:
+
+```bash
+python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.py setup --list
+```
+
+```bash
+python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.py setup --all --upgrade --acknowledge-unconfined
+```
+
+`--list` shows which pins moved (`manifest_commit_pinned: false`);
+`--all --upgrade` re-downloads only those apps, verifies and re-probes them and
+leaves registrations as they are (same command path). Remove:
+
+```bash
+python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.py setup --remove --all
+claude plugin uninstall storytold@devsolux-storytold
 codex plugin remove storytold@devsolux-storytold
 ```
 
-A plugin update brings the Skill, docs and the refreshed release manifest; it
-never touches installed CLIs or host registrations. Afterwards
-`python3 storytold.py setup --list` shows which pins moved
-(`manifest_commit_pinned: false`), and `setup --all --upgrade
---acknowledge-unconfined` re-downloads only those apps, re-probes them and
-leaves registrations as they are. Before `plugin uninstall`,
-`setup --remove --all` unregisters and deletes all twelve CLIs and their pins;
-the workspace and its outputs stay.
+`setup --remove --all` first unregisters and deletes all twelve CLIs and their
+pins (the workspace and its outputs stay); uninstalling the plugin alone would
+leave the servers registered and running.
 
 The generated `plugins/storytold/` runtime is committed, so both hosts install
 straight from the public repository; nothing is built during installation. From
