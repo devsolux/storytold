@@ -151,10 +151,11 @@ python3 storytold.py setup --app photocraft
 python3 storytold.py setup --all --acknowledge-unconfined
 ```
 
-Run it from a clone or from the installed plugin directory (Codex:
-`~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/`; Claude Code:
-the plugin cache under `~/.claude/plugins/cache/`); `python3 storytold.py doctor`
-prints the exact command, with the right path, for each app that is missing. For each app, `setup`
+Run it from a clone or from the installed plugin directory, which both hosts
+place at `<home>/plugins/cache/devsolux-storytold/storytold/<version>/` under
+`~/.codex` or `~/.claude`; `python3 storytold.py doctor` prints the exact
+command, with the right path, for each app that is missing, and the `craft`
+Skill offers it in chat when a server is not connected. For each app, `setup`
 downloads the archive pinned for your platform in
 [`config/releases.json`](config/releases.json) (the macOS CLI zip, the Linux
 tarball or the Windows portable zip), checks it against that manifest **and**
