@@ -74,6 +74,15 @@ at the new tag) or set the repository variable `STORYTOLD_AUTO_MERGE=true` to
 merge green runs. Signing identity, issuer and Apple team are data in the
 manifest's `signers`; the signature store names the archive it was made for.
 
+Three repository settings make the automation hands-off; `devsolux/storytold`
+has all three:
+
+| Setting | Why |
+|---|---|
+| Actions › General › *Allow GitHub Actions to create and approve pull requests* | lets the workflow open `bot/releases` pull requests with `github.token`; without it the branch is still pushed and a warning gives the compare URL. |
+| Actions › General › approval policy *first-time contributors who are new to GitHub* | the pull request author is `github-actions[bot]`; the stricter default holds its CI runs "awaiting approval" until a maintainer clicks. |
+| Repository variable `STORYTOLD_AUTO_MERGE=true` | the `merge` job squash-merges the pull request once the three-OS verify matrix is green. Delete the variable to go back to manual review. |
+
 ## 0. Manual path: get each app's CLI yourself
 
 Use this on other platforms, on air-gapped machines, or for custom pins;

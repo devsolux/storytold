@@ -277,3 +277,9 @@ github-bootstrap: ## Publishes: validate, git init, first commit, create public 
 	@$(MAKE) github-initial-commit
 	@$(MAKE) github-repo-create
 	@$(MAKE) github-verify
+
+github-allow-action:
+	gh api -X PUT repos/devsolux/storytold/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true
+
+github-run-workflow:
+	gh workflow run releases.yml --repo devsolux/storytold

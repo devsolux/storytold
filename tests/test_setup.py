@@ -120,7 +120,7 @@ class MacSetupTests(SetupCase):
         work=self.home/'craft-work-storytold';expected=['mcp','--automation-read-root',str(work),'--automation-write-root',str(work/'outputs')]
         for host in ('codex','claude'):
             self.assertEqual(self.world.hosts[host]['photocraft'],{'command':str(binary),'args':expected})
-        self.assertEqual(s.load_state(self.env,self.home)['bin_dir'],str(self.bin));self.assertTrue((work/'outputs').is_dir())
+        self.assertEqual(s.load_state(self.env,self.home,self.world.system)['bin_dir'],str(self.bin));self.assertTrue((work/'outputs').is_dir())
 
     def test_macos_verifies_sigstore_bundle_when_present(self):
         self.world.sign('photocraft')

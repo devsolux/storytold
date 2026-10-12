@@ -30,10 +30,10 @@ class DoctorTests(unittest.TestCase):
         self.assertEqual(apps['cadcraft']['manifest_release'],'v0.5.0');self.assertIsNone(apps['cadcraft']['pinned_version'])
 
     def test_cli_found_but_unregistered(self):
-        self.binary('photocraft-cli');self.env['CRAFT_BIN_DIR']=str(self.base/'bin')
+        cmd=self.binary('photocraft-cli');self.env['CRAFT_BIN_DIR']=str(self.base/'bin')
         _,apps=self.run_report()
         self.assertEqual(apps['photocraft']['status'],'cli_not_registered')
-        self.assertEqual(apps['photocraft']['cli'],str(self.base/'bin/photocraft-cli'))
+        self.assertEqual(apps['photocraft']['cli'],str(cmd))
 
     def test_recorded_setup_state_locates_cli_and_pin(self):
         from storytold_tools.setup import state_dir

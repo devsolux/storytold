@@ -9,8 +9,12 @@ step, and the main CI matrix on Linux and Windows.
   (`<app>-cli.exe` only inside Windows zips) while the installed file is named
   for the running OS; the tests that simulate other platforms relied on that
   distinction and failed on Windows runners. No change for real installs.
-- Tests: the CLI dry-run test accepted only macOS; doctor tests created
-  `<app>-cli` without `.exe` and wrote state under `~/.local` on Windows.
+- Tests: the CLI dry-run test accepted only macOS; doctor and setup tests
+  created `<app>-cli` without `.exe`, compared paths without it and read
+  recorded state from `~/.local` on Windows.
+- Documented the three repository settings the daily workflow needs to run
+  hands-off (Actions may open pull requests, approval policy for new-to-GitHub
+  accounts only, `STORYTOLD_AUTO_MERGE`); PR creation is now non-fatal.
 - The workflow's first run had already refreshed the manifest (WordCraft
   0.6.1) and signed all 36 archives keyless before the test step stopped it,
   so extraction against the real macOS, Linux and Windows archives is
