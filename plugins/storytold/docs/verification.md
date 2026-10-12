@@ -123,10 +123,13 @@ Host manifest schemas remain authoritative.
   `windows-latest` and `macos-latest`. No host CLI was present there, so
   registration on Linux/Windows is covered by simulated tests only, and no
   Linux or Windows desktop machine has been used.
-- **Sigstore signing.** Keyless signing and `cosign verify-blob` ran in that
-  workflow, not on this Mac (cosign is not installed here). Until the bot's
-  pull request is merged, `config/signatures.json` on `main` is empty and
-  Linux/Windows users need `--trust-upstream-sums`.
+- **Sigstore signing.** Keyless signing ran only in that workflow. Its first
+  pull request merged on 2026-10-12, so `config/signatures.json` on `main`
+  holds 36 bundles, and `cosign verify-blob` (cosign v3.1.3 via Homebrew) has
+  since verified three of them on this Mac during `setup --upgrade` of
+  GridCraft 0.6.1, WordCraft 0.6.1 and CADCraft 0.6.2 (lock labels
+  `notarized DJ6XS33FX8, sigstore`). Apps installed before cosign was present
+  carry notarization-only labels until they are next upgraded.
 - **CI matrix.** GitHub Actions for Linux/macOS/Windows × Python 3.11/3.13 is
   configured but was not executed here. Windows-specific branches (binary-mode
   reads, read-only publication order) are covered by simulations on macOS.
