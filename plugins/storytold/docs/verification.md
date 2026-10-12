@@ -1,4 +1,4 @@
-# Verification status — 1.3.1
+# Verification status — 1.3.2
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All twelve operator- or
@@ -13,11 +13,11 @@ macOS (Darwin 27, arm64) with Python **3.11.17**:
 | Gate | Result |
 |---|---|
 | `make check` | Passed **71 check entries**: parsed 46 files (33 Python, 12 JSON, one TOML), checked 153 local Markdown links in source, translations and plugin, validated the three-platform release manifest, the signature store, the release workflow rules (including that the verify matrix checks bundle completeness before a strict `setup` without `--trust-upstream-sums`) and 14 native scenario definitions without executing any. |
-| `make test` | **222 tests** passed in an isolated source copy, including the staged `setup`/upgrade flow, fault-injected promotion recovery (failure before promotion, during the file replace, while writing the lock, while clearing the marker; `completable`, `reverted`, `ambiguous` and `corrupt` reconciliation), whole-registration ownership on removal, recoverable `--replace` with restore and restore-failure, candidate-versus-active evidence identity, and the ownership-checked removal on simulated macOS, Linux and Windows with injected network, notarization, cosign and host CLIs, signature-store rotation with a fake signer, manifest rules and `doctor` scopes; zero failures, errors or skips. |
+| `make test` | **223 tests** passed in an isolated source copy, including the staged `setup`/upgrade flow, fault-injected promotion recovery (failure before promotion, during the file replace, while writing the lock, while clearing the marker; `completable`, `reverted`, `ambiguous` and `corrupt` reconciliation), whole-registration ownership on removal, recoverable `--replace` with restore and restore-failure, candidate-versus-active evidence identity, and the ownership-checked removal on simulated macOS, Linux and Windows with injected network, notarization, cosign and host CLIs, signature-store rotation with a fake signer, manifest rules and `doctor` scopes; zero failures, errors or skips. |
 | `make build`, `make verify-build` | The generated plugin (50 files) matches its 90 allowlisted canonical inputs. |
 | `make package`, `make source` | Reproducible plugin and source ZIPs with SHA-256 files. |
 | `make test-sdk` with `mcp==2.3.0` | Passed 7 checks against the synthetic stdio fixture: initialize, two-page `tools/list`, wire aliases, typed structured content, `isError`, SDK context exit, and a native tool error not reported as success. |
-| `claude plugin validate --strict` (Claude Code 2.1.282) | 1.3.1 marketplace and plugin manifests: no errors or warnings. |
+| `claude plugin validate --strict` (Claude Code 2.1.282) | 1.3.2 marketplace and plugin manifests: no errors or warnings. |
 | Claude Code install from the local marketplace | `storytold@devsolux-storytold` 1.0.0 installed and enabled; `claude plugin details` lists one Skill (`craft`) and zero MCP servers. |
 | Codex CLI 0.162.0-alpha.17.2 install from the local marketplace | `storytold@devsolux-storytold` 1.0.0 installed and enabled; `codex debug prompt-input` lists the `storytold:craft` Skill. |
 | Portable manifests | `plugin.json` and `config/portable.mcp.example.json` validate against the published Agent Plugins 1.0.0 schemas. |
@@ -42,9 +42,11 @@ cleanup and host add/remove boundaries. The strict verify matrix (bundle
 completeness, then `setup` without `--trust-upstream-sums`) is enforced by
 `make check` and a test on the workflow text; it has not yet run on GitHub
 for 1.3.1. No live `setup`, upgrade, removal, signing run or
-host-configuration change was executed for 1.3.0 or 1.3.1; the native
+host-configuration change was executed for 1.3.0, 1.3.1 or 1.3.2; the native
 evidence below predates them and still describes the installed binaries,
-which neither release touches.
+which none of these releases touches. The 1.3.1 lifecycle suite failed on
+the Windows CI runners only (evidence archive name collision, fixed in
+1.3.2); the macOS and Linux runners passed.
 
 ## Native app evidence — all twelve apps via `setup`
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.2 — 2026-10-12
+
+- Archived probe evidence gets a name that is never reused
+  (`evidence/archive/<app>-<UTC stamp with microseconds>[-n].json`). The
+  one-second stamp of 1.3.1 collided when `setup` ran twice within a second:
+  Windows refused the rename and reported `promoted_unverified`, POSIX
+  silently overwrote the earlier archive. Found by the 1.3.1 lifecycle tests
+  on the Windows CI runners; no other behavior changes.
+
 ## 1.3.1 — 2026-10-12
 
 Focused reliability and security hardening of the 1.3.0 lifecycle. No new

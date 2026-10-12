@@ -1,6 +1,6 @@
 {
   "files": {
-    ".claude-plugin/plugin.json": "328a5c17b4620f8334c75b609aa789b22062212ab235c5e84cffe3b7a7557180",
+    ".claude-plugin/plugin.json": "2cb0fe053f1eed4701da10458b2a818f16c09a930881a64cfbe25c12ee42a9d0",
     "LICENSE": "1b27293f1fa43edad3840ee0ac38ea8de030f04ac58760002efa8f8475d4ac15",
     "LICENSE-NOTICE.md": "b4c1f5f62b300657a5dd594e87cf4a94402ec61d9487048cd92894ade5a9f883",
     "README.md": "deb6a180330f3bd6d3dc30e7dd4e42d14b845d131b8b29b1d56aa0c35daeb62a",
@@ -19,8 +19,8 @@
     "docs/sources/Claude_Code_Craft_Native_MCP_Project_Plan.md": "fabea9691589f563c6f9f7a8df89d2d8b835ea933315ad4d6c1ad5b8dfd0cbc1",
     "docs/sources/Crafting_Apps_CLI_MCP_Integration_Reference.md": "3f0ec5724b801db503d10947c2e06c5a0c79e68f0996cb7684f10a77ef92f45c",
     "docs/sources/README.md": "b7bf7f4350bdb122dc05ec667293dc59618fdd063d59aa2ecb4a0b0d7fd843ce",
-    "docs/verification.md": "7e056bc0978b110155dc163278c3ace6d78d16d992cf76dc38902b66f6df8065",
-    "plugin.json": "a4646079ee9160e0fdf55eb987424046a7e6f7dbcfee8b5a84059662d9591304",
+    "docs/verification.md": "dbec03c3fd8e3af56d6a99e2eb5360ed52135bf1e7cc6abeb8052c308149d57c",
+    "plugin.json": "e9a42fcd411cd4218301081b52024a179f5af2770ab391a8763417ab5e845754",
     "requirements-probe.txt": "1e85b8f569b8be282264857960444e43c5c4f30ff8c3a2505c5179cdd6d1f2d7",
     "skills/craft/SKILL.md": "9d4d77a14b983a4906307b415243ac05e57731a240483d9db4aef57318e09b9a",
     "skills/craft/references/apps/cadcraft.md": "ee395a24a4adb8108928acb8134ef1fda748f9a56a381a5862aaffc3df7f9681",
@@ -47,10 +47,10 @@
     "storytold_tools/doctor.py": "bad862feee4bc2d162a373d0ea107ec665a12a94e28815ad51aae499f3ccc5d6",
     "storytold_tools/probe.py": "b16ba3540273e3e6f76d2f75cd258b2258d8b1cd7fdf8557249c06cc85d6cc91",
     "storytold_tools/releases.py": "8b9946070e246b53ca494281f71a8811292012c9c363938d81a1be6b6f03b047",
-    "storytold_tools/setup.py": "0653fc0de8459f0a30f083d21419eafc30c47a08c1cec843bb862e1e7887ab8f",
+    "storytold_tools/setup.py": "3890d593b0e0dc29a4bca92f6d49a9127069d6b96acb99b5ce8ce3ca1a2bfe01",
     "storytold_tools/workspace.py": "cfca4c8879bcc399821bd4e13745e61d2dc09fb02dbcb6b6fbab1c08e89a8c6f"
   },
   "generator": "storytold_tools.build",
   "schema_version": 1,
-  "version": "1.3.1"
+  "version": "1.3.2"
 }

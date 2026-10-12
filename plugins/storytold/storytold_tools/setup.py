@@ -474,10 +474,20 @@ def probe_python(sd: Path, run: Runner, log: Logger, system: str = platform.syst
     return str(py)
 
 def archive_evidence(evidence_dir: Path, app: str) -> None:
+    """Move `<app>.json` into `archive/` under a name never used before; earlier archives are kept, not overwritten."""
     p = evidence_dir/(app+'.json')
-    if p.exists():
-        old = evidence_dir/'archive'; old.mkdir(mode=0o700, exist_ok=True)
-        p.rename(old/f"{app}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json")
+    if not p.exists(): return
+    old = evidence_dir/'archive'; old.mkdir(mode=0o700, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S.%fZ')
+    for n in range(10000):
+        target = old/f"{app}-{stamp}{'' if n==0 else f'-{n}'}.json"
+        if target.exists() or target.is_symlink(): continue
+        try:
+            os.rename(p, target)  # Windows refuses an existing target; POSIX was guarded by the check above
+        except FileExistsError:
+            continue
+        return
+    raise StorytoldError(f'{app}: could not find a free archive name for earlier evidence under {old}')
 
 def run_probe(app: str, smoke_tool: str, paths: dict, python_exe: str, run: Runner, timeout: float, log: Logger,
               acknowledge_unconfined: bool = False, *, bin_dir: Path | None = None, lock: Path | None = None,

@@ -6,6 +6,7 @@ replace, lock write, marker cleanup, host add/remove) without touching real
 applications or host configurations.
 """
 import asyncio
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import re
@@ -50,7 +51,7 @@ class PromotionRecoveryTests(SetupCase):
         self.assertEqual(s.recovery_state(self.paths,self.world.catalog,'photocraft')['state'],'reverted')
         r=self.setup(['photocraft'],upgrade=True);self.assertEqual(r['status'],'passed',r['apps'][0]);self.assertEqual(r['apps'][0]['recovery'],'reverted')
         self.assertEqual(self.installed('photocraft').read_bytes(),b'SYNTHETIC v2');self.assertFalse(marker.exists())
-        self.assertFalse((self.bin/'photocraft-cli.storytold-new').exists())
+        exe=self.installed('photocraft');self.assertFalse(exe.with_name(exe.name+'.storytold-new').exists())
 
     def test_failure_while_writing_the_lock_keeps_the_marker_and_completes_later(self):
         self.setup(['photocraft']);old_lock=self.lock.read_bytes();self.upgrade_target();self.world.calls.clear()
@@ -216,6 +217,16 @@ class EvidenceIdentityTests(SetupCase):
         self.assertTrue(s.managed_binary(self.paths,self.world.catalog,'photocraft')['owned']);self.assertEqual(self.world.hosts,{'codex':{},'claude':{}})
         self.assertEqual(load_json(self.paths['evidence_dir']/'photocraft.json')['status'],'failed');self.assertEqual(entry['candidate_probe']['status'],'discovery_and_call_passed')
         self.world.probe_fail_bin_dirs=set();r=self.setup(['photocraft']);self.assertEqual(r['status'],'passed');self.assertEqual(r['apps'][0]['status'],'registered')
+
+    def test_archived_evidence_is_never_overwritten(self):
+        evidence_dir=self.paths['evidence_dir'];evidence_dir.mkdir(parents=True);fixed=datetime(2026,10,12,19,19,36,tzinfo=timezone.utc)
+        with mock.patch.object(s,'datetime',mock.Mock(now=lambda tz=None: fixed)):  # several runs inside one timestamp
+            for i in range(3):
+                (evidence_dir/'photocraft.json').write_bytes(encoded({'run':i}));s.archive_evidence(evidence_dir,'photocraft')
+        archived=sorted((evidence_dir/'archive').iterdir())
+        self.assertEqual([p.name for p in archived],['photocraft-20261012T191936.000000Z-1.json','photocraft-20261012T191936.000000Z-2.json','photocraft-20261012T191936.000000Z.json'])
+        self.assertEqual(sorted(load_json(p)['run'] for p in archived),[0,1,2]);self.assertFalse((evidence_dir/'photocraft.json').exists())
+        s.archive_evidence(evidence_dir,'photocraft');self.assertEqual(len(list((evidence_dir/'archive').iterdir())),3)  # nothing to archive: no-op
 
     def test_skip_probe_leaves_no_evidence_and_configure_refuses(self):
         self.setup(['photocraft'],skip_probe=True);self.assertFalse((self.paths['evidence_dir']/'photocraft.json').exists())
