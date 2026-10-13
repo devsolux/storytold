@@ -17,7 +17,7 @@ No native MCP root restriction is established here. Assume OS-user-wide access.
 
 ## Discover before execution
 
-Discover workbook inspection, bounded range reads, formula evaluation, native edits and save. Preserve numbers, text, booleans, nulls and error objects (for example {"error":"#DIV/0!"}) as their actual types. Tools at 0.5.0 include inspect_workbook, read_range, get_cell, set_cell, write_range, evaluate_formula, execute_command and save_workbook.
+Discover workbook inspection, bounded range reads, formula evaluation, native edits and save. Preserve numbers, text, booleans, nulls and error objects (for example {"error":"#DIV/0!"}) as their actual types. Tools include inspect_workbook, read_range, get_cell, set_cell, write_range, evaluate_formula, execute_command and save_workbook.
 
 ## Workflow and risky operations
 
@@ -30,8 +30,8 @@ Save XLSX where supported, reopen, compare formulas and recalculated/typed value
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the v0.5.0 release
+Reference, app-specific section, rechecked on 2026-10-12 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
-not a runtime-tested capability contract. Upstream: [MCP documentation at v0.5.0](https://github.com/storytold/gridcraft/blob/v0.5.0/docs/mcp.md) and [format limits at v0.5.0](https://github.com/storytold/gridcraft/blob/v0.5.0/docs/file-format-parity.md).
+not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/gridcraft/blob/main/docs/mcp.md) and [format limits](https://github.com/storytold/gridcraft/blob/main/docs/file-format-parity.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.

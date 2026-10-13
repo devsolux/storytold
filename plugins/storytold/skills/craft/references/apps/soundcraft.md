@@ -17,11 +17,11 @@ No native MCP root restriction is established here. Assume OS-user-wide access.
 
 ## Discover before execution
 
-Discover session inspection, audio import, native edit commands, save and bounce; at 0.5.0 these are inspect_session, open_session (which reports missing media), import_audio, execute, batch, save_session and bounce_mix. Interpret samples, seconds and bars/beats using the actual session tempo/rate and tool schema.
+Discover session inspection, audio import, native edit commands, save and bounce; these include inspect_session, open_session (which reports missing media), import_audio, execute, batch, save_session and bounce_mix. Interpret samples, seconds and bars/beats using the actual session tempo/rate and tool schema.
 
 ## Workflow and risky operations
 
-Headless is an offline mix engine, not a live recording/playback device session. No native file-root flag is established. The 0.5.0 CLI silently ignores unknown or incomplete mcp flags, so keep the registered args exactly as generated. UI tools are listed headless but need the desktop app. Unrelated-target replacement and source-media deletion need explicit approval.
+Headless is an offline mix engine, not a live recording/playback device session. No native file-root flag is established. The CLI silently ignores unknown or incomplete mcp flags, so keep the registered args exactly as generated. UI tools are listed headless but need the desktop app. Unrelated-target replacement and source-media deletion need explicit approval.
 
 ## Durable verification
 
@@ -30,8 +30,8 @@ Check missing media before bouncing. Verify actual audio duration, sample rate, 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the v0.5.0 release
+Reference, app-specific section, rechecked on 2026-10-12 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
-not a runtime-tested capability contract. Upstream: [MCP documentation at v0.5.0](https://github.com/storytold/soundcraft/blob/v0.5.0/docs/mcp.md).
+not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/soundcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.

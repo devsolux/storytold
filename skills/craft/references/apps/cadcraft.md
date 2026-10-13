@@ -17,7 +17,7 @@ No native MCP root restriction is established here. Assume OS-user-wide access.
 
 ## Discover before execution
 
-Discover drawing inspection, paginated entity queries, units, native commands, save and rendering. Native command_line is the CAD prompt, not an OS shell. Tools at 0.5.0: command_line, script, execute, list_commands, inspect_drawing, query_entities, render, new_drawing, open (DXF), save (DXF or DWG by extension) and cancel.
+Discover drawing inspection, paginated entity queries, units, native commands, save and rendering. Native command_line is the CAD prompt, not an OS shell. Tools include command_line, script, execute, list_commands, inspect_drawing, query_entities, render, new_drawing, open (DXF), save (DXF or DWG by extension) and cancel.
 
 ## Workflow and risky operations
 
@@ -30,8 +30,8 @@ Compare known geometry, dimensions, entity counts and model-space units after re
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the v0.5.0 release
+Reference, app-specific section, rechecked on 2026-10-12 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
-not a runtime-tested capability contract. Upstream: [MCP documentation at v0.5.0](https://github.com/storytold/cadcraft/blob/v0.5.0/docs/mcp.md).
+not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/cadcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.

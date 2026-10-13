@@ -17,7 +17,7 @@ No native MCP root restriction is established here. Assume OS-user-wide access.
 
 ## Discover before execution
 
-The documented --compact mode keeps discovery/dispatch while reducing generated tools. Discover photo query/import, controls, develop state, preview and export schemas as needed; at 0.6.0 compact mode keeps command_list, command_run, command_batch, doc_inspect, render_preview and helpers such as query_photos, get_develop, set_develop, render_photo and export.
+The documented --compact mode keeps discovery/dispatch while reducing generated tools. Discover photo query/import, controls, develop state, preview and export schemas as needed; compact mode keeps command_list, command_run, command_batch, doc_inspect, render_preview and helpers such as query_photos, get_develop, set_develop, render_photo and export.
 
 ## Workflow and risky operations
 
@@ -30,8 +30,8 @@ Verify RAW/develop expectations, rendered pixels, output filename and image prop
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the v0.6.0 release
+Reference, app-specific section, rechecked on 2026-10-12 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
-not a runtime-tested capability contract. Upstream: [MCP documentation at v0.6.0](https://github.com/storytold/lightcraft/blob/v0.6.0/docs/mcp.md).
+not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/lightcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.

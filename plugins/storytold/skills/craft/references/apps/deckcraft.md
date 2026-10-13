@@ -17,11 +17,11 @@ No native MCP root restriction is established here. Assume OS-user-wide access.
 
 ## Discover before execution
 
-Discover presentation/slide inspection, shape/text/chart operations, save and export. Read the actual export schema: 0.4.0 omitted PDF, while 0.5.0 lists pdf with layout (slides, notes, handouts), perPage, dpi and slide options. Tools at 0.5.0 include inspect_document, inspect_slide, render_slide, add_shape, set_text, insert_chart, save_presentation and export; screenshot and call_app are listed headless but need --connect.
+Discover presentation/slide inspection, shape/text/chart operations, save and export. Read the actual export schema before exporting PDF: when pdf is listed it takes layout (slides, notes, handouts), perPage, dpi and slide options. Tools include inspect_document, inspect_slide, render_slide, add_shape, set_text, insert_chart, save_presentation and export; screenshot and call_app are listed headless but need --connect.
 
 ## Workflow and risky operations
 
-Preserve approved narrative/data and make layout changes only within scope. No native file-root flag is established. batch stops at the first error without rollback. A headless session starts with no presentation open (verified on 0.5.0: inspect_document returns "no presentation open"); call new_presentation or open_presentation first. Save a separate editable native deck and requested interchange export when required.
+Preserve approved narrative/data and make layout changes only within scope. No native file-root flag is established. batch stops at the first error without rollback. A headless session starts with no presentation open (inspect_document returns "no presentation open"); call new_presentation or open_presentation first. Save a separate editable native deck and requested interchange export when required.
 
 ## Durable verification
 
@@ -30,8 +30,8 @@ Reopen PPTX/native output, check slide count/content and render every slide. Rev
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the v0.5.0 release
+Reference, app-specific section, rechecked on 2026-10-12 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
-not a runtime-tested capability contract. Upstream: [MCP documentation at v0.5.0](https://github.com/storytold/deckcraft/blob/v0.5.0/docs/mcp.md).
+not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/deckcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.

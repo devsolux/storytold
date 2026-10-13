@@ -17,7 +17,7 @@ Native source documents distinct read/write roots; still test the pinned binary 
 
 ## Discover before execution
 
-Discover compositions, layer/property schemas, keyframe operations, native batches and frame/export jobs. Use the native progress/status APIs where present (progress notifications, renderQueue.list/renderQueue.stop) rather than adding a queue. Tools at 0.8.0 include get_project, get_comp, get_layer, get_property, set_property, add_keyframe, render_frame, save_project, batch and command_batch.
+Discover compositions, layer/property schemas, keyframe operations, native batches and frame/export jobs. Use the native progress/status APIs where present (progress notifications, renderQueue.list/renderQueue.stop) rather than adding a queue. Tools include get_project, get_comp, get_layer, get_property, set_property, add_keyframe, render_frame, save_project, batch and command_batch.
 
 ## Workflow and risky operations
 
@@ -30,8 +30,8 @@ Check composition dimensions, timing, layer offset/stretch, expected frames and 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the v0.8.0 release
+Reference, app-specific section, rechecked on 2026-10-12 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
-not a runtime-tested capability contract. Upstream: [agent guide at v0.8.0](https://github.com/storytold/effectcraft/blob/v0.8.0/docs/agents.md) and [confinement notes at v0.8.0](https://github.com/storytold/effectcraft/blob/v0.8.0/docs/mcp.md).
+not a runtime-tested capability contract. Upstream: [agent guide](https://github.com/storytold/effectcraft/blob/main/docs/agents.md) and [MCP documentation](https://github.com/storytold/effectcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.

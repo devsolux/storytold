@@ -17,7 +17,7 @@ Native source documents distinct read/write roots; still test the pinned binary 
 
 ## Discover before execution
 
-Discover document inspection, registry search and save/export tools. The 0.7.0 binary lists doc_inspect, doc_new, doc_open, doc_save, doc_export, doc_render_preview/render_preview, command_list, command_run and command_batch; ui_* and control_call return a bridge-only error headless. Resolve the actual tool names and schemas, never guess a command id.
+Discover document inspection, registry search and save/export tools. Tools include doc_inspect, doc_new, doc_open, doc_save, doc_export, doc_render_preview/render_preview, command_list, command_run and command_batch; ui_* and control_call return a bridge-only error headless. Resolve the actual tool names and schemas, never guess a command id.
 
 ## Workflow and risky operations
 
@@ -30,10 +30,10 @@ Confirm pixel dimensions, layers where relevant, colour/profile expectations and
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the v0.7.0 release
+Reference, app-specific section, rechecked on 2026-10-12 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
-not a runtime-tested capability contract. Upstream: [MCP conventions at v0.7.0](https://github.com/storytold/photocraft/blob/v0.7.0/docs/mcp.md).
-The 0.7.0 binary has passed discovery and a read-only smoke call; see
+not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/photocraft/blob/main/docs/mcp.md).
+The binary has passed discovery and a read-only smoke call; see
 [verification](../../../../docs/verification.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.

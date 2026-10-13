@@ -17,7 +17,7 @@ Native source documents one root; it does not separate read and write authority.
 
 ## Discover before execution
 
-Discover actual PDF tools; compact mode may expose tool_search/tool_call rather than every operation. The pinned build must include MCP support (on by default in releases). The 0.6.0 compact core is doc_open, doc_info, doc_inspect, page_render, text_extract, text_find, doc_save, command_list, command_run and command_batch, plus tool_search and tool_call. Inspect document and page structure before choosing edits.
+Discover actual PDF tools; compact mode may expose tool_search/tool_call rather than every operation. The pinned build must include MCP support (on by default in releases). The compact core includes doc_open, doc_info, doc_inspect, page_render, text_extract, text_find, doc_save, command_list, command_run and command_batch, plus tool_search and tool_call. Inspect document and page structure before choosing edits.
 
 ## Workflow and risky operations
 
@@ -30,8 +30,8 @@ Reopen the saved PDF and check page count, text and rendering. For redactions, u
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the v0.6.0 release
+Reference, app-specific section, rechecked on 2026-10-12 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
-not a runtime-tested capability contract. Upstream: [automation guide at v0.6.0](https://github.com/storytold/pdfcraft/blob/v0.6.0/crates/automation/README.md) and [MCP notes at v0.6.0](https://github.com/storytold/pdfcraft/blob/v0.6.0/docs/mcp.md).
+not a runtime-tested capability contract. Upstream: [automation guide](https://github.com/storytold/pdfcraft/blob/main/crates/automation/README.md) and [MCP documentation](https://github.com/storytold/pdfcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.
