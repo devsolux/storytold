@@ -2,10 +2,9 @@
 
 These are operator steps, not actions performed by installing the plugin. Use
 non-sensitive fixtures until [acceptance](acceptance.md) passes. `setup` has
-installed, probed and Sigstore-verified twelve of the thirteen CLIs on macOS,
-Linux and Windows runners and on a developer Mac (FigCraft, added in 1.4.0, is
-pinned and source-reviewed but not yet executed); that is M0-level evidence,
-not the M1–M3 gates. See [verification](verification.md).
+installed, probed and Sigstore-verified all thirteen CLIs on macOS, Linux and
+Windows runners, twelve of them on a developer Mac as well; that is M0-level
+evidence, not the M1–M3 gates. See [verification](verification.md).
 
 ## One-command setup (macOS, Linux x86_64, Windows x64)
 

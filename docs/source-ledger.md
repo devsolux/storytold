@@ -72,9 +72,11 @@ archives (`figcraft-cli-0.5.1-macos-universal.zip`,
 were downloaded, matched the release's `SHA256SUMS.txt`, and each contains
 exactly one `figcraft-cli` (159 MB universal on macOS); the macOS CLI is signed
 and notarized by the same Apple team `DJ6XS33FX8` as the other apps
-(`codesign` and `spctl` inspection only; the binary was not run). No Sigstore
-bundle exists until the daily workflow signs the release, so a Linux or
-Windows `setup --app figcraft` needs that run first or `--trust-upstream-sums`.
+(`codesign` and `spctl` inspection only; the binary was not run). The daily
+workflow's run 38583930461 later that day moved the pin to v0.6.0 (the CLI
+parser and both docs files are unchanged between the two tags), signed its
+three archives and ran `setup` for it on the Linux, Windows and macOS runners;
+see [verification](verification.md).
 
 `config/releases.json` is the reviewed pin set for `storytold.py setup`: tag and
 tag commit from the GitHub API, the macOS CLI zip name/size from the release

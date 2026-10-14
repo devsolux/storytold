@@ -1,12 +1,12 @@
 # Verification status — 1.4.0
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
-repository neither ships nor executes Craft binaries. Twelve of the thirteen
-CLIs (every app except FigCraft, added in 1.4.0) have passed the native probe
-through operator- or runner-run `setup` (tables below); that is M0-level
-evidence, not acceptance. FigCraft is pinned and source-reviewed only. This
-report separates the checks actually executed for each release from
-documentary evidence.
+repository neither ships nor executes Craft binaries. All thirteen CLIs have
+passed the native probe through operator- or runner-run `setup` (tables
+below): twelve on a developer Mac and on GitHub runners, FigCraft (added in
+1.4.0) on the three GitHub runners only. That is M0-level evidence, not
+acceptance. This report separates the checks actually executed for each
+release from documentary evidence.
 
 ## Executed for this release — October 14, 2026
 
@@ -24,12 +24,34 @@ macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`):
 | FigCraft release inspection | `figcraft-cli-0.5.1-macos-universal.zip`, `figcraft-0.5.1-linux-x86_64.tar.gz` and `figcraft-0.5.1-windows-x64-portable.zip` were downloaded into a scratch directory and matched both the manifest and the release's `SHA256SUMS.txt`; each archive lists exactly one `figcraft-cli` (`bin/figcraft-cli` in the tarball, `figcraft-cli.exe` in the portable ZIP, a 159 MB universal x86_64/arm64 binary on macOS). `codesign` and `spctl` report the macOS CLI as *Notarized Developer ID*, team `DJ6XS33FX8`. The binary was not executed; no `setup`, probe or host registration ran for FigCraft. |
 | Upstream source review | FigCraft `main`: CLI parser (`mcp [--attach PORT]`, the global `--no-system-fonts`, no file-root flag), MCP documentation and tool definitions (18 tools; `inspect_document` has only optional parameters), packaging and release assets; see the [source ledger](source-ledger.md). |
 
-Not run for 1.4.0: the host installs from the local marketplace, any native
-`setup`, upgrade or removal, and the GitHub workflows. The 1.3.2 results below
-still describe the twelve installed binaries, which 1.4.0 does not touch. No
-FigCraft Sigstore bundle exists until the daily workflow's next run signs the
-release, so a Linux or Windows `setup --app figcraft` needs that run first or
-`--trust-upstream-sums`; macOS verifies notarization as before.
+Not run locally for 1.4.0: the host installs from the local marketplace and
+any native `setup`, upgrade or removal on this Mac; the 1.3.2 results below
+still describe the twelve binaries installed here, which 1.4.0 does not touch.
+
+### Release workflow run after the 1.4.0 push — October 14, 2026
+
+The daily release workflow was triggered by hand after the push (run
+38583930461). Its refresh job moved eight pins to the releases upstream had
+published since the last refresh (DeckCraft v0.6.1, DesignCraft v0.8.0,
+EffectCraft v0.9.2, FigCraft v0.6.0, FilmCraft v0.7.2, LightCraft v0.7.1,
+PhotoCraft v0.8.2, WordCraft v0.7.0), signed every archive without a bundle
+keyless with cosign (39 bundles for thirteen apps), rebuilt the plugin, ran
+`check` and `test`, and opened pull request #2. `scripts/check_bundles.py`
+then confirmed 39 bundles on each runner, and the real
+`setup --all --acknowledge-unconfined` passed on `ubuntu-latest`,
+`windows-latest` and `macos-latest` with strict provenance: every archive
+hash-checked against the manifest and upstream sums, cosign verification of
+the bundle on all three (plus Apple notarization, team `DJ6XS33FX8`, on
+macOS), staged probe (initialize, `tools/list`, read-only smoke tool), atomic
+promotion and a second probe at the installed path. For FigCraft that was its
+first execution anywhere: `figcraft-cli` 0.6.0 answered `inspect_document`
+on all three runners (lock labels `sigstore` on Linux and Windows,
+`notarized DJ6XS33FX8, sigstore` on macOS). The merge job squash-merged the
+pull request into `main` as `88a97c6`; `make verify-build` and `make check`
+pass on that commit. No host CLI exists on the runners, so registration is
+still covered by simulated tests only, and no FigCraft binary has run on a
+developer machine. The eight moved apps' smoke tools were exercised by that
+run; their cards remain `main`-based guidance and were not re-read for it.
 
 ## Executed for 1.3.2 — October 12, 2026
 
@@ -162,19 +184,21 @@ Host manifest schemas remain authoritative.
   macOS machine; only PhotoCraft has produced a real export. Native edit,
   export, root-denial, isolation and fidelity tests (M1–M3) have not run for the
   other eleven apps.
-- **FigCraft.** Not executed at all: its catalog entry, card, scenario and
-  v0.5.1 pin rest on source review and archive inspection (hashes, archive
-  members, macOS notarization). Discovery, the `inspect_document` smoke call,
-  registration and every acceptance gate are still open.
+- **FigCraft.** Executed only on the three GitHub runners (run 38583930461:
+  download, provenance, discovery and the `inspect_document` smoke call at
+  v0.6.0); its card and scenario rest on source review. No developer machine
+  has run it, no host has registered it, and every acceptance gate (M1–M3)
+  is still open.
 - **Linux and Windows.** Real runs exist only on GitHub-hosted runners: the
-  release workflow's verify matrix (run 38278727530, 2026-10-12) installed,
-  probed and Sigstore-verified the twelve apps pinned at the time on `ubuntu-latest`,
+  release workflow's verify matrix (run 38278727530 on 2026-10-12 with twelve
+  apps, run 38583930461 on 2026-10-14 with all thirteen) installed, probed and
+  Sigstore-verified every pinned app on `ubuntu-latest`,
   `windows-latest` and `macos-latest`. No host CLI was present there, so
   registration on Linux/Windows is covered by simulated tests only, and no
   Linux or Windows desktop machine has been used.
 - **Sigstore signing.** Keyless signing ran only in that workflow. Its first
-  pull request merged on 2026-10-12, so `config/signatures.json` on `main`
-  holds 36 bundles, and `cosign verify-blob` (cosign v3.1.3 via Homebrew) has
+  pull request merged on 2026-10-12 and its second (#2, thirteen apps) on
+  2026-10-14, so `config/signatures.json` on `main` holds 39 bundles, and `cosign verify-blob` (cosign v3.1.3 via Homebrew) has
   since verified three of them on this Mac during `setup --upgrade` of
   GridCraft 0.6.1, WordCraft 0.6.1 and CADCraft 0.6.2 (lock labels
   `notarized DJ6XS33FX8, sigstore`). Apps installed before cosign was present

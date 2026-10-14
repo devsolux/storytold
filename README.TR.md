@@ -40,10 +40,9 @@ Kullanıcı + Claude Code / yerel Codex
 
 Çevrimdışı çekirdek testleri, resmi MCP SDK sözleşme testi,
 sıkı Claude manifest doğrulaması ve Skill keşfiyle Claude Code/Codex kurulumu
-çalıştırıldı; `setup`, on üç Craft CLI'sinden on ikisini macOS, Linux ve Windows
-runner'larında ve bir geliştirici Mac'inde kurdu, yokladı ve Sigstore ile
-doğruladı (FigCraft sabitlenmiş ve kaynak düzeyinde incelenmiştir, henüz
-çalıştırılmamıştır); bkz. [doğrulama](docs/verification.md). Craft uygulamaları
+çalıştırıldı; `setup`, on üç Craft CLI'sinin tamamını macOS, Linux ve Windows
+runner'larında (on ikisini ayrıca bir geliştirici Mac'inde) kurdu, yokladı ve
+Sigstore ile doğruladı; bkz. [doğrulama](docs/verification.md). Craft uygulamaları
 pakete dahil değildir: eklentiyi kurmak rehberi, gözden geçirilmiş sürüm
 manifestini ve pasif şablonları kurar; asla ikili dosya, izin ya da çalışan MCP
 süreci kurmaz. CLI'leri yalnızca aşağıdaki açık `setup` komutu kurar ve kaydeder.

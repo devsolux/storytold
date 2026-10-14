@@ -39,11 +39,10 @@ Nutzer + Claude Code / lokaler Codex
 
 Die Offline-Kerntests, der Vertragstest mit dem offiziellen
 MCP-SDK, die strikte Validierung der Claude-Manifeste und die Installation in
-Claude Code/Codex mit Skill-Erkennung wurden ausgeführt, und `setup` hat zwölf
-der dreizehn Craft-CLIs auf macOS-, Linux- und Windows-Runnern sowie auf einem
-Entwickler-Mac installiert, geprüft und per Sigstore verifiziert (FigCraft ist
-gepinnt und quellgeprüft, aber noch nicht ausgeführt); siehe
-[Verifikation](docs/verification.md). Craft-Apps werden nicht mitgeliefert:
+Claude Code/Codex mit Skill-Erkennung wurden ausgeführt, und `setup` hat alle
+dreizehn Craft-CLIs auf macOS-, Linux- und Windows-Runnern (zwölf davon auch
+auf einem Entwickler-Mac) installiert, geprüft und per Sigstore verifiziert;
+siehe [Verifikation](docs/verification.md). Craft-Apps werden nicht mitgeliefert:
 Die Plugin-Installation installiert Anleitung, das geprüfte Release-Manifest
 und inaktive Vorlagen, niemals Binärdateien, Berechtigungen oder laufende
 MCP-Prozesse. Nur der ausdrückliche `setup`-Befehl unten installiert und
