@@ -21,9 +21,11 @@ architecture.
 - Local binary acceptance for the flag change: `preflight` and the
   official-SDK `probe` ran the pinned WordCraft 0.6.1 on the maintainer's Mac
   with the new arguments (`files confined` announced, 16 tools,
-  `inspect_document` answered); registrations were not changed, denial of
-  outside paths was not tested, and the three-OS verify matrix runs the new
-  launch on the workflow's next run.
+  `inspect_document` answered); then `setup --app wordcraft --upgrade
+  --replace` on that Mac moved the binary to 0.7.0 and replaced both host
+  registrations with the root-flag launch. Denial of outside paths was not
+  tested, and the three-OS verify matrix runs the new launch on the
+  workflow's next run.
 
 ## 1.4.1 — 2026-10-14
 

@@ -21,12 +21,16 @@ requires ran on this Mac:
 | `preflight --app wordcraft` | Launch resolved to the pinned `wordcraft-cli` 0.6.1 (notarized `DJ6XS33FX8`, Sigstore) with `mcp --automation-read-root ~/craft-work-storytold --automation-write-root ~/craft-work-storytold/outputs`; no `--acknowledge-unconfined` needed any more. |
 | `probe --app wordcraft --confirm-execution` with the approved `inspect_document` call | The binary announced `files confined: read root …, write root …` on stderr, negotiated protocol `2025-06-18` as server `wordcraft` 0.6.1, listed 16 tools and answered `inspect_document` with `isError: false`; the evidence file was written outside the workspace and is not committed. |
 
-Not done: no registration on this Mac was changed (its user-scope WordCraft
-entries still launch `mcp` without roots until `setup --app wordcraft
---upgrade --replace` runs), no path outside a root was tried (denial is an M3
-test), and the release workflow has not yet run `setup` with the new arguments
-on the three runners; its next run will, because the verify matrix uses the
-catalog launch.
+The operator then ran the documented upgrade on the same Mac:
+
+| Step | Result |
+|---|---|
+| `setup --app wordcraft --upgrade --replace` | Downloaded `wordcraft-cli-0.7.0-macos-universal.zip` (archive hash matched the manifest and upstream sums; notarized `DJ6XS33FX8`; Sigstore bundle verified with cosign), probed the staged candidate with the new arguments (protocol `2025-06-18`, server `wordcraft` 0.7.0, 16 tools, `inspect_document` answered), promoted it over 0.6.1, probed it again at the installed path, and in both Codex and Claude Code removed the previous user-scope entry and registered the root-flag launch; the previous entry would have been restored had the new one failed. Lock pinned to v0.7.0 (`fc419188…`); `setup --list` reports it installed, owned, pinned to the manifest commit and registered with both hosts. |
+
+Still not done: no path outside a root was tried (denial is an M3 test), the
+running host sessions keep the old launch until they are restarted, and the
+release workflow has not yet run `setup` with the new arguments on the three
+runners; its next run will, because the verify matrix uses the catalog launch.
 
 ## Executed for 1.4.0 and 1.4.1 — October 14, 2026
 
