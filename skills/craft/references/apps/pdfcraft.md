@@ -10,7 +10,8 @@ host-specific namespacing may change the callable tool prefix; discover it.
 Native executable: `pdfcraft-cli` (`.exe` on native Windows). On macOS the `.app` (from
 the `.dmg` or the ArtCraft Launcher) holds only the desktop app: install the separate
 `pdfcraft-cli-<version>-macos-universal.zip` release asset. Windows MSI/portable ZIP and
-Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/pdfcraft-cli`).
+Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/pdfcraft-cli`); the
+release also publishes a standalone `pdfcraft-cli-<version>-linux-x86_64.tar.gz`, which `setup` prefers.
 The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
 Native source documents one root; it does not separate read and write authority.
@@ -30,7 +31,7 @@ Reopen the saved PDF and check page count, text and rendering. For redactions, u
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the upstream
+Reference, app-specific section, rechecked on 2026-10-14 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [automation guide](https://github.com/storytold/pdfcraft/blob/main/crates/automation/README.md) and [MCP documentation](https://github.com/storytold/pdfcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

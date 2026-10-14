@@ -27,10 +27,15 @@ The operator then ran the documented upgrade on the same Mac:
 |---|---|
 | `setup --app wordcraft --upgrade --replace` | Downloaded `wordcraft-cli-0.7.0-macos-universal.zip` (archive hash matched the manifest and upstream sums; notarized `DJ6XS33FX8`; Sigstore bundle verified with cosign), probed the staged candidate with the new arguments (protocol `2025-06-18`, server `wordcraft` 0.7.0, 16 tools, `inspect_document` answered), promoted it over 0.6.1, probed it again at the installed path, and in both Codex and Claude Code removed the previous user-scope entry and registered the root-flag launch; the previous entry would have been restored had the new one failed. Lock pinned to v0.7.0 (`fc419188…`); `setup --list` reports it installed, owned, pinned to the manifest commit and registered with both hosts. |
 
-Still not done: no path outside a root was tried (denial is an M3 test), the
-running host sessions keep the old launch until they are restarted, and the
-release workflow has not yet run `setup` with the new arguments on the three
-runners; its next run will, because the verify matrix uses the catalog launch.
+The release workflow's run 38588658915, triggered by hand after the push, then
+ran `setup --all --acknowledge-unconfined` with the new WordCraft launch on
+`ubuntu-latest`, `windows-latest` and `macos-latest`: WordCraft 0.7.0 was
+installed, probed and pinned with the root arguments on all three, PdfCraft
+0.8.0 came from its new standalone Linux CLI tarball, and the run merged pull
+request #3 (`6fee7db`: DeckCraft 0.7.0, PdfCraft 0.8.0, VectorCraft 0.11.0;
+cards rechecked, see the [source ledger](source-ledger.md)). Still not done:
+no path outside a root was tried (denial is an M3 test), and host sessions
+opened before the re-registration keep the old launch until restarted.
 
 ## Executed for 1.4.0 and 1.4.1 — October 14, 2026
 
@@ -216,13 +221,14 @@ Host manifest schemas remain authoritative.
   is still open.
 - **Linux and Windows.** Real runs exist only on GitHub-hosted runners: the
   release workflow's verify matrix (run 38278727530 on 2026-10-12 with twelve
-  apps, run 38583930461 on 2026-10-14 with all thirteen) installed, probed and
+  apps, runs 38583930461 and 38588658915 on 2026-10-14 with all thirteen, the
+  latter with WordCraft's confined launch) installed, probed and
   Sigstore-verified every pinned app on `ubuntu-latest`,
   `windows-latest` and `macos-latest`. No host CLI was present there, so
   registration on Linux/Windows is covered by simulated tests only, and no
   Linux or Windows desktop machine has been used.
 - **Sigstore signing.** Keyless signing ran only in that workflow. Its first
-  pull request merged on 2026-10-12 and its second (#2, thirteen apps) on
+  pull request merged on 2026-10-12 and its second and third (#2 and #3, thirteen apps) on
   2026-10-14, so `config/signatures.json` on `main` holds 39 bundles, and `cosign verify-blob` (cosign v3.1.3 via Homebrew) has
   since verified three of them on this Mac during `setup --upgrade` of
   GridCraft 0.6.1, WordCraft 0.6.1 and CADCraft 0.6.2 (lock labels

@@ -132,6 +132,30 @@ run's macOS probe:
 Source review plus the run's probes; no card claim was verified by editing a
 document on a developer machine.
 
+## Release-tag recheck of the three apps moved by pull request #3 — 2026-10-14
+
+The hand-triggered run 38588658915 (the first with WordCraft's root-flag
+launch) moved DeckCraft to v0.7.0, PdfCraft to v0.8.0 and VectorCraft to
+v0.11.0, signed their nine archives, verified on the three runners and merged
+as `6fee7db`. Same recheck as above; no `mcp` launch flag changed:
+
+- DeckCraft v0.7.0: a standalone `render-transition` subcommand; MCP docs and
+  tools unchanged. Card unchanged.
+- PdfCraft v0.8.0: a standalone `batch` subcommand and a password hint;
+  `--root` and `--compact` unchanged; MCP docs unchanged. The release now
+  publishes `pdfcraft-cli-0.8.0-linux-x86_64.tar.gz`, the manifest's preferred
+  Linux asset name, which the Linux runner installed.
+- VectorCraft v0.11.0: `command_run` and batch steps refuse unknown parameter
+  keys (naming the nearest key); `command_batch` is capped at 256 steps and
+  8 MiB of kept results, `atomic: true` makes a batch one undo step and a
+  failing atomic batch restores documents but not files already written; one
+  request line at most 16 MiB; `add_text` and the text commands report
+  `overflow`; `links.list` notes images too large to decode; an older native
+  file opens as `[Converted]` and a path-less save answers with a suggested
+  name; `script.check` and `shortcutSet.read` read files under the read root
+  without running them; new resources and 3D effect parameters. Launch flags
+  unchanged (`--headless`, both roots).
+
 ## Build infrastructure
 
 The workflow uses reviewed full-commit action references:
