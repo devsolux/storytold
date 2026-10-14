@@ -113,7 +113,7 @@ GITHUB_REPO ?= storytold
 GITHUB_FULL ?= $(GITHUB_ORG)/$(GITHUB_REPO)
 # Public, so `claude/codex plugin marketplace add devsolux/storytold` works without credentials.
 GITHUB_VISIBILITY ?= public
-GITHUB_DESCRIPTION ?= Claude Code & Codex plugin for the open-source ArtCraft Craft App Suite: one craft Skill drives 12 local, headless Craft MCP apps (photo, vector, video, RAW, PDF, layout, sheets, docs, slides, CAD, audio, motion) with staged copies and verified exports.
+GITHUB_DESCRIPTION ?= Claude Code & Codex plugin for the open-source ArtCraft Craft App Suite: one craft Skill drives 13 local, headless Craft MCP apps (photo, vector, video, RAW, PDF, layout, sheets, docs, slides, CAD, audio, motion, interface design) with staged copies and verified exports.
 # Comma-separated; GitHub allows at most 20 lowercase topics.
 GITHUB_TOPICS ?= claude-code,claude-code-plugin,codex,codex-plugin,mcp,model-context-protocol,agent-skills,ai-agents,artcraft,craft-apps,creative-tools,local-first,headless,plugin-marketplace,python,image-editing,video-editing,pdf,cad,audio
 # Fallback if you add origin by hand instead of gh repo create:

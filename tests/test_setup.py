@@ -356,10 +356,10 @@ class MacSetupTests(SetupCase):
         self.world.claude_text_omits_command=True;self.world.hosts['claude']['photocraft']={'command':'/x','args':[]}
         r=self.remove(['photocraft']);self.assertEqual([x['action'] for x in r['apps'][0]['registrations']],['kept','kept']);self.assertEqual(self.mcp_mutations(),[])
 
-    def test_status_lists_all_twelve(self):
+    def test_status_lists_all_thirteen(self):
         self.setup(['photocraft'])
         r=s.status(hosts=None,env=self.env,home=self.home,system='Darwin',run=self.world.run,which=self.world.which,releases=self.world.releases,catalog=self.world.catalog)
-        rows={a['app']:a for a in r['apps']};self.assertEqual(len(rows),12)
+        rows={a['app']:a for a in r['apps']};self.assertEqual(len(rows),13)
         self.assertTrue(rows['photocraft']['installed'] and rows['photocraft']['owned'] and rows['photocraft']['pinned_hash_matches'] and rows['photocraft']['manifest_commit_pinned'])
         self.assertEqual(sorted(rows['photocraft']['registered']),['claude','codex']);self.assertFalse(rows['cadcraft']['installed']);self.assertEqual(rows['photocraft']['recovery'],'none')
 

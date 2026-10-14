@@ -28,6 +28,12 @@
       ],
       "command": "${CRAFT_BIN_DIR}/effectcraft-cli"
     },
+    "figcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/figcraft-cli"
+    },
     "filmcraft": {
       "args": [
         "mcp"

@@ -8,12 +8,12 @@ requires a reviewed ACL. No script in this plugin claims to create an OS sandbox
 
 PhotoCraft, VectorCraft and EffectCraft have source-documented distinct read/write
 roots. PdfCraft has one root that includes both input and output paths. FilmCraft,
-LightCraft, DesignCraft, GridCraft, WordCraft, DeckCraft, CADCraft and SoundCraft
-must be treated as OS-user-wide unless the pinned binary proves otherwise.
+LightCraft, DesignCraft, GridCraft, WordCraft, DeckCraft, CADCraft, SoundCraft and
+FigCraft must be treated as OS-user-wide unless the pinned binary proves otherwise.
 External OS isolation is required when confidential data or strong confinement
 matters. Other host shell/file tools are not restricted by native MCP roots.
 
-Do not enable control ports, --connect, --bridge, scripts, macros, move-import or
+Do not enable control ports, --connect, --bridge, --attach, scripts, macros, move-import or
 unrelated-target replacement automatically. Keep one writer per artifact/library.
 Do not remove lock files or bypass host approvals. The default Skill has no
 allowed-tools grant, hooks, automatic host enablement or hidden execution step.

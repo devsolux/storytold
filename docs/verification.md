@@ -1,12 +1,37 @@
-# Verification status — 1.3.2
+# Verification status — 1.4.0
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
-repository neither ships nor executes Craft binaries. All twelve operator- or
-runner-installed CLIs have passed the native probe (tables below); that is
-M0-level evidence, not acceptance. This report separates the checks actually
-executed for the release from documentary evidence.
+repository neither ships nor executes Craft binaries. Twelve of the thirteen
+CLIs (every app except FigCraft, added in 1.4.0) have passed the native probe
+through operator- or runner-run `setup` (tables below); that is M0-level
+evidence, not acceptance. FigCraft is pinned and source-reviewed only. This
+report separates the checks actually executed for each release from
+documentary evidence.
 
-## Executed for this release — October 12, 2026
+## Executed for this release — October 14, 2026
+
+macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`):
+
+| Gate | Result |
+|---|---|
+| `make check` | Passed **71 check entries**: parsed 46 files (33 Python, 12 JSON, one TOML), checked 157 local Markdown links in source, translations and plugin, validated the thirteen-app catalog with its exact launch flags, the three-platform release manifest (now pinning FigCraft v0.5.1), the signature store, the release workflow rules and 15 native scenario definitions without executing any. |
+| `make test` | **223 tests** passed in an isolated source copy, zero failures, errors or skips; the catalog, CLI, status, manifest, signature-rotation and strict-provenance tests now assert thirteen apps and 39 pinned archives. |
+| `make build`, `make verify-build` | The generated plugin (51 files) matches its 91 allowlisted canonical inputs, including the new FigCraft card. |
+| `make package`, `make source` | Reproducible 1.4.0 plugin and source ZIPs with SHA-256 files. |
+| `make test-sdk` with `mcp==2.3.0` | Passed the same 7 checks against the synthetic stdio fixture as before; no Craft binary involved. |
+| `make host-validate` (Claude Code 2.1.282) | `claude plugin validate --strict` passed for the 1.4.0 marketplace and plugin manifests. |
+| `doctor`, `apps`, `setup --app figcraft --dry-run` | The read-only commands list thirteen apps; FigCraft reports `not_installed` with the `--acknowledge-unconfined` setup command, and the dry run names the macOS CLI zip, the install path and both host registrations, with `sigstore_bundle: false`. Nothing was downloaded or registered by these commands. |
+| FigCraft release inspection | `figcraft-cli-0.5.1-macos-universal.zip`, `figcraft-0.5.1-linux-x86_64.tar.gz` and `figcraft-0.5.1-windows-x64-portable.zip` were downloaded into a scratch directory and matched both the manifest and the release's `SHA256SUMS.txt`; each archive lists exactly one `figcraft-cli` (`bin/figcraft-cli` in the tarball, `figcraft-cli.exe` in the portable ZIP, a 159 MB universal x86_64/arm64 binary on macOS). `codesign` and `spctl` report the macOS CLI as *Notarized Developer ID*, team `DJ6XS33FX8`. The binary was not executed; no `setup`, probe or host registration ran for FigCraft. |
+| Upstream source review | FigCraft `main`: CLI parser (`mcp [--attach PORT]`, the global `--no-system-fonts`, no file-root flag), MCP documentation and tool definitions (18 tools; `inspect_document` has only optional parameters), packaging and release assets; see the [source ledger](source-ledger.md). |
+
+Not run for 1.4.0: the host installs from the local marketplace, any native
+`setup`, upgrade or removal, and the GitHub workflows. The 1.3.2 results below
+still describe the twelve installed binaries, which 1.4.0 does not touch. No
+FigCraft Sigstore bundle exists until the daily workflow's next run signs the
+release, so a Linux or Windows `setup --app figcraft` needs that run first or
+`--trust-upstream-sums`; macOS verifies notarization as before.
+
+## Executed for 1.3.2 — October 12, 2026
 
 macOS (Darwin 27, arm64) with Python **3.11.17**:
 
@@ -48,7 +73,7 @@ which none of these releases touches. The 1.3.1 lifecycle suite failed on
 the Windows CI runners only (evidence archive name collision, fixed in
 1.3.2); the macOS and Linux runners passed.
 
-## Native app evidence — all twelve apps via `setup`
+## Native app evidence — the first twelve apps via `setup`
 
 Operator-run on macOS (Darwin 27, arm64) with the one-command path:
 `python3 storytold.py setup --all --acknowledge-unconfined`, resumed twice after
@@ -133,13 +158,17 @@ Host manifest schemas remain authoritative.
 
 ## Not verified
 
-- **Craft apps.** All twelve CLIs passed discovery and one read-only call on one
+- **Craft apps.** Twelve CLIs passed discovery and one read-only call on one
   macOS machine; only PhotoCraft has produced a real export. Native edit,
   export, root-denial, isolation and fidelity tests (M1–M3) have not run for the
   other eleven apps.
+- **FigCraft.** Not executed at all: its catalog entry, card, scenario and
+  v0.5.1 pin rest on source review and archive inspection (hashes, archive
+  members, macOS notarization). Discovery, the `inspect_document` smoke call,
+  registration and every acceptance gate are still open.
 - **Linux and Windows.** Real runs exist only on GitHub-hosted runners: the
   release workflow's verify matrix (run 38278727530, 2026-10-12) installed,
-  probed and Sigstore-verified all twelve apps on `ubuntu-latest`,
+  probed and Sigstore-verified the twelve apps pinned at the time on `ubuntu-latest`,
   `windows-latest` and `macos-latest`. No host CLI was present there, so
   registration on Linux/Windows is covered by simulated tests only, and no
   Linux or Windows desktop machine has been used.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "basis": "User-supplied native MCP plan, 2026-10-12; source-level launch candidates, not binary verification.",
+  "basis": "User-supplied native MCP plan, 2026-10-12, plus FigCraft from upstream source, 2026-10-14; source-level launch candidates, not binary verification.",
   "apps": [
     {
       "id": "photocraft",
@@ -162,6 +162,18 @@
       ],
       "repository": "https://github.com/storytold/soundcraft",
       "documentation": "https://github.com/storytold/soundcraft/blob/main/docs/mcp.md"
+    },
+    {
+      "id": "figcraft",
+      "name": "FigCraft",
+      "purpose": "Interface design, components and prototypes",
+      "executable": "figcraft-cli",
+      "confinement": "os_only",
+      "args": [
+        "mcp"
+      ],
+      "repository": "https://github.com/storytold/figcraft",
+      "documentation": "https://github.com/storytold/figcraft/blob/main/docs/mcp.md"
     }
   ]
 }

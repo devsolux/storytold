@@ -2,9 +2,10 @@
 
 These are operator steps, not actions performed by installing the plugin. Use
 non-sensitive fixtures until [acceptance](acceptance.md) passes. `setup` has
-installed, probed and Sigstore-verified all twelve CLIs on macOS, Linux and
-Windows runners and on a developer Mac; that is M0-level evidence, not the
-M1–M3 gates. See [verification](verification.md).
+installed, probed and Sigstore-verified twelve of the thirteen CLIs on macOS,
+Linux and Windows runners and on a developer Mac (FigCraft, added in 1.4.0, is
+pinned and source-reviewed but not yet executed); that is M0-level evidence,
+not the M1–M3 gates. See [verification](verification.md).
 
 ## One-command setup (macOS, Linux x86_64, Windows x64)
 
@@ -242,12 +243,13 @@ python3 "$STORYTOLD/storytold.py" preflight \
 ```
 
 Preflight validates all supplied lock entries, selected binaries and exact output
-root. Select only available apps; omission of `--app` means all twelve. Multiple
+root. Select only available apps; omission of `--app` means all thirteen. Multiple
 `--app` flags are allowed for preflight/configure, but a probe targets one app.
 
-FilmCraft, LightCraft, DesignCraft, GridCraft, WordCraft, DeckCraft, CADCraft and
-SoundCraft require tested external isolation for sensitive work. For an explicitly
-non-sensitive test, `--acknowledge-unconfined` records your decision to proceed;
+FilmCraft, LightCraft, DesignCraft, GridCraft, WordCraft, DeckCraft, CADCraft,
+SoundCraft and FigCraft require tested external isolation for sensitive work.
+For an explicitly non-sensitive test, `--acknowledge-unconfined` records your
+decision to proceed;
 it does **not** claim isolation. PdfCraft's single root does not make inputs
 read-only. Native hash/root checks do not restrict the host's other tools.
 

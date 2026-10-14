@@ -63,7 +63,7 @@ def render(root: Path=ROOT) -> dict[str,bytes]:
             'author':{'name':'devsolux'},'homepage':url,'license':p['license'],
             'repository':url,'keywords':['craft','native-mcp','local','headless','workflows']}
     interface={'displayName':'Storytold','shortDescription':'Local native Craft workflows and integration checks',
-               'longDescription':'One craft Skill for twelve local, headless Craft MCP servers: staged copies, '
+               'longDescription':'One craft Skill for thirteen local, headless Craft MCP servers: staged copies, '
                                  'native edits, deliberate exports and verified files. Craft apps are not bundled.',
                'developerName':'devsolux','category':'Productivity','websiteURL':url}
     # Portable root manifest; Codex reads extensions.com.openai, so no .codex-plugin overlay is emitted.

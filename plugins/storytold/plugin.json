@@ -10,7 +10,7 @@
         "category": "Productivity",
         "developerName": "devsolux",
         "displayName": "Storytold",
-        "longDescription": "One craft Skill for twelve local, headless Craft MCP servers: staged copies, native edits, deliberate exports and verified files. Craft apps are not bundled.",
+        "longDescription": "One craft Skill for thirteen local, headless Craft MCP servers: staged copies, native edits, deliberate exports and verified files. Craft apps are not bundled.",
         "shortDescription": "Local native Craft workflows and integration checks",
         "websiteURL": "https://github.com/devsolux/storytold"
       }
@@ -27,5 +27,5 @@
   "license": "MIT",
   "name": "storytold",
   "repository": "https://github.com/devsolux/storytold",
-  "version": "1.3.2"
+  "version": "1.4.0"
 }

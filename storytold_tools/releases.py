@@ -34,7 +34,7 @@ def load_releases(root: Path = ROOT) -> dict:
     require(re.fullmatch(r'[A-Z0-9]{10}', text(signers['apple_team_id'], 'Apple team id', 10)), 'Apple team id must be ten characters')
     re.compile(text(signers['sigstore_identity_regexp'], 'Sigstore identity', 512))
     require(signers['sigstore_oidc_issuer']==SIGSTORE_ISSUER, 'Sigstore issuer must be the GitHub Actions OIDC issuer')
-    require(isinstance(data['apps'], dict) and set(data['apps'])==set(APP_IDS), 'release manifest must list exactly the twelve apps')
+    require(isinstance(data['apps'], dict) and set(data['apps'])==set(APP_IDS), 'release manifest must list exactly the thirteen apps')
     require(list(data['apps'])==sorted(data['apps']), 'release manifest apps must be sorted')
     for app, row in data['apps'].items():
         keys(row, {'tag','commit','version','smoke_tool','assets'}, label=f'release {app}')

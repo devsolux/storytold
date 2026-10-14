@@ -219,6 +219,24 @@
       "task": "Check missing media before bouncing. Verify actual audio duration, sample rate, channels and expected mix; listen when the task requires audio-quality judgment. Save the editable session separately. PCM parsing alone is not a mix or loudness approval."
     },
     {
+      "id": "figcraft",
+      "app": "figcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Reopen the saved .figcraft and the exported PNG/SVG/PDF and compare frame count, absolute bounds, text, fonts and the colour profile (Display P3 converts to sRGB on SVG/PDF export). Verify numbers with inspect_document or get_node and pixels with a screenshot or the exported image. A .fig export is verified only through FigCraft's own importer, not by Figma, and a successful tool call is not a durable save."
+    },
+    {
       "id": "cross-photo-layout-pdf",
       "apps": [
         "photocraft",

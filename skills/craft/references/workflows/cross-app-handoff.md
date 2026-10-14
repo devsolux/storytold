@@ -27,5 +27,14 @@ Export a bounded, verified data artifact and preserve provenance and error value
 DeckCraft consumes that artifact to build the requested slides, then saves and
 exports them. Do not ask another model to recalculate the accounting truth.
 
+## Interface design → raster, layout or PDF
+
+FigCraft owns frames, components and prototypes and exports PNG, SVG or PDF
+only when `path` is set. Verify dimensions, frame count and the colour profile
+on disk (Display P3 converts to sRGB in SVG and PDF). PhotoCraft or VectorCraft
+may then own pixel or path edits of that export, DesignCraft the page layout and
+PdfCraft the PDF audit; none of them reopens the `.figcraft` document, and an
+experimental `.fig` export is not proof of a Figma round trip.
+
 If a stage fails, stop dependent work. Report the last verified file and the
 unverified/failed stage. No app can roll back another app's files automatically.

@@ -3,12 +3,16 @@
 ## ADR-001 — direct native MCP is authoritative
 
 The supplied **Claude Code × Craft Apps (Local Native MCP) Project Plan** is the
-implementation plan and explicitly rejects a thirteenth server, MCP proxy and
-secondary agent. The older **Crafting Apps CLI and MCP Integration Reference**
-proposes a remote-capable gateway. These two architecture decisions conflict.
+implementation plan and explicitly rejects an additional gateway server, MCP
+proxy and secondary agent. The older **Crafting Apps CLI and MCP Integration
+Reference** proposes a remote-capable gateway. These two architecture decisions conflict.
 This project follows the native plan; the reference supplies app-specific facts,
 not its gateway/session/HTTP design. Both originals are preserved unchanged in
 [sources](sources/README.md). Their runtime claims were not locally tested.
+The plan enumerates the twelve apps that existed when it was written;
+FigCraft, released upstream afterwards, is integrated the same way as a
+thirteenth catalog entry with its own stdio server, not as an exception to
+the architecture.
 
 ## ADR-002 — marketplace distribution, not a new runtime layer
 

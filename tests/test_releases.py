@@ -7,7 +7,7 @@ from storytold_tools.common import ROOT,StorytoldError,encoded
 from storytold_tools.releases import PLATFORMS,asset_names,asset_url,load_releases,load_signatures,published_hash,sums_url
 
 class ReleaseManifestTests(unittest.TestCase):
-    def test_manifest_covers_twelve_apps_on_three_platforms(self):
+    def test_manifest_covers_thirteen_apps_on_three_platforms(self):
         m=load_releases();catalog=load_catalog();self.assertEqual(set(m['apps']),set(APP_IDS))
         for app,row in m['apps'].items():
             self.assertEqual(set(row['assets']),set(PLATFORMS))

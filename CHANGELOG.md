@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.4.0 — 2026-10-14
+
+FigCraft, the ArtCraft team's interface-design and prototyping app, becomes
+the thirteenth native stdio server. Same architecture: one more catalog entry,
+card, scenario and release pin; no gateway, proxy or second agent.
+
+- `config/apps.json` gains `figcraft` (`figcraft-cli mcp`, `os_only`): the
+  released CLI parser accepts only `--attach PORT` and the global
+  `--no-system-fonts`, so FigCraft is installed and registered with
+  `--acknowledge-unconfined` like the other eight unconfined apps. The lock
+  example, the inactive launch templates, `setup --all`, `doctor`, the Skill
+  table, the checks and the tests now cover thirteen apps.
+- New card `skills/craft/references/apps/figcraft.md` (headless session with
+  one untitled document, never `--attach`, page-unit coordinates relative to
+  the parent frame, one undo step per mutation, `.figcraft` save, PNG/JPG/
+  SVG/WebP/PDF export only with `path`, experimental `.fig`, Display P3 to
+  sRGB on SVG/PDF export), FigCraft in the safety list of OS-user-wide apps, a
+  FigCraft handoff in the cross-app workflow and a fifteenth acceptance
+  scenario.
+- `config/releases.json` pins FigCraft v0.5.1 (tag commit `c5830e46…`) on all
+  three platforms with the hashes from the release's `SHA256SUMS.txt`
+  (`reviewed` 2026-10-14). The three archives were downloaded, hash-checked
+  and listed (each holds one `figcraft-cli`) and the macOS CLI was inspected
+  with `codesign`/`spctl` (notarized, team `DJ6XS33FX8`) without being
+  executed. No Sigstore bundle exists until the daily workflow's next run
+  signs it, so a Linux or Windows `setup --app figcraft` needs that run first
+  or `--trust-upstream-sums`; macOS verifies notarization as before.
+- AGENTS.md and `.claude/CLAUDE.md` record the branch policy: work happens on
+  `main` only (the workflow's `bot/releases` pull request is the exception),
+  and upstream links point at each Craft repository's `main`, never a tag.
+- Wording: the architecture and acceptance docs and the READMEs reject a
+  "gateway" server where they used to say "thirteenth"; counts, the diagram,
+  the app table (English, German, Turkish) and the GitHub description name
+  thirteen apps. `docs/verification.md` records that FigCraft is
+  source-reviewed and pinned but not executed; the twelve-app evidence from
+  1.1.0 to 1.3.2 is unchanged.
+
 ## 1.3.2 — 2026-10-12
 
 - Archived probe evidence gets a name that is never reused

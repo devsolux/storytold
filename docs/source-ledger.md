@@ -32,6 +32,7 @@ patterns, not Engineer's domain commands, server code, license or agents.
 | [PdfCraft README](https://github.com/storytold/pdfcraft/blob/main/README.md) | Single root, compact mode and explicit save/build considerations. | Optional MCP feature and actual flags must be tested on the installed build. |
 | [EffectCraft MCP](https://github.com/storytold/effectcraft/blob/main/docs/mcp.md) | Native root restrictions, scripts and headless operation. | Actual denial behavior is an M3 test, not an assertion from a tool description. |
 | [LightCraft MCP](https://github.com/storytold/lightcraft/blob/main/docs/mcp.md) | Compact discovery, library and import risks. | No persistent library, live connection or denoise service is enabled by default. |
+| [FigCraft MCP](https://github.com/storytold/figcraft/blob/main/docs/mcp.md), [CLI](https://github.com/storytold/figcraft/blob/main/docs/cli.md), [CLI source](https://github.com/storytold/figcraft/blob/main/apps/figcraft-cli/src/main.rs) | Headless `mcp` with no file-root flag (only `--attach PORT` and the global `--no-system-fonts`), 18 tools, `inspect_document` without required parameters, page-unit coordinates, `.figcraft` save and PNG/JPG/SVG/WebP/PDF/`.fig` export. | Source review on 2026-10-14; the binary was not executed. The AppImage `cli` subcommand is documented but `setup` uses the tarball. |
 
 ## Release-tag review of all twelve apps — 2026-10-12
 
@@ -56,6 +57,24 @@ definitions, Windows/Linux/macOS packaging and release assets:
 
 This is source review, not binary testing; only PhotoCraft 0.7.0 was executed
 (see [verification](verification.md)).
+
+## FigCraft added — 2026-10-14
+
+FigCraft postdates both supplied documents, which enumerate twelve apps. Its
+catalog entry, card, acceptance scenario and release pin were derived from the
+upstream `main` branch and the v0.5.1 release (tag commit
+`c5830e4683408a16f0e9b7d8b246c805190e7e6a`): the CLI parser accepts `mcp
+[--attach PORT]` and the global `--no-system-fonts` only, so the app is
+`os_only` like the other eight unconfined apps, and the smoke tool is
+`inspect_document`, whose parameters are all optional. The three pinned
+archives (`figcraft-cli-0.5.1-macos-universal.zip`,
+`figcraft-0.5.1-linux-x86_64.tar.gz`, `figcraft-0.5.1-windows-x64-portable.zip`)
+were downloaded, matched the release's `SHA256SUMS.txt`, and each contains
+exactly one `figcraft-cli` (159 MB universal on macOS); the macOS CLI is signed
+and notarized by the same Apple team `DJ6XS33FX8` as the other apps
+(`codesign` and `spctl` inspection only; the binary was not run). No Sigstore
+bundle exists until the daily workflow signs the release, so a Linux or
+Windows `setup --app figcraft` needs that run first or `--trust-upstream-sums`.
 
 `config/releases.json` is the reviewed pin set for `storytold.py setup`: tag and
 tag commit from the GitHub API, the macOS CLI zip name/size from the release

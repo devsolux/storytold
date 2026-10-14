@@ -17,7 +17,7 @@ class CliTests(WorkspaceCase):
         r=self.run_cli('doctor');self.assertEqual(r.returncode,0,r.stderr)
         report=json.loads(r.stdout);self.assertFalse(report['native_apps_executed'])
         self.assertEqual(report['storytold'],json.loads((ROOT/'packaging/project.json').read_text())['version'])
-        self.assertEqual(len(report['connections']['apps']),12)
+        self.assertEqual(len(report['connections']['apps']),13)
     def test_setup_refuses_contradictory_flags(self):
         for argv,needle in ((('setup','--remove','--all','--upgrade'),'--remove cannot be combined with --upgrade'),
                             (('setup','--remove','--all','--skip-probe','--replace'),'--replace, --skip-probe'),
@@ -42,8 +42,8 @@ class CliTests(WorkspaceCase):
         self.assertEqual(r.returncode,0,r.stderr);plan=json.loads(r.stdout)
         self.assertTrue(plan['dry_run']);self.assertEqual(plan['apps'][0]['install_to'],str(self.base/'bin'/('cadcraft-cli'+('.exe' if os.name=='nt' else ''))))
         self.assertTrue(plan['apps'][0]['needs_acknowledge_unconfined']);self.assertFalse((self.base/'state').exists())
-    def test_apps_lists_twelve(self):
-        r=self.run_cli('apps');self.assertEqual(len(json.loads(r.stdout)['apps']),12)
+    def test_apps_lists_thirteen(self):
+        r=self.run_cli('apps');self.assertEqual(len(json.loads(r.stdout)['apps']),13)
     def test_missing_env_fails_closed(self):
         r=self.run_cli('preflight','--lock',str(self.lock),'--app','photocraft')
         self.assertNotEqual(r.returncode,0);self.assertEqual(r.stdout,'');self.assertIn('missing CRAFT_BIN_DIR',r.stderr)

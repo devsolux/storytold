@@ -1,9 +1,18 @@
 # Storytold repository instructions
 
 The native-MCP project plan in docs/sources is the architecture authority. The
-older gateway reference supplies app facts only. Keep twelve independent native
-stdio servers and one instructional craft Skill. No gateway, daemon, router,
-secondary agent, live GUI control, or remote transport belongs in this project.
+older gateway reference supplies app facts only. Keep thirteen independent
+native stdio servers (one per app in config/apps.json) and one instructional
+craft Skill. No gateway, daemon, router, secondary agent, live GUI control, or
+remote transport belongs in this project.
+
+Work on the main branch only. There is no development, feature or release
+branch: commit directly to main, and push main only when the operator asks.
+The daily release workflow's bot/releases pull request is the one exception,
+and it is merged into main. Upstream references in app cards, the catalog's
+documentation links and the docs point at each Craft repository's main branch,
+never at a release tag or version number; release pins belong only in
+config/releases.json, which the workflow regenerates.
 
 Read relevant source, configuration, and tests before editing. Canonical sources
 are skills/, config/, storytold_tools/, scripts/, and docs/. plugins/storytold/

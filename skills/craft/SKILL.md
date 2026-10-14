@@ -1,6 +1,6 @@
 ---
 name: craft
-description: Use installed native Craft MCP tools for local raster, vector, video, RAW, PDF, layout, workbook, document, presentation, CAD, audio, or motion-graphics work. Inspect first, edit a staged copy headlessly, export deliberately, and verify actual files. Never emulate missing app tools or switch to live desktop control.
+description: Use installed native Craft MCP tools for local raster, vector, video, RAW, PDF, layout, workbook, document, presentation, CAD, audio, motion-graphics, or interface-design work. Inspect first, edit a staged copy headlessly, export deliberately, and verify actual files. Never emulate missing app tools or switch to live desktop control.
 ---
 
 # Craft — native app workflows
@@ -25,6 +25,7 @@ instructions, not an authorization layer, execution service or new agent.
 | DeckCraft: slides and presentations | [DeckCraft](references/apps/deckcraft.md) |
 | CADCraft: drawing geometry and units | [CADCraft](references/apps/cadcraft.md) |
 | SoundCraft: offline audio and mix | [SoundCraft](references/apps/soundcraft.md) |
+| FigCraft: interface design, components, prototypes | [FigCraft](references/apps/figcraft.md) |
 
 ## Operating procedure
 

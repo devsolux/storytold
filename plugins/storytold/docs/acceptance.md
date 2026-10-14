@@ -2,7 +2,7 @@
 
 This repository implements the integration kit. **M0–M4 are not recorded as
 passed.** Shipping code/templates is different from a validated native deployment.
-The fourteen scenario definitions in the source `tests/native/acceptance.json`
+The fifteen scenario definitions in the source `tests/native/acceptance.json`
 start as `not_run`; they are a checklist, not fabricated run results. Retain real
 execution evidence privately, outside the native writable workspace.
 
@@ -24,7 +24,7 @@ purity under every operation, actual process exit code/EOF behavior, safe native
 root enforcement, no GUI attachment, output correctness, runtime version
 truthfulness or publisher authenticity. Test these separately on the installed
 build. For VectorCraft, an available GUI must not be contacted by the headless
-configuration. All twelve pass before claiming the full-suite M0 gate.
+configuration. All thirteen pass before claiming the full-suite M0 gate.
 
 ## M1 — each local host and independent failures
 
@@ -42,7 +42,7 @@ without hidden native registration, duplicate servers or permission grants.
 
 ## M2 — editing, durable saves and cross-app handoffs
 
-For all twelve app scenarios: inspect a non-sensitive staged input or new native
+For all thirteen app scenarios: inspect a non-sensitive staged input or new native
 document, make one bounded edit, preview, explicitly save/export, reopen, and
 check the actual result. Verify original and staged input hashes when the copy
 must remain unchanged. A useful unsupported-format result must state its limit;
@@ -56,7 +56,7 @@ IDs, universal transaction or duplicate decision-making is introduced.
 ## M3 — real safety, failures and fidelity before business data
 
 Use a restricted OS account/container/VM or equivalent tested enforcement for
-confidential work, particularly the eight apps without verified native roots.
+confidential work, particularly the nine apps without verified native roots.
 An `--acknowledge-unconfined` switch only acknowledges non-sensitive testing; it
 does not create or attest isolation. Include the host's other shell/file tools in
 the same threat model. Test unauthorized absolute paths, traversal, symlink and
@@ -77,11 +77,11 @@ weaker checks, not native reopening or visual approval. Record unresolved warnin
 ## M4 — distribution validation
 
 The reusable plugin is packaged and published through the marketplaces; its
-activation and full twelve-app acceptance remain gated. Validate the generated
+activation and full thirteen-app acceptance remain gated. Validate the generated
 bundle with installed Claude and the actual supported local Codex workflow
 (release-time install results are in [verification](verification.md)). Check per-user
 trust, namespacing, install/reload/uninstall, and new clean machines without hidden
-dependencies. The plugin must never create a thirteenth MCP server, live control
+dependencies. The plugin must never create a gateway MCP server, live control
 listener, remote connector or extra agent. This project is MIT-licensed; do not
 infer licensing of upstream Craft apps, SDKs or assets from it.
 

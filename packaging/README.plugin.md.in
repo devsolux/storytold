@@ -1,6 +1,6 @@
 # Storytold — installed plugin
 
-**One Craft Skill. Twelve direct native MCP servers. No gateway or extra agent.**
+**One Craft Skill. Thirteen direct native MCP servers. No gateway or extra agent.**
 
 This is the generated `storytold` plugin from `devsolux/storytold`, marketplace
 `devsolux-storytold`. Its canonical Skill is [craft](skills/craft/SKILL.md).

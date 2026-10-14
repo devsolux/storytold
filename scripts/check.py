@@ -85,8 +85,8 @@ def check() -> dict:
     checks.append('sorted-explicit-allowlists')
     p = project()
     catalog = load_catalog()
-    require(len(catalog) == 12, 'expected twelve native apps')
-    checks.append('twelve-native-apps-exact-reviewed-flags')
+    require(len(catalog) == 13, 'expected thirteen native apps')
+    checks.append('thirteen-native-apps-exact-reviewed-flags')
     for name, data in templates(catalog).items():
         require(files['config/' + name] == data, f'launch template drift: {name}')
         checks.append('template:' + name)
@@ -96,7 +96,7 @@ def check() -> dict:
     for app, row in releases['apps'].items():
         for asset in row['assets'].values():
             require(asset['name'].startswith(app + '-'), f'{app}: manifest asset belongs to another app')
-    checks.append('release-manifest-twelve-reviewed-pins-three-platforms')
+    checks.append('release-manifest-thirteen-reviewed-pins-three-platforms')
     signatures = load_signatures(releases=releases)
     require(files['config/signatures.json'] == encoded(signatures), 'config/signatures.json must be canonical JSON; regenerate it with scripts/sign_releases.py')
     checks.append('signature-store-matches-manifest')
@@ -144,10 +144,10 @@ def check() -> dict:
     require('allowed-tools:' not in skill and 'hooks:' not in skill, 'Skill must not grant execution privileges')
     require(len(skill) < 10000, 'Skill entry must stay compact; use on-demand references')
     cards = {PurePosixPath(n).stem for n in names if n.startswith('skills/craft/references/apps/') and n.endswith('.md')}
-    require(cards == set(APP_IDS), 'twelve app cards required')
-    checks += ['one-compact-skill-no-auto-grants', 'twelve-on-demand-app-cards', 'no-active-native-config']
+    require(cards == set(APP_IDS), 'thirteen app cards required')
+    checks += ['one-compact-skill-no-auto-grants', 'thirteen-on-demand-app-cards', 'no-active-native-config']
     scenarios = parse_json(files['tests/native/acceptance.json'])['scenarios']
-    require(len(scenarios) == 14 and len({s['id'] for s in scenarios}) == 14, 'fourteen unique native scenario definitions required')
+    require(len(scenarios) == 15 and len({s['id'] for s in scenarios}) == 15, 'fifteen unique native scenario definitions required')
     require({s['app'] for s in scenarios if 'app' in s} == set(APP_IDS), 'scenario app coverage incomplete')
     require(all(s['status'] == 'not_run' and len(s['required_evidence']) >= 5 for s in scenarios),
             'scenario definitions are not execution evidence')

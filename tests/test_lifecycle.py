@@ -252,7 +252,7 @@ class StrictProvenanceTests(unittest.TestCase):
     def test_require_complete_bundles(self):
         releases=load_releases();name=releases['apps']['cadcraft']['assets']['macos']['name']
         full={'bundles':{a['name']:{} for row in releases['apps'].values() for a in row['assets'].values()}}
-        self.assertEqual(len(require_complete_bundles(full,releases)),36)
+        self.assertEqual(len(require_complete_bundles(full,releases)),39)
         partial={'bundles':{k:v for k,v in full['bundles'].items() if k!=name}}
         with self.assertRaises(StorytoldError) as cm: require_complete_bundles(partial,releases)
         self.assertIn(name,str(cm.exception))

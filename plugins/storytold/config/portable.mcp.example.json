@@ -33,6 +33,13 @@
       "command": "${CRAFT_BIN_DIR}/effectcraft-cli",
       "type": "stdio"
     },
+    "figcraft": {
+      "args": [
+        "mcp"
+      ],
+      "command": "${CRAFT_BIN_DIR}/figcraft-cli",
+      "type": "stdio"
+    },
     "filmcraft": {
       "args": [
         "mcp"

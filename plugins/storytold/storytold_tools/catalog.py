@@ -7,7 +7,7 @@ import re
 from .common import ROOT, absolute, directory, encoded, digest, keys, load_json, require, sha, snapshot, text
 
 APP_IDS = ('photocraft','vectorcraft','filmcraft','lightcraft','pdfcraft','effectcraft',
-           'designcraft','gridcraft','wordcraft','deckcraft','cadcraft','soundcraft')
+           'designcraft','gridcraft','wordcraft','deckcraft','cadcraft','soundcraft','figcraft')
 ROOTED = {'photocraft','vectorcraft','effectcraft'}
 
 def load_catalog(root: Path = ROOT) -> dict[str, dict]:
@@ -30,7 +30,7 @@ def load_catalog(root: Path = ROOT) -> dict[str, dict]:
         if app=='lightcraft': expected += ['--compact']
         require(row['args']==expected, f'{app}: launch flags need a reviewed code/catalog change')
         result[app]=row
-    require(set(result)==set(APP_IDS), 'catalog must contain all twelve apps')
+    require(set(result)==set(APP_IDS), 'catalog must contain all thirteen apps')
     return result
 
 def selected(apps: list[str] | None) -> list[str]:

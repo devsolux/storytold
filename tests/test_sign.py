@@ -38,19 +38,19 @@ class RotationTests(unittest.TestCase):
     def setUp(self): self.up=Upstream()
     def test_fresh_store_signs_every_pinned_archive(self):
         store,summary=self.up.rotate(None)
-        self.assertEqual(len(store['bundles']),36);self.assertEqual(summary['kept'],0);self.assertEqual(len(summary['signed']),36);self.assertEqual(summary['dropped'],[])
+        self.assertEqual(len(store['bundles']),39);self.assertEqual(summary['kept'],0);self.assertEqual(len(summary['signed']),39);self.assertEqual(summary['dropped'],[])
         validate_signature_store(store,self.up.releases)
         entry=store['bundles'][self.up.releases['apps']['cadcraft']['assets']['macos']['name']]
         self.assertEqual(entry['binary'],'cadcraft-cli');self.assertEqual(entry['binary_sha256'],digest(b'cadcraft '+self.up.releases['apps']['cadcraft']['tag'].encode()))
     def test_repeated_rotation_with_no_changes_is_idempotent(self):
         store,_=self.up.rotate(None);self.up.signed.clear()
         again,summary=self.up.rotate(store)
-        self.assertEqual(again,store);self.assertEqual(summary,{'signed':[],'kept':36,'dropped':[]});self.assertEqual(self.up.signed,[])
+        self.assertEqual(again,store);self.assertEqual(summary,{'signed':[],'kept':39,'dropped':[]});self.assertEqual(self.up.signed,[])
     def test_old_to_new_manifest_keeps_current_drops_stale_signs_new(self):
         store,_=self.up.rotate(None);old=dict(store['bundles'])
         for app,tag in (('cadcraft','v9.1.0'),('wordcraft','v9.2.0'),('soundcraft','v9.3.0')): self.up.set_release(app,tag)
         self.up.signed.clear();new,summary=self.up.rotate(store)
-        self.assertEqual(len(new['bundles']),36);self.assertEqual(summary['kept'],27);self.assertEqual(len(summary['signed']),9)
+        self.assertEqual(len(new['bundles']),39);self.assertEqual(summary['kept'],30);self.assertEqual(len(summary['signed']),9)
         self.assertEqual(len(summary['dropped']),9);self.assertTrue(all(n in old and n not in new['bundles'] for n in summary['dropped']))
         for app in ('photocraft','gridcraft'):
             name=self.up.releases['apps'][app]['assets']['macos']['name'];self.assertEqual(new['bundles'][name],old[name])
@@ -60,7 +60,7 @@ class RotationTests(unittest.TestCase):
         self.up.archives[name]=synthetic_tar('gridcraft-cli',b'rebuilt bytes');asset=self.up.releases['apps']['gridcraft']['assets']['linux-x86_64']
         asset.update(sha256=digest(self.up.archives[name]),bytes=len(self.up.archives[name]))  # upstream re-uploaded the archive under the same name
         with self.assertRaises(StorytoldError): validate_signature_store(store,self.up.releases)  # the strict runtime loader refuses the stale hash
-        current,stale=partition_signature_store(store,self.up.releases);self.assertEqual(list(stale),[name]);self.assertEqual(len(current),35)
+        current,stale=partition_signature_store(store,self.up.releases);self.assertEqual(list(stale),[name]);self.assertEqual(len(current),38)
         self.up.signed.clear();new,summary=self.up.rotate(store)
         self.assertEqual(summary['signed'],[name]);self.assertEqual(summary['dropped'],[name]);self.assertEqual(new['bundles'][name]['binary_sha256'],digest(b'rebuilt bytes'))
     def test_malformed_cached_bundle_and_signer_drift_are_refused(self):
@@ -82,7 +82,7 @@ class RotationTests(unittest.TestCase):
         self.assertEqual(path.read_bytes(),before);self.assertEqual([p.name for p in path.parent.iterdir()],['signatures.json'])
     def test_resign_all_ignores_the_previous_store(self):
         store,_=self.up.rotate(None);self.up.signed.clear()
-        _,summary=self.up.rotate(store,resign_all=True);self.assertEqual(len(summary['signed']),36);self.assertEqual(summary['kept'],0)
+        _,summary=self.up.rotate(store,resign_all=True);self.assertEqual(len(summary['signed']),39);self.assertEqual(summary['kept'],0)
     def test_published_store_round_trips_through_the_strict_loader(self):
         store,_=self.up.rotate(None)
         temp=tempfile.TemporaryDirectory(prefix='storytold-store-');self.addCleanup(temp.cleanup);path=Path(temp.name).resolve()/'signatures.json'

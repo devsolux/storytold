@@ -92,6 +92,29 @@
       "tag": "v0.8.0",
       "version": "0.8.0"
     },
+    "figcraft": {
+      "assets": {
+        "linux-x86_64": {
+          "bytes": 85166689,
+          "name": "figcraft-0.5.1-linux-x86_64.tar.gz",
+          "sha256": "8ae2b6a9fb0d814df716cbb05226582de741394bc6326ea2b8462544545ffc16"
+        },
+        "macos": {
+          "bytes": 76593235,
+          "name": "figcraft-cli-0.5.1-macos-universal.zip",
+          "sha256": "46b106a748364f59953504c22f9ac3915844757b126e911c1bcfff71aa60aa84"
+        },
+        "windows-x64": {
+          "bytes": 85126995,
+          "name": "figcraft-0.5.1-windows-x64-portable.zip",
+          "sha256": "554c28eb0bac0e19a18e7d68f7a77eedfd000bd83f7f3a40e05b8032590c69a3"
+        }
+      },
+      "commit": "c5830e4683408a16f0e9b7d8b246c805190e7e6a",
+      "smoke_tool": "inspect_document",
+      "tag": "v0.5.1",
+      "version": "0.5.1"
+    },
     "filmcraft": {
       "assets": {
         "linux-x86_64": {
@@ -278,7 +301,7 @@
     }
   },
   "basis": "Latest GitHub releases of storytold/<app> on the review date; archive hashes copied from each release's SHA256SUMS.txt; smoke tools verified in the tag's MCP source. Reviewed pins, not binary execution evidence. Sigstore bundles for the extracted CLIs live in config/signatures.json.",
-  "reviewed": "2026-10-12",
+  "reviewed": "2026-10-14",
   "schema_version": 2,
   "signers": {
     "apple_team_id": "DJ6XS33FX8",
