@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.5.1 — 2026-10-14
+
+Documentation and pin release; no code change.
+
+- The release workflow's run 38588658915, the first whose three-runner
+  `setup` used WordCraft's root-flag launch, installed, probed and pinned
+  WordCraft 0.7.0 with the root arguments on Linux, Windows and macOS, moved
+  DeckCraft to 0.7.0, PdfCraft to 0.8.0 (now from its standalone Linux CLI
+  tarball) and VectorCraft to 0.11.0, signed their nine archives and merged
+  pull request #3.
+- The three moved apps' cards were rechecked at the new tags: no `mcp`
+  launch flag changed. VectorCraft's card gains the unknown-parameter
+  refusal, the atomic `command_batch` mode with its 256-step and 8 MiB caps,
+  the rule that a failed atomic batch restores documents but not written
+  files, text overflow reporting, undecodable-image notes and the
+  `[Converted]` save behaviour; PdfCraft's card notes the standalone Linux
+  CLI tarball; DeckCraft's is unchanged. The source ledger records the
+  findings and the verification report cites the run.
+
 ## 1.5.0 — 2026-10-14
 
 WordCraft joins the root-confined apps. One reviewed catalog change; no new

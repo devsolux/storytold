@@ -1,4 +1,4 @@
-# Verification status — 1.5.0
+# Verification status — 1.5.1
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All thirteen CLIs have
@@ -8,7 +8,7 @@ below): twelve on a developer Mac and on GitHub runners, FigCraft (added in
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
-## Executed for 1.5.0 — October 14, 2026
+## Executed for 1.5.0 and 1.5.1 — October 14, 2026
 
 Same machine and gates as 1.4.1 (`make release`, `make test-sdk`,
 `make host-validate`; the counts in the table below are from this run). The
@@ -43,7 +43,7 @@ macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`):
 
 | Gate | Result |
 |---|---|
-| `make check` | Passed **71 check entries**: parsed 46 files (33 Python, 12 JSON, one TOML), checked 165 local Markdown links in source, translations and plugin, validated the thirteen-app catalog with its exact launch flags, the three-platform release manifest (now pinning FigCraft v0.5.1), the signature store, the release workflow rules and 15 native scenario definitions without executing any. |
+| `make check` | Passed **71 check entries**: parsed 46 files (33 Python, 12 JSON, one TOML), checked 167 local Markdown links in source, translations and plugin, validated the thirteen-app catalog with its exact launch flags, the three-platform release manifest (now pinning FigCraft v0.5.1), the signature store, the release workflow rules and 15 native scenario definitions without executing any. |
 | `make test` | **223 tests** passed in an isolated source copy, zero failures, errors or skips; the catalog, CLI, status, manifest, signature-rotation and strict-provenance tests now assert thirteen apps and 39 pinned archives. |
 | `make build`, `make verify-build` | The generated plugin (51 files) matches its 91 allowlisted canonical inputs, including the new FigCraft card. |
 | `make package`, `make source` | Reproducible 1.4.0 plugin and source ZIPs with SHA-256 files. |
