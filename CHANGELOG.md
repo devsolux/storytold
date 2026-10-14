@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.4.1 — 2026-10-14
+
+Documentation and pin release; no code change.
+
+- The daily workflow's first run with the fixed pull-request lookup (run
+  38583930461) moved eight pins (DeckCraft 0.6.1, DesignCraft 0.8.0,
+  EffectCraft 0.9.2, FigCraft 0.6.0, FilmCraft 0.7.2, LightCraft 0.7.1,
+  PhotoCraft 0.8.2, WordCraft 0.7.0), signed all 39 archives and ran the real
+  `setup` on the Linux, Windows and macOS runners; pull request #2 merged it.
+  FigCraft 0.6.0 answered its `inspect_document` smoke call on all three
+  runners, its first execution anywhere.
+- All eight moved apps' cards were rechecked at the new tags: no `mcp` launch
+  flag changed, no tool was renamed or removed, and PhotoCraft lists four new
+  document tools. Cards updated for FilmCraft's `offlineMedia`, LightCraft's
+  Apple Photos export hook, `onDeleted` default and `denoise-serve` listener,
+  PhotoCraft's batch and mask semantics, WordCraft's property objects and the
+  root flags its CLI has shipped since 0.6.1 (not yet used by the catalog),
+  DesignCraft's `spread` and EffectCraft's string ids. The source ledger
+  records the findings; the verification report records the runner evidence
+  and the limits that remain.
+
 ## 1.4.0 — 2026-10-14
 
 FigCraft, the ArtCraft team's interface-design and prototyping app, becomes

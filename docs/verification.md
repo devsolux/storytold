@@ -1,4 +1,4 @@
-# Verification status — 1.4.0
+# Verification status — 1.4.1
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All thirteen CLIs have
@@ -8,13 +8,13 @@ below): twelve on a developer Mac and on GitHub runners, FigCraft (added in
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
-## Executed for this release — October 14, 2026
+## Executed for 1.4.0 and 1.4.1 — October 14, 2026
 
 macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`):
 
 | Gate | Result |
 |---|---|
-| `make check` | Passed **71 check entries**: parsed 46 files (33 Python, 12 JSON, one TOML), checked 157 local Markdown links in source, translations and plugin, validated the thirteen-app catalog with its exact launch flags, the three-platform release manifest (now pinning FigCraft v0.5.1), the signature store, the release workflow rules and 15 native scenario definitions without executing any. |
+| `make check` | Passed **71 check entries**: parsed 46 files (33 Python, 12 JSON, one TOML), checked 163 local Markdown links in source, translations and plugin, validated the thirteen-app catalog with its exact launch flags, the three-platform release manifest (now pinning FigCraft v0.5.1), the signature store, the release workflow rules and 15 native scenario definitions without executing any. |
 | `make test` | **223 tests** passed in an isolated source copy, zero failures, errors or skips; the catalog, CLI, status, manifest, signature-rotation and strict-provenance tests now assert thirteen apps and 39 pinned archives. |
 | `make build`, `make verify-build` | The generated plugin (51 files) matches its 91 allowlisted canonical inputs, including the new FigCraft card. |
 | `make package`, `make source` | Reproducible 1.4.0 plugin and source ZIPs with SHA-256 files. |
@@ -24,7 +24,7 @@ macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`):
 | FigCraft release inspection | `figcraft-cli-0.5.1-macos-universal.zip`, `figcraft-0.5.1-linux-x86_64.tar.gz` and `figcraft-0.5.1-windows-x64-portable.zip` were downloaded into a scratch directory and matched both the manifest and the release's `SHA256SUMS.txt`; each archive lists exactly one `figcraft-cli` (`bin/figcraft-cli` in the tarball, `figcraft-cli.exe` in the portable ZIP, a 159 MB universal x86_64/arm64 binary on macOS). `codesign` and `spctl` report the macOS CLI as *Notarized Developer ID*, team `DJ6XS33FX8`. The binary was not executed; no `setup`, probe or host registration ran for FigCraft. |
 | Upstream source review | FigCraft `main`: CLI parser (`mcp [--attach PORT]`, the global `--no-system-fonts`, no file-root flag), MCP documentation and tool definitions (18 tools; `inspect_document` has only optional parameters), packaging and release assets; see the [source ledger](source-ledger.md). |
 
-Not run locally for 1.4.0: the host installs from the local marketplace and
+Not run locally for 1.4.0 and 1.4.1: the host installs from the local marketplace and
 any native `setup`, upgrade or removal on this Mac; the 1.3.2 results below
 still describe the twelve binaries installed here, which 1.4.0 does not touch.
 

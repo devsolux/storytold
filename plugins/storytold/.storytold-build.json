@@ -1,6 +1,6 @@
 {
   "files": {
-    ".claude-plugin/plugin.json": "07a7a15e19e9afbfb854d13978180fa4c115da4f60886c28eabaca8ac52cdacc",
+    ".claude-plugin/plugin.json": "90c03f79ec9c71db3f4b9a1f614e208fd263927652d38f03ae73a23577527867",
     "LICENSE": "1b27293f1fa43edad3840ee0ac38ea8de030f04ac58760002efa8f8475d4ac15",
     "LICENSE-NOTICE.md": "b4c1f5f62b300657a5dd594e87cf4a94402ec61d9487048cd92894ade5a9f883",
     "README.md": "917f4471231abb3488ab223a404af27d26af26215837f24441f19b5cf67315a6",
@@ -19,8 +19,8 @@
     "docs/sources/Claude_Code_Craft_Native_MCP_Project_Plan.md": "fabea9691589f563c6f9f7a8df89d2d8b835ea933315ad4d6c1ad5b8dfd0cbc1",
     "docs/sources/Crafting_Apps_CLI_MCP_Integration_Reference.md": "3f0ec5724b801db503d10947c2e06c5a0c79e68f0996cb7684f10a77ef92f45c",
     "docs/sources/README.md": "b7bf7f4350bdb122dc05ec667293dc59618fdd063d59aa2ecb4a0b0d7fd843ce",
-    "docs/verification.md": "422ae84ca9735203ee8b06b3646b536a62c8d9b2b2f794c7b655a22cf26aca89",
-    "plugin.json": "28e0756540acbb4aede1a96fbb51a60d664ec19ca75cf1a221c90334619f937c",
+    "docs/verification.md": "f78d027145dea95559c137a6c67ef718bc9bd5b622243819d3c270c67eb4db4f",
+    "plugin.json": "0875221f49f802f7255d719ffc2be3a9e4d4e8adc820196ecd77fcf20b39af0a",
     "requirements-probe.txt": "1e85b8f569b8be282264857960444e43c5c4f30ff8c3a2505c5179cdd6d1f2d7",
     "skills/craft/SKILL.md": "3fc8969aba9eb6a6ed6d6919719f3ce735b995f03e2c724cce5bea9c9e6a672a",
     "skills/craft/references/apps/cadcraft.md": "2c8f19692a5621d63b020abf765d874a347d4ffcc7887252e20b9d9e44fe73d2",
@@ -53,5 +53,5 @@
   },
   "generator": "storytold_tools.build",
   "schema_version": 1,
-  "version": "1.4.0"
+  "version": "1.4.1"
 }
