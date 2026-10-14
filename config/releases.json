@@ -26,25 +26,25 @@
     "deckcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 74777164,
-          "name": "deckcraft-0.6.1-linux-x86_64.tar.gz",
-          "sha256": "1215e64f11aa68529be3efe2078f51c39a7669de1d63cce1b558ac1193f17569"
+          "bytes": 76310611,
+          "name": "deckcraft-0.7.0-linux-x86_64.tar.gz",
+          "sha256": "330a2fb2ef8890daded91084e5bfd29dfa411e33a2b27c01ac3b9e520ff98d9f"
         },
         "macos": {
-          "bytes": 66681282,
-          "name": "deckcraft-cli-0.6.1-macos-universal.zip",
-          "sha256": "38d95bb1b7a9c126366b4c18205136742525f3114223dde945e5f114b8077c28"
+          "bytes": 68242322,
+          "name": "deckcraft-cli-0.7.0-macos-universal.zip",
+          "sha256": "9039972bc9f583115ef79994f30179540beee1ee32d7d9bcce1054a79c9a8aa3"
         },
         "windows-x64": {
-          "bytes": 74050218,
-          "name": "deckcraft-0.6.1-windows-x64-portable.zip",
-          "sha256": "339ea7b9a4901fd0bc6fe1b96fedbc34e72a3c0d0897c44ad1750262d63db84f"
+          "bytes": 75673139,
+          "name": "deckcraft-0.7.0-windows-x64-portable.zip",
+          "sha256": "3d67962a206af89d66ef443a042efcc5386a14d4e0d9c056bc1f62a84bd7954c"
         }
       },
-      "commit": "688c7ef592c901ca4541c25e210c1b302e4dc066",
+      "commit": "d78e657e4cb1e490ceb5445785c052d9cf5ad963",
       "smoke_tool": "list_commands",
-      "tag": "v0.6.1",
-      "version": "0.6.1"
+      "tag": "v0.7.0",
+      "version": "0.7.0"
     },
     "designcraft": {
       "assets": {
@@ -187,25 +187,25 @@
     "pdfcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 30240879,
-          "name": "pdfcraft-cli-0.7.1-linux-x86_64.tar.gz",
-          "sha256": "1916000d20b1a5252f631e148ffcfed8e5c178e9b5c0cf67da864d2cc33ca00b"
+          "bytes": 30371117,
+          "name": "pdfcraft-cli-0.8.0-linux-x86_64.tar.gz",
+          "sha256": "e57630c62e23288bacb1591ef86f0c530da1bd63743b800cae3ebc875a4708cd"
         },
         "macos": {
-          "bytes": 60613222,
-          "name": "pdfcraft-cli-0.7.1-macos-universal.zip",
-          "sha256": "6631b868e65aa9eceabf416096a26681f80ca66a7eae53cca82d3239a847aa63"
+          "bytes": 60864809,
+          "name": "pdfcraft-cli-0.8.0-macos-universal.zip",
+          "sha256": "8151d648892589a33ec474ec1eae5fcc57a8932d92b1c9566bc7dd0a5725024b"
         },
         "windows-x64": {
-          "bytes": 84587128,
-          "name": "pdfcraft-0.7.1-windows-x64-portable.zip",
-          "sha256": "6632068a4f7fdf1fb6a3b9d431e6d088bb7cbbeb066e47f815a1e498b45d7ecf"
+          "bytes": 85294649,
+          "name": "pdfcraft-0.8.0-windows-x64-portable.zip",
+          "sha256": "cd7b7fca39bf8fe477e230f40c35291a9a37ecc9175db34ff1c2ef94f785ddfb"
         }
       },
-      "commit": "7163ba3dee8becfff6871c9a65d0d8314314742b",
+      "commit": "9931329b9fae0b05373b4dc3ac7c58541f0891a4",
       "smoke_tool": "doc_inspect",
-      "tag": "v0.7.1",
-      "version": "0.7.1"
+      "tag": "v0.8.0",
+      "version": "0.8.0"
     },
     "photocraft": {
       "assets": {
@@ -256,25 +256,25 @@
     "vectorcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 116773175,
-          "name": "vectorcraft-0.10.0-linux-x86_64.tar.gz",
-          "sha256": "a55735a192877038c9b4c3069504f7a73a05433a48edddd8e94fc7d2995aa6fc"
+          "bytes": 120177805,
+          "name": "vectorcraft-0.11.0-linux-x86_64.tar.gz",
+          "sha256": "83ca62a455bbb1d1c61c6b05133bc41ceda1d1d99e4be7509d287c364ceb8f39"
         },
         "macos": {
-          "bytes": 103182458,
-          "name": "vectorcraft-cli-0.10.0-macos-universal.zip",
-          "sha256": "0744d0d606747eaf521e6529d02477f07ca6d04fb64c7c03247aab0dd4c19968"
+          "bytes": 106115486,
+          "name": "vectorcraft-cli-0.11.0-macos-universal.zip",
+          "sha256": "e8044f9f14a29b81d9563bd0b90cb655a9d7511b0f4a2e4e0c1e23ad552032af"
         },
         "windows-x64": {
-          "bytes": 118935928,
-          "name": "vectorcraft-0.10.0-windows-x64-portable.zip",
-          "sha256": "269a297a2c61e7a48ca740e0ac7c64d651cf4ed3584cd6e47988f2fc50fa8da7"
+          "bytes": 122431888,
+          "name": "vectorcraft-0.11.0-windows-x64-portable.zip",
+          "sha256": "699a2a257819b7c8a064839b594dc81653a59cc6d10fde5496aae6f1dd294728"
         }
       },
-      "commit": "71174477cc056020fe712ae59901d76b870ca9d9",
+      "commit": "0a33cff3f6e2a1e9e672f4c3816f58cd8d3d032e",
       "smoke_tool": "doc_inspect",
-      "tag": "v0.10.0",
-      "version": "0.10.0"
+      "tag": "v0.11.0",
+      "version": "0.11.0"
     },
     "wordcraft": {
       "assets": {
