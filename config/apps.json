@@ -120,9 +120,13 @@
       "name": "WordCraft",
       "purpose": "Rich text, tracked changes and documents",
       "executable": "wordcraft-cli",
-      "confinement": "os_only",
+      "confinement": "read_write",
       "args": [
-        "mcp"
+        "mcp",
+        "--automation-read-root",
+        "{work}",
+        "--automation-write-root",
+        "{outputs}"
       ],
       "repository": "https://github.com/storytold/wordcraft",
       "documentation": "https://github.com/storytold/wordcraft/blob/main/docs/mcp.md"

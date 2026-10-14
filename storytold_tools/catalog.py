@@ -8,7 +8,7 @@ from .common import ROOT, absolute, directory, encoded, digest, keys, load_json,
 
 APP_IDS = ('photocraft','vectorcraft','filmcraft','lightcraft','pdfcraft','effectcraft',
            'designcraft','gridcraft','wordcraft','deckcraft','cadcraft','soundcraft','figcraft')
-ROOTED = {'photocraft','vectorcraft','effectcraft'}
+ROOTED = {'photocraft','vectorcraft','effectcraft','wordcraft'}
 
 def load_catalog(root: Path = ROOT) -> dict[str, dict]:
     raw = keys(load_json(root/'config/apps.json'), {'schema_version','basis','apps'}, label='catalog')

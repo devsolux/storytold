@@ -56,7 +56,7 @@ IDs, universal transaction or duplicate decision-making is introduced.
 ## M3 — real safety, failures and fidelity before business data
 
 Use a restricted OS account/container/VM or equivalent tested enforcement for
-confidential work, particularly the nine apps without verified native roots.
+confidential work, particularly the eight apps without verified native roots.
 An `--acknowledge-unconfined` switch only acknowledges non-sensitive testing; it
 does not create or attest isolation. Include the host's other shell/file tools in
 the same threat model. Test unauthorized absolute paths, traversal, symlink and

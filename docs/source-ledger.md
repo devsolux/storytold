@@ -33,6 +33,7 @@ patterns, not Engineer's domain commands, server code, license or agents.
 | [EffectCraft MCP](https://github.com/storytold/effectcraft/blob/main/docs/mcp.md) | Native root restrictions, scripts and headless operation. | Actual denial behavior is an M3 test, not an assertion from a tool description. |
 | [LightCraft MCP](https://github.com/storytold/lightcraft/blob/main/docs/mcp.md) | Compact discovery, library and import risks. | No persistent library, live connection or denoise service is enabled by default. |
 | [FigCraft MCP](https://github.com/storytold/figcraft/blob/main/docs/mcp.md), [CLI](https://github.com/storytold/figcraft/blob/main/docs/cli.md), [CLI source](https://github.com/storytold/figcraft/blob/main/apps/figcraft-cli/src/main.rs) | Headless `mcp` with no file-root flag (only `--attach PORT` and the global `--no-system-fonts`), 18 tools, `inspect_document` without required parameters, page-unit coordinates, `.figcraft` save and PNG/JPG/SVG/WebP/PDF/`.fig` export. | Source review on 2026-10-14; the binary was not executed. The AppImage `cli` subcommand is documented but `setup` uses the tarball. |
+| [WordCraft MCP](https://github.com/storytold/wordcraft/blob/main/docs/mcp.md) | `mcp --automation-read-root` / `--automation-write-root` (since 0.6.1): separate read and write roots covering every path a command opens or writes, existing folders required, links resolved before the check, `--connect` refused with them, the desktop app unconfined, path-less commands still edit the open document. | Source review plus one local probe of the pinned 0.6.1 binary with the flags (see [verification](verification.md)); denial of a path outside a root is an M3 test, not asserted here. |
 
 ## Release-tag review of all twelve apps — 2026-10-12
 
@@ -123,10 +124,10 @@ run's macOS probe:
   field names are ignored); `convert --format wordml2003|flatopc`. The CLI has
   accepted `mcp --automation-read-root DIR --automation-write-root DIR` since
   v0.6.1 (confining the headless server only), which the 2026-10-12 review
-  found absent at v0.5.0. The catalog still launches WordCraft unconfined;
-  switching it to `read_write` is a reviewed catalog change (launch flags,
-  `ROOTED`, tests, docs) that changes the registration `setup` writes, so
-  existing installs would need `setup --app wordcraft --replace`.
+  found absent at v0.5.0. Storytold 1.5.0 adds the two flags to WordCraft's
+  catalog launch (`read_write`, like PhotoCraft, VectorCraft and EffectCraft);
+  because that changes the registration `setup` writes, existing installs
+  re-register with `setup --app wordcraft --upgrade --replace`.
 
 Source review plus the run's probes; no card claim was verified by editing a
 document on a developer machine.

@@ -13,9 +13,7 @@ the `.dmg` or the ArtCraft Launcher) holds only the desktop app: install the sep
 Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/wordcraft-cli`).
 The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
-The released CLI accepts --automation-read-root DIR and --automation-write-root DIR for mcp (they confine
-the headless server only; a connected running app is not confined), but the reviewed catalog still launches
-WordCraft without them: assume OS-user-wide access until a reviewed catalog change adds them.
+Native source documents distinct read/write roots; still test the pinned binary and OS boundary.
 
 ## Discover before execution
 
@@ -23,7 +21,7 @@ Discover inspect/get text, selection, formatting, tracked-change settings, save 
 
 ## Workflow and risky operations
 
-Preserve the agreed author and change-tracking mode; set explicit values rather than toggling an unknown state. The default config does not inject an author or start Zotero. The installed CLI's help lists --automation-read-root/--automation-write-root, but adding them to the launch is a reviewed catalog change that also re-registers the server; do not add them by hand. Scripts/macros are not a workaround.
+Preserve the agreed author and change-tracking mode; set explicit values rather than toggling an unknown state. The default config does not inject an author or start Zotero. The catalog launches mcp with --automation-read-root (the workspace) and --automation-write-root (outputs/): every path a command opens, inserts, compares or reads a template from must lie inside the read root, every save, export, print or template write inside the write root, and a refused path is an ordinary tool error (automation path rejected). Both folders must exist at launch, each flag is given once, --connect with them is an error, and the desktop app is never confined. Commands that take no path still read and change the open document, and the Zotero commands use a socket, not files. Scripts/macros are not a workaround.
 
 ## Durable verification
 

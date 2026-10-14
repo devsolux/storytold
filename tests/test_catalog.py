@@ -12,8 +12,8 @@ class CatalogTests(WorkspaceCase):
     def test_catalog_has_all_thirteen(self):
         self.assertEqual(set(self.catalog),set(APP_IDS))
     def test_native_root_flags_exact(self):
-        self.assertEqual(sum(a['confinement']=='read_write' for a in self.catalog.values()),3)
-        self.assertEqual(sum(a['confinement']=='os_only' for a in self.catalog.values()),9)
+        self.assertEqual(sum(a['confinement']=='read_write' for a in self.catalog.values()),4)
+        self.assertEqual(sum(a['confinement']=='os_only' for a in self.catalog.values()),8)
         self.assertIn('--headless',self.catalog['vectorcraft']['args'])
     def test_only_documented_compact_flags(self):
         self.assertEqual({a for a,r in self.catalog.items() if '--compact' in r['args']},{'pdfcraft','lightcraft'})

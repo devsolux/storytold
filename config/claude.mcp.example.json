@@ -91,7 +91,11 @@
     },
     "wordcraft": {
       "args": [
-        "mcp"
+        "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
       ],
       "command": "${CRAFT_BIN_DIR}/wordcraft-cli"
     }

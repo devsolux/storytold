@@ -1,4 +1,4 @@
-# Verification status — 1.4.1
+# Verification status — 1.5.0
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All thirteen CLIs have
@@ -8,13 +8,33 @@ below): twelve on a developer Mac and on GitHub runners, FigCraft (added in
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Executed for 1.5.0 — October 14, 2026
+
+Same machine and gates as 1.4.1 (`make release`, `make test-sdk`,
+`make host-validate`; the counts in the table below are from this run). The
+reviewed catalog change confines WordCraft with `--automation-read-root` and
+`--automation-write-root`, so the local binary acceptance that a flag change
+requires ran on this Mac:
+
+| Step | Result |
+|---|---|
+| `preflight --app wordcraft` | Launch resolved to the pinned `wordcraft-cli` 0.6.1 (notarized `DJ6XS33FX8`, Sigstore) with `mcp --automation-read-root ~/craft-work-storytold --automation-write-root ~/craft-work-storytold/outputs`; no `--acknowledge-unconfined` needed any more. |
+| `probe --app wordcraft --confirm-execution` with the approved `inspect_document` call | The binary announced `files confined: read root …, write root …` on stderr, negotiated protocol `2025-06-18` as server `wordcraft` 0.6.1, listed 16 tools and answered `inspect_document` with `isError: false`; the evidence file was written outside the workspace and is not committed. |
+
+Not done: no registration on this Mac was changed (its user-scope WordCraft
+entries still launch `mcp` without roots until `setup --app wordcraft
+--upgrade --replace` runs), no path outside a root was tried (denial is an M3
+test), and the release workflow has not yet run `setup` with the new arguments
+on the three runners; its next run will, because the verify matrix uses the
+catalog launch.
+
 ## Executed for 1.4.0 and 1.4.1 — October 14, 2026
 
 macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`):
 
 | Gate | Result |
 |---|---|
-| `make check` | Passed **71 check entries**: parsed 46 files (33 Python, 12 JSON, one TOML), checked 163 local Markdown links in source, translations and plugin, validated the thirteen-app catalog with its exact launch flags, the three-platform release manifest (now pinning FigCraft v0.5.1), the signature store, the release workflow rules and 15 native scenario definitions without executing any. |
+| `make check` | Passed **71 check entries**: parsed 46 files (33 Python, 12 JSON, one TOML), checked 165 local Markdown links in source, translations and plugin, validated the thirteen-app catalog with its exact launch flags, the three-platform release manifest (now pinning FigCraft v0.5.1), the signature store, the release workflow rules and 15 native scenario definitions without executing any. |
 | `make test` | **223 tests** passed in an isolated source copy, zero failures, errors or skips; the catalog, CLI, status, manifest, signature-rotation and strict-provenance tests now assert thirteen apps and 39 pinned archives. |
 | `make build`, `make verify-build` | The generated plugin (51 files) matches its 91 allowlisted canonical inputs, including the new FigCraft card. |
 | `make package`, `make source` | Reproducible 1.4.0 plugin and source ZIPs with SHA-256 files. |

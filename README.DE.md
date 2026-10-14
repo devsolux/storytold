@@ -89,7 +89,10 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 
 `--list` zeigt, welche Pins sich bewegt haben (`manifest_commit_pinned: false`);
 `--all --upgrade` lädt nur diese Apps erneut, verifiziert und prüft sie erneut
-und lässt die Registrierungen unverändert (gleicher Befehlspfad). Entfernen:
+und lässt die Registrierungen unverändert (gleicher Befehlspfad). Ändert ein
+Release die Startargumente einer App (1.5.0 fügt WordCrafts Wurzel-Flags hinzu),
+ergänze `--replace`, damit die abweichende Registrierung neu geschrieben wird;
+ohne das Flag meldet `setup` sie nur und lässt sie stehen. Entfernen:
 
 ```bash
 python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.py setup --remove --all
@@ -165,7 +168,7 @@ dreizehn Craft-Apps werden dabei nicht ausgeführt. `make release` ordnet Checks
 Kerntests und reproduzierbare Paketierung; es behauptet keine native Abnahme
 und veröffentlicht nichts. `make refresh-releases` und `make sign-releases`
 sind die Netzwerkschritte des täglichen Workflows (der zweite braucht cosign);
-`make setup-confined` installiert die vier wurzelbeschränkten Apps auf diesem
+`make setup-confined` installiert die fünf wurzelbeschränkten Apps auf diesem
 Rechner. Das [Makefile](Makefile) listet alle Ziele.
 
 ## Native Apps einrichten (ein Befehl)
@@ -237,9 +240,9 @@ aus und öffnet zur Prüfung einen Pull Request auf `bot/releases` (setze die
 Repository-Variable `STORYTOLD_AUTO_MERGE=true`, um grüne Läufe automatisch zu
 mergen). Nutzer erhalten die neuen Pins mit dem nächsten Plugin-Update.
 
-PhotoCraft, VectorCraft, EffectCraft und PdfCraft sind durch native
+PhotoCraft, VectorCraft, EffectCraft, WordCraft und PdfCraft sind durch native
 Wurzel-Flags auf den Workspace beschränkt und werden standardmäßig registriert.
-Die anderen neun können alles lesen und schreiben, was dein Benutzer darf, und
+Die anderen acht können alles lesen und schreiben, was dein Benutzer darf, und
 werden daher nur mit `--acknowledge-unconfined` installiert und registriert: Nutze sie für
 unkritische Arbeit oder lass sie unter OS-Isolation laufen. Andere Plattformen,
 abgeschottete Rechner und eigene Pins nutzen die manuelle Kette in
@@ -288,8 +291,8 @@ Artefakt stehen, wenn eine Stufe scheitert. Es gibt weder eine universelle
 Batch-Transaktion noch automatische Schreibwiederholung noch einen versteckten
 Ausweichpfad.
 
-Drei Apps haben in den Quellen dokumentierte getrennte Lese-/Schreibwurzeln;
-PdfCraft hat eine Wurzel; neun Apps sind als OS-benutzerweit zu behandeln.
+Vier Apps haben in den Quellen dokumentierte getrennte Lese-/Schreibwurzeln;
+PdfCraft hat eine Wurzel; acht Apps sind als OS-benutzerweit zu behandeln.
 Weder der Skill noch Prüfbelege noch die MCP-Konfiguration sind eine
 OS-Sandbox. Auch andere Shell-/Datei-Werkzeuge des Hosts brauchen passende
 Berechtigungen. Siehe [Sicherheit](SECURITY.md).

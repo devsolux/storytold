@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.5.0 — 2026-10-14
+
+WordCraft joins the root-confined apps. One reviewed catalog change; no new
+architecture.
+
+- `config/apps.json` launches WordCraft with `mcp --automation-read-root
+  {work} --automation-write-root {outputs}` (`read_write`), the flags its CLI
+  has shipped since 0.6.1: every path a command opens must lie inside the
+  workspace and every save, export or print inside `outputs/`; a refused path
+  is an ordinary tool error, `--connect` with the flags is an error and the
+  desktop app stays unconfined. `ROOTED`, the inactive launch templates, the
+  catalog tests (four `read_write`, eight `os_only`), `make setup-confined`
+  (five apps), the card, the safety list and the docs follow. WordCraft no
+  longer needs `--acknowledge-unconfined`.
+- Existing installs: the registration `setup` writes changes, so run
+  `setup --app wordcraft --upgrade --replace` (or `--all --upgrade --replace`);
+  without `--replace`, `setup` reports the differing registration and leaves
+  it alone. README, operations and the card say so.
+- Local binary acceptance for the flag change: `preflight` and the
+  official-SDK `probe` ran the pinned WordCraft 0.6.1 on the maintainer's Mac
+  with the new arguments (`files confined` announced, 16 tools,
+  `inspect_document` answered); registrations were not changed, denial of
+  outside paths was not tested, and the three-OS verify matrix runs the new
+  launch on the workflow's next run.
+
 ## 1.4.1 — 2026-10-14
 
 Documentation and pin release; no code change.
