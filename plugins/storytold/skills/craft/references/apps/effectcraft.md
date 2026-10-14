@@ -21,7 +21,7 @@ Discover compositions, layer/property schemas, keyframe operations, native batch
 
 ## Workflow and risky operations
 
-The source-documented read/write roots enable restricted mode that refuses scripting and UI/control tools. Do not bypass it. Both roots must exist at launch; without a write root nothing is written. Keyframe-setting time may be layer time while sampling/render time is composition time; use the tool-specific timeBase when required.
+The source-documented read/write roots enable restricted mode that refuses scripting and UI/control tools. Do not bypass it. Both roots must exist at launch; without a write root nothing is written. Keyframe-setting time may be layer time while sampling/render time is composition time; use the tool-specific timeBase when required. Layer and comp ids may be sent as strings; an all-digit string that matches no name is taken as an id. The viewer-resolution commands (view.res.*) change the saved project without an undo step.
 
 ## Durable verification
 
@@ -30,7 +30,7 @@ Check composition dimensions, timing, layer offset/stretch, expected frames and 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the upstream
+Reference, app-specific section, rechecked on 2026-10-14 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [agent guide](https://github.com/storytold/effectcraft/blob/main/docs/agents.md) and [MCP documentation](https://github.com/storytold/effectcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

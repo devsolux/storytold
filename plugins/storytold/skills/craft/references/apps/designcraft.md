@@ -21,7 +21,7 @@ Discover document structure, story reading/editing, image placement, page render
 
 ## Workflow and risky operations
 
-Text positions are UTF-8 byte offsets, not character counts or JavaScript string lengths. Compute a boundary with len(prefix.encode("utf-8")) only when the native schema requires it. Coordinates use points and spread space; render_page and export_png page indices are 0-based. No native file-root flag is established.
+Text positions are UTF-8 byte offsets, not character counts or JavaScript string lengths. Compute a boundary with len(prefix.encode("utf-8")) only when the native schema requires it. Coordinates use points and spread space; render_page and export_png page indices are 0-based. Commands that create items take spread: a body spread index, or {"kind": "parent", "index": n} for a parent spread (its index in the parents list of inspect_document); any other value is an error. No native file-root flag is established.
 
 ## Durable verification
 
@@ -30,7 +30,7 @@ Inspect overset text, fonts, linked images, pages and exported layout. Validate 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the upstream
+Reference, app-specific section, rechecked on 2026-10-14 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/designcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

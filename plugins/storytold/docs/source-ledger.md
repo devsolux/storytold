@@ -88,6 +88,49 @@ gate, not the sole authenticity root. The local installation lock must use full
 immutable revisions and trusted executable hashes; this repository deliberately
 does not invent binary pins.
 
+## Release-tag recheck of the eight moved apps — 2026-10-14
+
+Pull request #2 moved eight pins. Each card was rechecked against the new tag
+the same way as on 2026-10-12 (CLI `mcp` parser, MCP docs and tool
+definitions, packaging and release assets), with the tool counts from that
+run's macOS probe:
+
+- No app changed its `mcp` launch flags, so every catalog entry still matches
+  the released CLI, and no tool was renamed or removed. Tool counts are
+  unchanged except PhotoCraft (21 to 25).
+- DeckCraft v0.6.1: packaging and CI only (upstream now signs its Windows
+  builds; `setup` still verifies the Sigstore bundle). Card unchanged.
+- DesignCraft v0.8.0: item-creating commands take `spread` (a body spread
+  index or a parent-spread object); `script --help`; atomic image writes.
+- EffectCraft v0.9.2: string ids, `list_fonts {variable}`, `inDelta` and
+  `outDelta`, per-comp viewer resolution saved without an undo step, Linux
+  font folders.
+- FilmCraft v0.7.2: export results, jobs and queue items carry `offlineMedia`;
+  the standalone CLI `export` and `render` exit 1 on offline media unless
+  `--allow-offline`; `durationFrames`; clips snap to the frame grid. Still no
+  root flag (`mcp` takes only `--bridge`, `--project`, `--demo`, `--data-dir`).
+- LightCraft v0.7.1: `export` gains `.jxl`, flat `.psd`, `addToPhotos` and
+  `photosAlbum` (Apple Events into the user's Photos library after a one-time
+  macOS consent); import `onDeleted` defaults to `restore` instead of `skip`;
+  a new `lightcraft-cli denoise-serve` network listener (not used); headless
+  sessions load the SAM 3 model folder. `mcp` flags unchanged.
+- PhotoCraft v0.8.2: four new document tools (`doc_place`, `doc_export_layers`,
+  `doc_export_data_sets`, `doc_import_data_sets`); `command_batch`
+  `stop_on_error` default and no-rollback recovery documented; `doc_inspect`
+  mask fields; `image.duplicate` and `history.newDocument` for experiments;
+  `--tga-bits` and Actions sets in the standalone CLI.
+- WordCraft v0.7.0: `docs/mcp.md` documents CharProps/ParaProps (unknown
+  field names are ignored); `convert --format wordml2003|flatopc`. The CLI has
+  accepted `mcp --automation-read-root DIR --automation-write-root DIR` since
+  v0.6.1 (confining the headless server only), which the 2026-10-12 review
+  found absent at v0.5.0. The catalog still launches WordCraft unconfined;
+  switching it to `read_write` is a reviewed catalog change (launch flags,
+  `ROOTED`, tests, docs) that changes the registration `setup` writes, so
+  existing installs would need `setup --app wordcraft --replace`.
+
+Source review plus the run's probes; no card claim was verified by editing a
+document on a developer machine.
+
 ## Build infrastructure
 
 The workflow uses reviewed full-commit action references:

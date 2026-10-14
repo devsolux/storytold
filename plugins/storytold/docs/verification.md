@@ -51,7 +51,8 @@ pull request into `main` as `88a97c6`; `make verify-build` and `make check`
 pass on that commit. No host CLI exists on the runners, so registration is
 still covered by simulated tests only, and no FigCraft binary has run on a
 developer machine. The eight moved apps' smoke tools were exercised by that
-run; their cards remain `main`-based guidance and were not re-read for it.
+run, and their cards were rechecked against the new tags on 2026-10-14 (see
+the [source ledger](source-ledger.md)).
 
 ## Executed for 1.3.2 — October 12, 2026
 

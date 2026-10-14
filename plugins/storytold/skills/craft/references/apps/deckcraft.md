@@ -30,7 +30,7 @@ Reopen PPTX/native output, check slide count/content and render every slide. Rev
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the upstream
+Reference, app-specific section, rechecked on 2026-10-14 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/deckcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current
