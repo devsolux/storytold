@@ -30,6 +30,11 @@ card, scenario and release pin; no gateway, proxy or second agent.
 - AGENTS.md and `.claude/CLAUDE.md` record the branch policy: work happens on
   `main` only (the workflow's `bot/releases` pull request is the exception),
   and upstream links point at each Craft repository's `main`, never a tag.
+- Release workflow: `gh pr view bot/releases` also matches the merged pull
+  request for that branch, so the 2026-10-14 run edited the merged #1 instead
+  of opening a new one and the refreshed pins never reached `main`. The
+  refresh and merge jobs now look up an *open* pull request for
+  `bot/releases` (`gh pr list --state open`) and create one when none exists.
 - Wording: the architecture and acceptance docs and the READMEs reject a
   "gateway" server where they used to say "thirteenth"; counts, the diagram,
   the app table (English, German, Turkish) and the GitHub description name

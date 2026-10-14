@@ -61,8 +61,9 @@ jobs:
           git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" bot/releases
           echo "changed=true" >> "$GITHUB_OUTPUT"
           body="Automated refresh of config/releases.json and config/signatures.json from the latest upstream releases on $(date -u +%F). Review the diff: a changed app needs its card and smoke tool rechecked at the new tag. The verify jobs below ran the real setup on Linux, Windows and macOS runners."
-          if gh pr view bot/releases --json number >/dev/null 2>&1; then
-            gh pr edit bot/releases --body "$body" || echo "::warning::Could not update the pull request body."
+          open_pr=$(gh pr list --head bot/releases --state open --json number --jq '.[0].number')
+          if [ -n "$open_pr" ]; then
+            gh pr edit "$open_pr" --body "$body" || echo "::warning::Could not update the pull request body."
           elif ! gh pr create --base main --head bot/releases --title "Refresh Craft release pins ($(date -u +%F))" --body "$body"; then
             echo "::warning::bot/releases was pushed but no pull request could be opened. Enable 'Allow GitHub Actions to create and approve pull requests' under Settings > Actions > General, or open it yourself: https://github.com/${GITHUB_REPOSITORY}/compare/main...bot/releases"
           fi
@@ -105,8 +106,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh pr view bot/releases --repo "$GITHUB_REPOSITORY" --json number >/dev/null 2>&1; then
-            gh pr merge bot/releases --repo "$GITHUB_REPOSITORY" --squash --delete-branch
+          open_pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --head bot/releases --state open --json number --jq '.[0].number')
+          if [ -n "$open_pr" ]; then
+            gh pr merge "$open_pr" --repo "$GITHUB_REPOSITORY" --squash --delete-branch
           else
             echo "::warning::No pull request exists for bot/releases; nothing merged."
           fi
