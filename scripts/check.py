@@ -177,6 +177,13 @@ def check() -> dict:
     require('pull_request_target' not in workflow and 'write-all' not in workflow and 'secrets.' not in workflow,
             'CI must not acquire publishing/secrets authority')
     checks.append('ci-policy-subset-pinned-read-only-no-secrets')
+    # No YAML parser in the standard library: catch the one slip that broke ci.yml on GitHub
+    # (a plain `run:` value containing ": " is read as a mapping and the whole workflow fails to load).
+    for name in ('.github/workflows/ci.yml', '.github/workflows/releases.yml'):
+        bad = [n for n, line in enumerate(files[name].decode('utf-8').splitlines(), 1)
+               if (m := re.match(r'\s*(?:-\s+)?run:\s+(\S.*)$', line)) and m.group(1)[0] not in '"\'|>' and re.search(r':(\s|$)', m.group(1))]
+        require(not bad, f'{name}: quote the run value on line(s) {bad}; an unquoted ": " makes the workflow unparseable')
+    checks.append('workflow-run-values-parse')
     source_links = local_links(files)
     generated = render()
     plugin_links = local_links(generated)

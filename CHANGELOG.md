@@ -54,6 +54,15 @@ review. No version change yet.
   `scripts/build.py check` on the published commit. A test keeps the split.
 - `scripts/refresh_releases.py --accept <app>` lets one app through the
   downgrade/re-publish guard after a maintainer reviewed it by hand.
+- CI: the `0b97a1f` push broke `ci.yml` (an unquoted `run:` value containing
+  `:all: -r` is a YAML mapping, so GitHub could not load the workflow and the
+  run failed in 0 s); the value is quoted and `make check` now refuses any
+  unquoted `run:` value with `": "` in either workflow. CI's `pull_request`
+  trigger ignores pull requests that change only `config/releases.json`,
+  `config/signatures.json` and `plugins/storytold/**`: on the bot's
+  "Refresh Craft release pins" pull requests (#1 to #5) GitHub never started a
+  job and the run failed when the merge deleted `bot/releases`; the release
+  workflow's own check, test and three-OS verify jobs gate them.
 - The probe SDK is hash-locked: `requirements-probe.lock` (uv universal
   resolution, 28 packages, every wheel's SHA-256, `pywin32` for Windows only)
   ships with the plugin, and `setup`'s probe venv, `make setup-probe` and the

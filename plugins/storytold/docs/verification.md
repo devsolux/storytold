@@ -271,7 +271,9 @@ Host manifest schemas remain authoritative.
   the SDK contract job on the 2026-10-16 push of `main` (run 38927511616, all
   seven jobs passed); not run locally. On the release workflow's own pull
   requests (#1 to #5) the offline-checks run never started a job (see
-  [operations](operations.md)); the release workflow's checks gate them.
+  [operations](operations.md)); since 1.5.2 CI skips pull requests that touch
+  only the bot-owned release files, and the release workflow's checks gate
+  them.
   Windows-specific branches (binary-mode reads, read-only publication order)
   run in that matrix and are simulated on macOS.
 - **Out of scope.** Remote ChatGPT connectors, cloud execution, live GUI control

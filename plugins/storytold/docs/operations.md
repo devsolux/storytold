@@ -166,7 +166,7 @@ has all three:
 | Setting | Why |
 |---|---|
 | Actions › General › *Allow GitHub Actions to create and approve pull requests* | lets the workflow open `bot/releases` pull requests with `github.token`; without it the branch is still pushed and a warning gives the compare URL. |
-| Actions › General › approval policy *first-time contributors who are new to GitHub* | the pull request author is `github-actions[bot]`; the stricter default holds its CI runs "awaiting approval" until a maintainer clicks. Observed on pull requests #1 to #5: the offline-checks run on the bot's pull request still never started a job and turned to failure when the merge deleted the branch, so the release workflow's own `check`, `test` and three-OS verify jobs are the gate, not that run. |
+| Actions › General › approval policy *first-time contributors who are new to GitHub* | the pull request author is `github-actions[bot]`; the stricter default holds its CI runs "awaiting approval" until a maintainer clicks. Observed on pull requests #1 to #5: the offline-checks run on the bot's pull request still never started a job and turned to failure when the merge deleted the branch. Since 1.5.2 `ci.yml` ignores pull requests that change only `config/releases.json`, `config/signatures.json` and `plugins/storytold/**`, so no such run is created; the release workflow's own `check`, `test` and three-OS verify jobs are the gate. |
 | Repository variable `STORYTOLD_AUTO_MERGE=true` | the `merge` job squash-merges the pull request once the three-OS verify matrix is green. Delete the variable to go back to manual review. |
 
 ## 0. Manual path: get each app's CLI yourself
