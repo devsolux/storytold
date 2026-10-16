@@ -256,25 +256,25 @@
     "vectorcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 120177805,
-          "name": "vectorcraft-0.11.0-linux-x86_64.tar.gz",
-          "sha256": "83ca62a455bbb1d1c61c6b05133bc41ceda1d1d99e4be7509d287c364ceb8f39"
+          "bytes": 122605110,
+          "name": "vectorcraft-0.12.0-linux-x86_64.tar.gz",
+          "sha256": "6750db109d3a253c51c82975af650f42384ba27a768f72529431edfb58508269"
         },
         "macos": {
-          "bytes": 106115486,
-          "name": "vectorcraft-cli-0.11.0-macos-universal.zip",
-          "sha256": "e8044f9f14a29b81d9563bd0b90cb655a9d7511b0f4a2e4e0c1e23ad552032af"
+          "bytes": 106952909,
+          "name": "vectorcraft-cli-0.12.0-macos-universal.zip",
+          "sha256": "29d97dd6cbef0457824bc54202620d9589adb65bfe5e13459866531747dec5df"
         },
         "windows-x64": {
-          "bytes": 122431888,
-          "name": "vectorcraft-0.11.0-windows-x64-portable.zip",
-          "sha256": "699a2a257819b7c8a064839b594dc81653a59cc6d10fde5496aae6f1dd294728"
+          "bytes": 125230597,
+          "name": "vectorcraft-0.12.0-windows-x64-portable.zip",
+          "sha256": "fde42c30d14aadbb565cf0551f72f251321f8c9f875a24811b98e522aea6fe88"
         }
       },
-      "commit": "0a33cff3f6e2a1e9e672f4c3816f58cd8d3d032e",
+      "commit": "8bc65329286dc1b84aa392997bb205613c3e96cb",
       "smoke_tool": "doc_inspect",
-      "tag": "v0.11.0",
-      "version": "0.11.0"
+      "tag": "v0.12.0",
+      "version": "0.12.0"
     },
     "wordcraft": {
       "assets": {
