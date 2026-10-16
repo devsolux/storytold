@@ -10,7 +10,7 @@
     "config/env.example": "0dffc0cbd4428ce0098cc5a4e6351dc5ed18ce7710a9a422460544d6707f4d8b",
     "config/installations.lock.example.json": "7c7cb59a16548b94aabb10eb0a6e8efd663b9a6546a934d21eb346a50a14dfc5",
     "config/portable.mcp.example.json": "1d649b83dfd4cd225db39305b013e8ee70526ae3a6964229062c22efd692e563",
-    "config/releases.json": "ae32ffd4ba27a0b8bd104e65a0118fd6e24e1e3c327c7a9cea90061aeca3c9ae",
+    "config/releases.json": "0f6a98e4ddd039f933479ea8ee1a9df67dc13add8dda7b7b70ef42344b1c4756",
     "config/signatures.json": "1ea1df179b6d5ae603314f06a07de40afe54f74a7035911b90c116122c1a060d",
     "docs/acceptance.md": "f3a99effd17503aca248a5278d03ca2c52f230fa814ee83513bf6575ad6655e2",
     "docs/architecture.md": "274a5692d59fc99e550fa49f09cbf4c3a42b0569b06b0fdd15080b145b79ca05",

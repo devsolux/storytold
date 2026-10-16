@@ -301,7 +301,7 @@
     }
   },
   "basis": "Latest GitHub releases of storytold/<app> on the review date; archive hashes copied from each release's SHA256SUMS.txt; smoke tools verified in the tag's MCP source. Reviewed pins, not binary execution evidence. Sigstore bundles for the extracted CLIs live in config/signatures.json.",
-  "reviewed": "2026-10-15",
+  "reviewed": "2026-10-16",
   "schema_version": 2,
   "signers": {
     "apple_team_id": "DJ6XS33FX8",
