@@ -21,7 +21,9 @@ class CliTests(WorkspaceCase):
     def test_setup_refuses_contradictory_flags(self):
         for argv,needle in ((('setup','--remove','--all','--upgrade'),'--remove cannot be combined with --upgrade'),
                             (('setup','--remove','--all','--skip-probe','--replace'),'--replace, --skip-probe'),
-                            (('setup','--list','--app','photocraft'),'--list is read-only')):
+                            (('setup','--list','--app','photocraft'),'--list is read-only'),
+                            (('setup','--all','--app','photocraft'),'--all and --app select differently'),
+                            (('setup','--app','photocraft','--timeout','500'),'at most 120 seconds')):
             r=self.run_cli(*argv);self.assertNotEqual(r.returncode,0,argv);self.assertEqual(r.stdout,'');self.assertIn(needle,r.stderr)
     def test_remove_dry_run_reaches_the_preview_and_changes_nothing(self):
         env_path=str(self.base/'empty-path');(self.base/'empty-path').mkdir()

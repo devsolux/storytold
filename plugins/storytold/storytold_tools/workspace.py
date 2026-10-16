@@ -30,7 +30,7 @@ def open_workspace(root: Path) -> dict:
     directory(root)
     marker=keys(load_json(root/MARKER), {'schema_version','id','created_at'}, label='workspace marker')
     require(type(marker['schema_version']) is int and marker['schema_version']==1, 'unsupported workspace version')
-    require(str(uuid.UUID(marker['id']))==marker['id'], 'invalid workspace id')
+    require(isinstance(marker['id'], str) and str(uuid.UUID(marker['id']))==marker['id'], 'invalid workspace id')
     dt=datetime.fromisoformat(marker['created_at']); require(dt.tzinfo is not None,'workspace timestamp must include timezone')
     for path in (root,root/'inputs',root/'outputs',root/'receipts'):
         directory(path)
@@ -64,7 +64,7 @@ def verify_inputs(root: Path) -> dict:
         require(type(r['schema_version']) is int and r['schema_version']==1 and r['kind']=='staged_input','invalid receipt')
         require(r['workspace_id']==ws['id'],'cross-workspace input receipt')
         sha(r['sha256']); require(type(r['bytes']) is int and r['bytes']>0,'invalid receipt size')
-        require(r['staged_path'].startswith('inputs/'),'staged receipt is outside inputs')
+        require(isinstance(r['staged_path'], str) and r['staged_path'].startswith('inputs/'),'staged receipt is outside inputs')
         require(len(r['staged_path'].split('/'))==2,'staged input must be a basename')
         require(r['staged_path'] not in tracked, 'duplicate receipt for one staged input')
         tracked.add(r['staged_path'])
@@ -143,7 +143,8 @@ def verify_artifact(root: Path, relative: str, fmt: str, expected_sha256: str | 
     require(relative.startswith('outputs/'),'only exported files in outputs/ may be verified')
     p=regular(child(root,relative),multiple_links=False)
     h,n,data=snapshot(p,limit=STAGE_LIMIT,body=True);require(n>0,'missing/empty output')
-    if expected_sha256: require(h==sha(expected_sha256),'artifact digest mismatch')
+    # `is not None`: an empty value (an unset shell variable) must fail, not skip the digest check.
+    if expected_sha256 is not None: require(h==sha(expected_sha256),'artifact digest mismatch')
     try:
         level,facts=inspect_bytes(data or b'',fmt)
     except (zipfile.BadZipFile, zipfile.LargeZipFile, zlib.error, wave.Error, EOFError, RuntimeError, NotImplementedError) as exc:

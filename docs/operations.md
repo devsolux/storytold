@@ -104,9 +104,10 @@ known binary and delete it) or `corrupt` (the marker is unreadable: refused,
 marker kept). `setup --remove` defers to the same reconciliation and keeps
 everything for an app whose marker is still present.
 
-Apps without root flags are installed but registered only with
-`--acknowledge-unconfined`, which records your decision for non-sensitive work
-and is not isolation. `--dry-run` prints downloads, paths and registrations;
+Apps without root flags are neither downloaded, upgraded nor registered without
+`--acknowledge-unconfined` (one already installed at its manifest pin is reported
+`installed_not_registered`); the flag records your decision for non-sensitive
+work and is not isolation. `--dry-run` prints downloads, paths and registrations;
 `--list` shows manifest, installed, pinned and registered state. `--remove --app
 X` takes two separate decisions. The binary is deleted only when it is a
 plain, unlinked file whose SHA-256 equals the lock entry; then that pin is
@@ -134,8 +135,17 @@ bundle with cosign, never `--trust-upstream-sums`, on Linux, Windows and macOS
 runners, and opens one pull request on
 `bot/releases`. Review it (a changed app needs its card and smoke tool rechecked
 at the new tag) or set the repository variable `STORYTOLD_AUTO_MERGE=true` to
-merge green runs. Signing identity, issuer and Apple team are data in the
-manifest's `signers`; the signature store names the archive it was made for.
+merge green runs. The verify jobs check out the exact commit the refresh job
+pushed, and the merge job merges only that commit (`--match-head-commit`) of a
+same-repository pull request; it fails, rather than ending green, when no such
+pull request is open. The refresh stops the run instead of pinning when an
+app's latest release is older than its pin, when a pinned tag now points at
+another commit, or when an asset was re-published under an unchanged tag and
+name; review those by hand. The `reviewed` date moves only with a pin, so a day
+without upstream changes opens no pull request. Signing identity, issuer and
+Apple team are data in the manifest's `signers`, and `make check` pins them to
+this repository's release workflow on `main` and the Apple team; the
+signature store names the archive it was made for.
 
 Three repository settings make the automation hands-off; `devsolux/storytold`
 has all three:
@@ -143,7 +153,7 @@ has all three:
 | Setting | Why |
 |---|---|
 | Actions › General › *Allow GitHub Actions to create and approve pull requests* | lets the workflow open `bot/releases` pull requests with `github.token`; without it the branch is still pushed and a warning gives the compare URL. |
-| Actions › General › approval policy *first-time contributors who are new to GitHub* | the pull request author is `github-actions[bot]`; the stricter default holds its CI runs "awaiting approval" until a maintainer clicks. |
+| Actions › General › approval policy *first-time contributors who are new to GitHub* | the pull request author is `github-actions[bot]`; the stricter default holds its CI runs "awaiting approval" until a maintainer clicks. Observed on pull requests #1 to #5: the offline-checks run on the bot's pull request still never started a job and turned to failure when the merge deleted the branch, so the release workflow's own `check`, `test` and three-OS verify jobs are the gate, not that run. |
 | Repository variable `STORYTOLD_AUTO_MERGE=true` | the `merge` job squash-merges the pull request once the three-OS verify matrix is green. Delete the variable to go back to manual review. |
 
 ## 0. Manual path: get each app's CLI yourself
@@ -396,6 +406,7 @@ For each app, `connections.apps[]` shows the desktop app, a CLI in
 
 | `status` | Fix |
 |---|---|
+| `not_installed` | Run the `setup` command doctor prints (macOS, Linux x86_64, Windows x64); elsewhere install the CLI (section 0). |
 | `desktop_app_only` | Run the `setup` command doctor prints (macOS, Linux x86_64, Windows x64); elsewhere install the CLI (section 0). |
 | `cli_not_registered` | The `setup` command; elsewhere sections 1–5: lock, preflight, probe, configure, register. |
 | `registered_command_missing` | The binary moved or was removed; re-run `setup` (with `--upgrade` if a stale file remains) or reinstall and re-probe by hand. |

@@ -17,7 +17,7 @@ class CatalogTests(WorkspaceCase):
         self.assertIn('--headless',self.catalog['vectorcraft']['args'])
     def test_roots_need_a_release_that_honours_them(self):
         # SoundCraft before 0.7.0 ignores unknown mcp flags, so an older or unreadable pin must not launch with roots.
-        for label in ('0.6.1 (v0.6.1, synthetic)','synthetic-test-only','v0.6.9'):
+        for label in ('0.6.1 (v0.6.1, synthetic)','synthetic-test-only','v0.6.9','0.7.0-rc1','٠.٧.٠','0.7.0abc'):
             self.pins['apps']['soundcraft']['version']=label;self.save_pins()
             with self.assertRaisesRegex(StorytoldError,'--upgrade --replace'): self.pf(['soundcraft'],ack=False)
         for label in ('0.7.0 (v0.7.0, synthetic)','v0.10.2'):

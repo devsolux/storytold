@@ -252,21 +252,28 @@ Host manifest schemas remain authoritative.
 - **Linux and Windows.** Real runs exist only on GitHub-hosted runners: the
   release workflow's verify matrix (run 38278727530 on 2026-10-12 with twelve
   apps, runs 38583930461 and 38588658915 on 2026-10-14 with all thirteen, the
-  latter with WordCraft's confined launch) installed, probed and
+  latter with WordCraft's confined launch, and runs 38717981671 on 2026-10-15
+  and 38883983466 on 2026-10-16) installed, probed and
   Sigstore-verified every pinned app on `ubuntu-latest`,
   `windows-latest` and `macos-latest`. No host CLI was present there, so
   registration on Linux/Windows is covered by simulated tests only, and no
   Linux or Windows desktop machine has been used.
 - **Sigstore signing.** Keyless signing ran only in that workflow. Its first
-  pull request merged on 2026-10-12 and its second and third (#2 and #3, thirteen apps) on
-  2026-10-14, so `config/signatures.json` on `main` holds 39 bundles, and `cosign verify-blob` (cosign v3.1.3 via Homebrew) has
-  since verified three of them on this Mac during `setup --upgrade` of
-  GridCraft 0.6.1, WordCraft 0.6.1 and CADCraft 0.6.2 (lock labels
+  pull request merged on 2026-10-12, #2 and #3 (thirteen apps) on 2026-10-14,
+  #4 on 2026-10-15 and #5 on 2026-10-16, so `config/signatures.json` on `main`
+  holds 39 bundles, and `cosign verify-blob` (cosign v3.1.3 via Homebrew) has
+  since verified five of them on this Mac during `setup --upgrade` of
+  GridCraft 0.6.1, WordCraft 0.6.1 and 0.7.0, CADCraft 0.6.2 and SoundCraft
+  0.7.0 (lock labels
   `notarized DJ6XS33FX8, sigstore`). Apps installed before cosign was present
   carry notarization-only labels until they are next upgraded.
-- **CI matrix.** GitHub Actions for Linux/macOS/Windows × Python 3.11/3.13 is
-  configured but was not executed here. Windows-specific branches (binary-mode
-  reads, read-only publication order) are covered by simulations on macOS.
+- **CI matrix.** GitHub Actions ran Linux/macOS/Windows × Python 3.11/3.13 and
+  the SDK contract job on the 2026-10-16 push of `main` (run 38927511616, all
+  seven jobs passed); not run locally. On the release workflow's own pull
+  requests (#1 to #5) the offline-checks run never started a job (see
+  [operations](operations.md)); the release workflow's checks gate them.
+  Windows-specific branches (binary-mode reads, read-only publication order)
+  run in that matrix and are simulated on macOS.
 - **Out of scope.** Remote ChatGPT connectors, cloud execution, live GUI control
   and real customer documents.
 

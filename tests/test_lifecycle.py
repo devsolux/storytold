@@ -115,6 +115,9 @@ class RemovalOwnershipTests(SetupCase):
         r=self.remove(['photocraft']);rows={x['host']:x for x in r['apps'][0]['registrations']}
         self.assertEqual(rows['codex']['action'],'kept');self.assertIn('arguments',rows['codex']['reason']);self.assertEqual(rows['claude']['action'],'unregister')
         self.assertEqual(r['status'],'attention');self.assertIn('photocraft',self.world.hosts['codex'])
+        # The kept entry still launches the managed binary, so binary and pin stay instead of dangling.
+        entry=r['apps'][0];self.assertEqual(entry['binary']['action'],'kept');self.assertIn('`codex mcp remove photocraft`',entry['binary']['reason'])
+        self.assertTrue(self.installed('photocraft').exists());self.assertEqual(entry['pin']['action'],'kept')
 
     def test_registration_in_another_scope_is_kept(self):
         self.setup(['photocraft']);self.world.claude_scope='Project config (shared via .mcp.json)'

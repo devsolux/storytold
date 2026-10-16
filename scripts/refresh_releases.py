@@ -32,6 +32,25 @@ def get(url: str, token: str | None) -> bytes:
         return data
 
 
+def version_key(app: str, version: str) -> tuple[int, ...]:
+    parts = version.split('.')
+    require(len(parts) == 3 and all(p.isascii() and p.isdigit() for p in parts), f'{app}: unexpected release version {version}')
+    return tuple(int(p) for p in parts)
+
+
+def guard(app: str, pinned: dict, latest: dict) -> None:
+    """Refuse what a daily refresh must never accept unreviewed: a downgrade or a re-published tag."""
+    require(version_key(app, latest['version']) >= version_key(app, pinned['version']),
+            f"{app}: the latest release {latest['tag']} is older than the pinned {pinned['tag']}; review it by hand")
+    if latest['tag'] != pinned['tag']:
+        return
+    require(latest['commit'] == pinned['commit'], f"{app}: tag {latest['tag']} now points at another commit; review it by hand")
+    for plat, asset in latest['assets'].items():
+        before = pinned['assets'].get(plat, {})
+        if before.get('name') == asset['name']:
+            require(before == asset, f"{app}: {asset['name']} was re-published under the unchanged tag {latest['tag']}; review it by hand")
+
+
 def refresh(token: str | None) -> dict:
     current = load_releases()
     apps = {}
@@ -50,13 +69,21 @@ def refresh(token: str | None) -> dict:
             assets[plat] = {'name': name, 'sha256': published_hash(sums, name), 'bytes': by_name[name]}
         commit = json.loads(get(API + app + '/commits/' + tag, token))['sha']
         row = {'tag': tag, 'commit': commit, 'version': version, 'smoke_tool': current['apps'][app]['smoke_tool'], 'assets': assets}
+        guard(app, current['apps'][app], row)
         if row != current['apps'][app]:
             changed.append(app)
         apps[app] = row
-    manifest = {'schema_version': 2, 'basis': current['basis'], 'reviewed': date.today().isoformat(),
+    # The date moves only with a pin, so an unchanged upstream yields no diff and no pull request.
+    manifest = {'schema_version': 2, 'basis': current['basis'], 'reviewed': date.today().isoformat() if changed else current['reviewed'],
                 'signers': current['signers'], 'apps': dict(sorted(apps.items()))}
-    (ROOT / 'config/releases.json').write_bytes(encoded(manifest))
-    load_releases()
+    path = ROOT / 'config/releases.json'
+    previous = path.read_bytes()
+    path.write_bytes(encoded(manifest))
+    try:
+        load_releases()
+    except BaseException:
+        path.write_bytes(previous)
+        raise
     return {'reviewed': manifest['reviewed'], 'changed': changed,
             'note': 'Review the diff. A changed app needs its card and smoke tool rechecked at the new tag; run sign_releases.py next.'}
 

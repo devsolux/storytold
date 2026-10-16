@@ -5,6 +5,28 @@ import unittest
 from storytold_tools.catalog import APP_IDS,load_catalog
 from storytold_tools.common import ROOT,StorytoldError,encoded
 from storytold_tools.releases import PLATFORMS,asset_names,asset_url,load_releases,load_signatures,published_hash,sums_url
+from scripts.refresh_releases import guard
+
+class RefreshGuardTests(unittest.TestCase):
+    """The daily refresh must stop, not pin, on a downgrade or a re-published tag."""
+    def setUp(self): self.pinned=json.loads(json.dumps(load_releases()['apps']['soundcraft']))
+    def latest(self,**changes): return json.loads(json.dumps(dict(self.pinned,**changes)))
+    def test_unchanged_and_newer_releases_pass(self):
+        guard('soundcraft',self.pinned,self.latest())
+        guard('soundcraft',self.pinned,self.latest(tag='v99.0.0',version='99.0.0',commit='f'*40))
+    def test_downgrade_is_refused(self):
+        with self.assertRaisesRegex(StorytoldError,'older than the pinned'):
+            guard('soundcraft',self.pinned,self.latest(tag='v0.0.1',version='0.0.1'))
+    def test_moved_tag_and_reuploaded_asset_are_refused(self):
+        with self.assertRaisesRegex(StorytoldError,'another commit'): guard('soundcraft',self.pinned,self.latest(commit='f'*40))
+        row=self.latest();row['assets']['macos']['sha256']='e'*64
+        with self.assertRaisesRegex(StorytoldError,'re-published'): guard('soundcraft',self.pinned,row)
+    def test_a_newly_published_asset_name_under_the_same_tag_passes(self):
+        row=self.latest();row['assets']['linux-x86_64']=dict(row['assets']['linux-x86_64'],name='soundcraft-cli-new.tar.gz',sha256='e'*64)
+        guard('soundcraft',self.pinned,row)
+    def test_prerelease_versions_are_refused(self):
+        with self.assertRaisesRegex(StorytoldError,'unexpected release version'):
+            guard('soundcraft',self.pinned,self.latest(tag='v99.0.0-rc1',version='99.0.0-rc1'))
 
 class ReleaseManifestTests(unittest.TestCase):
     def test_manifest_covers_thirteen_apps_on_three_platforms(self):

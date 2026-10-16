@@ -1,6 +1,6 @@
 # Source ledger and verification scope
 
-Review date: **2026-10-12**. The integration uses the attached project plan as its
+Review dates: **2026-10-12 to 2026-10-16** (each section names its own). The integration uses the attached project plan as its
 architecture authority. Fresh public-document checks supplement its implementation
 mechanics; they do not silently replace its decisions or prove native behavior.
 
@@ -55,6 +55,8 @@ definitions, Windows/Linux/macOS packaging and release assets:
 - Card links are pinned to those tags. The catalog's `documentation` links still
   point at mutable `main`; changing them would invalidate existing probe
   fingerprints, so they change only with a reviewed catalog update.
+  Superseded on 2026-10-13: card links point at `main` too, as AGENTS.md now
+  requires.
 
 This is source review, not binary testing; only PhotoCraft 0.7.0 was executed
 (see [verification](verification.md)).

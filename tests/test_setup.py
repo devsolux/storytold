@@ -446,6 +446,13 @@ class PlatformTests(unittest.TestCase):
     def test_host_argv_wraps_cmd_shims_only(self):
         self.assertEqual(s.host_argv('codex',lambda h:'C:\\x\\codex.CMD'),['cmd.exe','/d','/c','C:\\x\\codex.CMD'])
         self.assertEqual(s.host_argv('codex',lambda h:'/usr/local/bin/codex'),['/usr/local/bin/codex']);self.assertIsNone(s.host_argv('codex',lambda h:None))
+    def test_cmd_shim_refuses_paths_cmd_would_reinterpret(self):
+        calls=[];run=lambda argv:(calls.append(argv),(0,'',''))[1]
+        with self.assertRaisesRegex(StorytoldError,'cmd.exe would interpret'):
+            s.host_add('codex','photocraft','C:\\Users\\a&b\\bin\\photocraft-cli.exe',['mcp'],run,lambda h:'C:\\x\\codex.cmd')
+        self.assertEqual(calls,[])
+        s.host_add('codex','photocraft','C:\\Users\\ab\\bin\\photocraft-cli.exe',['mcp'],run,lambda h:'C:\\x\\codex.cmd')
+        self.assertEqual(calls[0][:4],['cmd.exe','/d','/c','C:\\x\\codex.cmd'])
     def test_codex_get_with_broken_json_is_a_parse_error_not_absence(self):
         current=s.host_get('codex','photocraft',lambda argv:(0,'not json',''),lambda h:'/fake/codex')
         self.assertIsNotNone(current);self.assertTrue(current['parse_error']);self.assertFalse(s.registration_matches(current,'/x',['mcp']))

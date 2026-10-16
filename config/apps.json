@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "basis": "User-supplied native MCP plan, 2026-10-12, plus FigCraft from upstream source, 2026-10-14; source-level launch candidates, not binary verification.",
+  "basis": "User-supplied native MCP plan, 2026-10-12, plus FigCraft from upstream source, 2026-10-14, and the WordCraft (2026-10-14) and SoundCraft (2026-10-16) root flags from upstream source with local binary acceptance; source-level launch candidates otherwise, not binary verification.",
   "apps": [
     {
       "id": "photocraft",

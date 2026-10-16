@@ -3,7 +3,55 @@
 ## Unreleased
 
 SoundCraft joins the root-confined apps; card rechecks for the seven pins
-moved since 1.5.1. No version change yet.
+moved since 1.5.1; fixes from a security, silent-failure and consistency
+review. No version change yet.
+
+- Release workflow: the verify jobs check out the exact commit the refresh
+  job pushed, and the merge job merges only that commit
+  (`--match-head-commit`) of a same-repository pull request (a fork could
+  name its branch `bot/releases`). A missing pull request now fails the
+  merge job instead of ending green, and the pull request body no longer
+  claims verify results before they exist. `make check` enforces both rules.
+- `scripts/refresh_releases.py` stops instead of pinning when an app's latest
+  release is older than its pin, when a pinned tag now points at another
+  commit, or when an asset is re-published under an unchanged tag and name;
+  it moves the `reviewed` date only with a pin, so an unchanged day opens no
+  pull request (#5 was such a date-only change), and it restores the old
+  manifest if the new one fails validation. New tests cover the guard.
+- `make check` pins the manifest's `signers` to this repository's release
+  workflow on `main` and the Apple team `DJ6XS33FX8`, so a pull request cannot
+  swap the trust root together with matching signatures.
+- `setup`: macOS verifiers run as `/usr/sbin/spctl` and `/usr/bin/codesign`,
+  not from PATH; `promote` checks the candidate's bytes against the verified
+  hash before replacing the live binary; every subprocess has a 30-minute
+  timeout reported as an error; the state directory and binaries, like the
+  lock and evidence, must lie outside the workspace; a Windows `.cmd` host
+  shim refuses paths with characters `cmd.exe` would reinterpret and prints
+  the manual command; a requested host CLI missing from PATH is warned about
+  even when another host remains; an existing registration with the right
+  command but extra env, cwd or another scope is reported with a warning;
+  and the overall status is an allow-list of success states.
+- The SoundCraft version guard accepts only ASCII `x.y.z` followed by a space,
+  parenthesis or the end, so `0.7.0-rc1` and non-ASCII digits are refused;
+  `setup` treats such a pin as stale even at the manifest commit, so
+  `--upgrade` rewrites the label instead of looping on the refusal.
+- `setup --remove` keeps the binary, pin and evidence when a registration it
+  must keep still launches that binary (for example an older launch's
+  arguments) and names the `mcp remove` commands, instead of leaving the host
+  entry pointing at a deleted file; a registration that differs only in its
+  arguments is now reported as such, not as "a different command".
+- `verify-artifact --expected-sha256 ""` fails instead of skipping the digest
+  check; `setup --all --app <x>` is refused instead of quietly installing only
+  `<x>`; `--timeout` accepts only the probe's (0, 120] seconds before anything
+  is downloaded; a non-string workspace id or receipt path is a validation
+  error, not a traceback.
+- Docs: the READMEs say what the confined apps really read (the whole
+  workspace) and write (`outputs/`); operations corrects the unconfined-app
+  rule, adds `not_installed` to the doctor table and documents the workflow
+  guarantees and the job-less CI runs on bot pull requests; verification and
+  the source ledger are brought up to date; CONTRIBUTING lists
+  `make test-sdk`; the plugin README names `--acknowledge-unconfined` and
+  `--replace` for upgrades; `.claude/CLAUDE.md` mentions `make github-pull`.
 
 - `config/apps.json` launches SoundCraft with `mcp --automation-read-root
   {work} --automation-write-root {outputs}` (`read_write`), the flags its CLI
@@ -20,10 +68,11 @@ moved since 1.5.1. No version change yet.
   maintainer's Mac that moved SoundCraft from 0.6.1 to 0.7.0, probed it with
   the root arguments and replaced both host registrations (see the
   verification report). Denial of an outside path was not tested.
-- The scheduled release runs 38717981671 and 38883983466 merged pull requests
-  #4 and #5: CADCraft 0.7.0, EffectCraft 0.10.0, FilmCraft 0.8.0, GridCraft
-  0.7.0, LightCraft 0.8.0, PhotoCraft 0.9.0 and SoundCraft 0.7.0, with the
-  real `setup` passing on the Linux, Windows and macOS runners.
+- The scheduled run 38717981671 merged pull request #4 (CADCraft 0.7.0,
+  EffectCraft 0.10.0, FilmCraft 0.8.0, GridCraft 0.7.0, LightCraft 0.8.0,
+  PhotoCraft 0.9.0, SoundCraft 0.7.0), with the real `setup` passing on the
+  Linux, Windows and macOS runners; run 38883983466 merged #5, which changed
+  only the review date.
 - The seven cards were rechecked at the new tags; no catalog launch flag or
   smoke tool changed. CADCraft's card covers `find_text`, `--lazy`/`--launch`
   and the new AutoLISP, whose file functions reach any path, so the safety

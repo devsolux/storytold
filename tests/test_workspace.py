@@ -54,6 +54,9 @@ class WorkspaceTests(WorkspaceCase):
         r=verify_artifact(self.work,'outputs/data.json','json')
         self.assertEqual(r['check_level'],'parsed');self.assertFalse(r['native_reopen_verified'])
         self.assertFalse(r['visual_review_verified']);self.assertFalse(r['format_fidelity_verified'])
+    def test_empty_expected_digest_fails_instead_of_skipping(self):
+        (self.work/'outputs/file').write_bytes(b'data')
+        with self.assertRaises(StorytoldError): verify_artifact(self.work,'outputs/file','bytes','')
     def test_digest_mismatch_is_failure(self):
         (self.work/'outputs/file').write_bytes(b'data')
         with self.assertRaises(StorytoldError): verify_artifact(self.work,'outputs/file','bytes','0'*64)

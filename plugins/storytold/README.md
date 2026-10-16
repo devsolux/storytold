@@ -28,7 +28,9 @@ and Windows x64, `python3 /absolute/path/to/this/plugin/storytold.py setup
 bundle with cosign on Linux and Windows), pins and probes it, and registers it
 with `codex`/`claude` through their own CLIs; `doctor` prints that command for
 each missing app. After a plugin update, `setup --list` shows moved pins and
-`setup --all --upgrade` applies them; `setup --remove --all` undoes everything
+`setup --all --upgrade --acknowledge-unconfined` applies them (add `--replace`
+when a release changed an app's launch arguments, as SoundCraft's did after
+1.5.1); `setup --remove --all` undoes everything
 but the workspace. Elsewhere, register the CLI your installer provides
 (operations, section 0 and troubleshooting). Nothing runs unless you invoke it.
 

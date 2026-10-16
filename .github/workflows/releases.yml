@@ -24,6 +24,7 @@ jobs:
       id-token: write
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -60,8 +61,11 @@ jobs:
           git commit -m "Refresh Craft release pins and Sigstore bundles ($(date -u +%F))"
           git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" bot/releases
           echo "changed=true" >> "$GITHUB_OUTPUT"
-          body="Automated refresh of config/releases.json and config/signatures.json from the latest upstream releases on $(date -u +%F). Review the diff: a changed app needs its card and smoke tool rechecked at the new tag. The verify jobs below ran the real setup on Linux, Windows and macOS runners."
-          open_pr=$(gh pr list --head bot/releases --state open --json number --jq '.[0].number')
+          # The verify jobs check out, and the merge job merges, exactly this commit.
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          body="Automated refresh of config/releases.json and config/signatures.json from the latest upstream releases on $(date -u +%F) (commit $(git rev-parse HEAD)). Review the diff: a changed app needs its card and smoke tool rechecked at the new tag. This run's verify jobs execute the real setup on Linux, Windows and macOS runners; auto-merge happens only when all three pass."
+          # Same-repository pull requests only: a fork can name its branch bot/releases too.
+          open_pr=$(gh pr list --head bot/releases --state open --json number,isCrossRepository --jq '[.[] | select(.isCrossRepository | not)][0].number')
           if [ -n "$open_pr" ]; then
             gh pr edit "$open_pr" --body "$body" || echo "::warning::Could not update the pull request body."
           elif ! gh pr create --base main --head bot/releases --title "Refresh Craft release pins ($(date -u +%F))" --body "$body"; then
@@ -79,7 +83,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ needs.refresh.outputs.changed == 'true' && 'bot/releases' || github.ref }}
+          ref: ${{ needs.refresh.outputs.changed == 'true' && needs.refresh.outputs.sha || github.ref }}
           persist-credentials: false
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -105,10 +109,12 @@ jobs:
       - name: Merge the reviewed-by-CI pull request
         env:
           GH_TOKEN: ${{ github.token }}
+          VERIFIED_SHA: ${{ needs.refresh.outputs.sha }}
         run: |
-          open_pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --head bot/releases --state open --json number --jq '.[0].number')
-          if [ -n "$open_pr" ]; then
-            gh pr merge "$open_pr" --repo "$GITHUB_REPOSITORY" --squash --delete-branch
-          else
-            echo "::warning::No pull request exists for bot/releases; nothing merged."
+          open_pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --head bot/releases --state open --json number,isCrossRepository --jq '[.[] | select(.isCrossRepository | not)][0].number')
+          if [ -z "$open_pr" ]; then
+            echo "::error::No same-repository pull request is open for bot/releases; the verified pins were not merged."
+            exit 1
           fi
+          # Refuses if bot/releases moved after the verify jobs checked it out.
+          gh pr merge "$open_pr" --repo "$GITHUB_REPOSITORY" --squash --delete-branch --match-head-commit "$VERIFIED_SHA"

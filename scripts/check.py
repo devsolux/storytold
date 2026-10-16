@@ -15,6 +15,7 @@ from storytold_tools.catalog import APP_IDS, load_catalog, templates
 from storytold_tools.releases import load_releases, load_signatures
 from storytold_tools.common import ROOT, StorytoldError, digest, encoded, parse_json, require
 
+APPLE_TEAM = 'DJ6XS33FX8'  # the ArtCraft team that notarizes every Craft macOS CLI (docs/source-ledger.md)
 ORIGINAL_HASHES = {
     'Claude_Code_Craft_Native_MCP_Project_Plan.md':
         'fabea9691589f563c6f9f7a8df89d2d8b835ea933315ad4d6c1ad5b8dfd0cbc1',
@@ -97,6 +98,11 @@ def check() -> dict:
         for asset in row['assets'].values():
             require(asset['name'].startswith(app + '-'), f'{app}: manifest asset belongs to another app')
     checks.append('release-manifest-thirteen-reviewed-pins-three-platforms')
+    # The trust root is reviewed code here, not data a refresh pull request could rewrite along with matching signatures.
+    identity = r'^https://github\.com/' + re.escape(p['repository']) + r'/\.github/workflows/releases\.yml@refs/heads/main$'
+    require(releases['signers']['sigstore_identity_regexp'] == identity and releases['signers']['apple_team_id'] == APPLE_TEAM,
+            f'release signers must be this repository\'s release workflow on main and the Apple team {APPLE_TEAM}')
+    checks.append('release-signers-pinned-to-this-repository')
     signatures = load_signatures(releases=releases)
     require(files['config/signatures.json'] == encoded(signatures), 'config/signatures.json must be canonical JSON; regenerate it with scripts/sign_releases.py')
     checks.append('signature-store-matches-manifest')
@@ -106,6 +112,8 @@ def check() -> dict:
     require('persist-credentials: false' in refresh and 'id-token: write' in refresh, 'release workflow must not persist credentials and must request an OIDC token for keyless signing')
     require('pull_request_target' not in refresh and 'write-all' not in refresh and 'secrets.' not in refresh, 'release workflow must stay on github.token with scoped permissions')
     require('cosign-release:' in refresh and 'bot/releases' in refresh, 'release workflow must pin cosign and publish through the bot/releases pull request')
+    require('--match-head-commit' in refresh and 'isCrossRepository' in refresh,
+            'release workflow must merge only the verified commit of a same-repository pull request')
     verify_section = refresh[refresh.index('verify:'):refresh.index('merge:')]
     require('--trust-upstream-sums' not in verify_section, 'release verification must not fall back to checksum-only trust')
     require(0 <= verify_section.index('scripts/check_bundles.py') < verify_section.index('storytold.py setup'),

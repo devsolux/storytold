@@ -25,7 +25,7 @@ at the new tag.
 
 A version change belongs in packaging/project.json. Update the changelog,
 verification report and source ledger; keep original source documents unchanged.
-Then run make release and, with the Claude CLI installed, make host-validate.
+Then run make release, make test-sdk and, with the Claude CLI installed, make host-validate.
 
 Builds and tests never commit, push or install. Publishing is explicit: the
 make github-* targets (make help lists them) commit and push only when invoked

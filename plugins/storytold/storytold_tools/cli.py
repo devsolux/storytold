@@ -22,6 +22,16 @@ def recorded_state() -> dict:
     try: return load_state(dict(os.environ),Path.home())
     except (OSError,ValueError): return {}
 
+def probe_timeout(value: str) -> float:
+    """The probe accepts (0, 120] seconds; refuse anything else before setup downloads and stages."""
+    try:
+        seconds = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError('expected seconds') from exc
+    if not 0 < seconds <= 120:
+        raise argparse.ArgumentTypeError('must be more than 0 and at most 120 seconds')
+    return seconds
+
 def parser() -> argparse.ArgumentParser:
     st=recorded_state()
     def default(env: str,key: str) -> str | None: return os.getenv(env) or st.get(key)
@@ -40,7 +50,7 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument('--dry-run',action='store_true',help='Preview: with install, the downloads, paths and registrations; with --remove, exactly what would be unregistered or deleted. Changes nothing')
     s.add_argument('--remove',action='store_true',help='Unregister and delete the selected apps that Storytold provably manages (workspace is kept); combine with --dry-run for a read-only preview')
     s.add_argument('--list',action='store_true',help='Show manifest, installed, pinned and registered state')
-    s.add_argument('--timeout',type=float,default=60,help='Probe timeout in seconds')
+    s.add_argument('--timeout',type=probe_timeout,default=60,help='Probe timeout in seconds, at most 120')
     for flag,key in (('--bin-dir','bin_dir'),('--work-root','work_root'),('--lock','lock'),('--evidence-dir','evidence_dir')):
         s.add_argument(flag,help=f'Override the recorded/default {key}')
     s=sub.add_parser('workspace-init',help='Create a NEW private inputs/outputs workspace')
@@ -59,7 +69,7 @@ def parser() -> argparse.ArgumentParser:
         s.add_argument('--acknowledge-unconfined',action='store_true',help='Explicitly acknowledge OS-only scope; NOT evidence of isolation')
         if name=='probe':
             s.add_argument('--confirm-execution',action='store_true')
-            s.add_argument('--timeout',type=float,default=20)
+            s.add_argument('--timeout',type=probe_timeout,default=20)
             s.add_argument('--call-json',help='One operator-reviewed, fixture-only native tools/call request')
             s.add_argument('--approve-call',action='store_true',help='Approve that exact call; annotations alone never authorize it')
             s.add_argument('--output',required=True,help='New evidence file, never overwritten')
@@ -112,6 +122,7 @@ def main(argv: list[str] | None=None) -> int:
                 result=setup_status(**common)
             else:
                 require(args.app or args.all,'choose --app <name> (repeatable) or --all')
+                require(not (args.app and args.all),'--all and --app select differently; choose one')
                 apps=selected(args.app)
                 if args.remove:
                     clash=sorted(chosen&{'upgrade','replace','skip_probe','trust_upstream_sums','acknowledge_unconfined'})
