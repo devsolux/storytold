@@ -12,6 +12,7 @@ from urllib.parse import unquote, urlsplit
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from storytold_tools.build import allowlist, project, render, source_map
 from storytold_tools.catalog import APP_IDS, load_catalog, templates
+from storytold_tools.probe import SDK_VERSION
 from storytold_tools.releases import load_releases, load_signatures
 from storytold_tools.common import ROOT, StorytoldError, digest, encoded, parse_json, require
 
@@ -103,6 +104,13 @@ def check() -> dict:
     require(releases['signers']['sigstore_identity_regexp'] == identity and releases['signers']['apple_team_id'] == APPLE_TEAM,
             f'release signers must be this repository\'s release workflow on main and the Apple team {APPLE_TEAM}')
     checks.append('release-signers-pinned-to-this-repository')
+    # The probe SDK installs only from this lock with --require-hashes, so every pin must carry a hash.
+    lock_text = files['requirements-probe.lock'].decode('utf-8')
+    pinned = [b for b in re.split(r'\n(?=[A-Za-z0-9_.-]+==)', lock_text) if re.match(r'[A-Za-z0-9_.-]+==', b)]
+    require(pinned and all('--hash=sha256:' in b for b in pinned), 'every pinned probe dependency needs a SHA-256 hash')
+    require(any(b.startswith(f'mcp=={SDK_VERSION} ') for b in pinned) and f'mcp=={SDK_VERSION}' in files['requirements-probe.txt'].decode('utf-8'),
+            'requirements-probe.txt, requirements-probe.lock and the probe SDK_VERSION must name the same mcp release')
+    checks.append('probe-sdk-hash-locked')
     signatures = load_signatures(releases=releases)
     require(files['config/signatures.json'] == encoded(signatures), 'config/signatures.json must be canonical JSON; regenerate it with scripts/sign_releases.py')
     checks.append('signature-store-matches-manifest')

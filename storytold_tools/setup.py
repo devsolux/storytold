@@ -492,10 +492,14 @@ def probe_python(sd: Path, run: Runner, log: Logger, system: str = platform.syst
         code, out, _ = run([str(py), '-c', "import importlib.metadata as m; print(m.version('mcp'))"])
         return code==0 and out.strip()==SDK_VERSION
     if not (py.exists() and ok()):
-        log(f'creating {venv} and installing the reviewed mcp=={SDK_VERSION} from PyPI (network)')
+        lock = ROOT/'requirements-probe.lock'
+        require(lock.is_file(), f'{lock} is missing; reinstall the plugin, or use --skip-probe to register without a native probe')
+        log(f'creating {venv} and installing the hash-locked mcp=={SDK_VERSION} and its dependencies from PyPI (network)')
         code, _, err = run([sys.executable, '-m', 'venv', str(venv)])
         require(code==0, 'could not create the probe virtual environment:\n'+err.strip()[:500]+'\nUse --skip-probe to register without a native probe')
-        code, _, err = run([str(py), '-m', 'pip', 'install', '--disable-pip-version-check', '--quiet', f'mcp=={SDK_VERSION}'])
+        # Only the reviewed wheels, each matched to its locked SHA-256: no sdist builds, no PIP_* or pip.conf redirection.
+        code, _, err = run([str(py), '-m', 'pip', 'install', '--isolated', '--disable-pip-version-check', '--quiet',
+                            '--require-hashes', '--only-binary=:all:', '-r', str(lock)])
         require(code==0 and ok(), 'could not install the probe SDK:\n'+err.strip()[:500]+'\nUse --skip-probe to register without a native probe')
     return str(py)
 

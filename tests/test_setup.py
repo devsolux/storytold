@@ -464,6 +464,19 @@ class PlatformTests(unittest.TestCase):
         self.assertEqual(calls,[])
         s.host_add('codex','photocraft','C:\\Users\\ab\\bin\\photocraft-cli.exe',['mcp'],run,lambda h:'C:\\x\\codex.cmd')
         self.assertEqual(calls[0][:4],['cmd.exe','/d','/c','C:\\x\\codex.cmd'])
+    def test_probe_sdk_installs_only_hash_locked_wheels(self):
+        from unittest import mock
+        calls=[];state={'installed':False}
+        def run(argv):
+            calls.append(argv)
+            if argv[1:3]==['-m','pip']: state['installed']=True;return (0,'','')
+            if argv[1:2]==['-c']: return (0,s.SDK_VERSION+'\n','') if state['installed'] else (1,'','')
+            return (0,'','')
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(s.importlib.metadata,'version',side_effect=s.importlib.metadata.PackageNotFoundError):
+            s.probe_python(Path(d),run,lambda m:None,'Darwin')
+        pip=[c for c in calls if c[1:3]==['-m','pip']][0]
+        for flag in ('--isolated','--require-hashes','--only-binary=:all:'): self.assertIn(flag,pip)
+        self.assertEqual(Path(pip[pip.index('-r')+1]).name,'requirements-probe.lock');self.assertNotIn(f'mcp=={s.SDK_VERSION}',pip)
     def test_mcp_get_failure_is_not_absence(self):
         broken=lambda argv:(1,'','Error: failed to parse config.toml')
         for host in ('codex','claude'):

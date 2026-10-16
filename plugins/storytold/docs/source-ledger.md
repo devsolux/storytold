@@ -219,6 +219,10 @@ Each tag resolved to the listed commit when it was reviewed. The CI matrix
 in full on the 2026-10-16 push of `main` (run 38927511616), and the release
 workflow runs daily; none of this was executed locally. The artifact actions
 first run with the release workflow after this change. MCP is the only optional direct runtime dependency;
-its transitive resolution was installed for the SDK test but is not locked.
+since 2026-10-16 its transitive graph is locked with hashes in
+`requirements-probe.lock` (uv 0.13.1, universal resolution, 28 packages; a
+strict `--require-hashes --only-binary=:all:` install and `make test-sdk`
+passed on macOS arm64; Linux and Windows wheels are hashed but install there
+only in CI and on users' machines).
 Recheck releases before an intentional upgrade and run both core and SDK/native
 acceptance tests.

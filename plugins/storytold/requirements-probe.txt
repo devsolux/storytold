@@ -1,4 +1,6 @@
 # Optional official SDK for the short-lived native conformance probe.
 # Latest PyPI release on 2026-10-12; make test-sdk passed against it (synthetic
-# stdio fixture only). Direct pin only: the transitive graph is not locked.
+# stdio fixture only). This is the direct pin; requirements-probe.lock holds the
+# whole graph for every platform with SHA-256 hashes (regenerate it with
+# `make lock-probe`), and every install uses that lock with --require-hashes.
 mcp==2.3.0

@@ -284,9 +284,13 @@ make test-sdk
 ```
 
 Only this setup target accesses a package index. Core maintenance is offline.
-`requirements-probe.txt` pins the reviewed direct SDK version, not its complete
-transitive graph. Capture `pip freeze` after your actual acceptance run and review
-updates separately. An unavailable dependency makes the SDK gate fail explicitly;
+`requirements-probe.txt` pins the reviewed direct SDK version and
+`requirements-probe.lock` its complete graph for every platform (Python 3.11 and
+later), each wheel with its SHA-256. `make setup-probe`, `setup`'s probe venv and
+the CI SDK job install only from that lock with `--isolated --require-hashes
+--only-binary=:all:`: no source builds, and no `PIP_*` variable or pip
+configuration file can redirect the index. `make lock-probe` (uv, network)
+re-resolves it; review that diff like any dependency update. An unavailable dependency makes the SDK gate fail explicitly;
 no successful stub result is substituted for it.
 
 ## 4. Probe one trusted app, then an approved fixture call

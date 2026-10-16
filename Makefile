@@ -8,7 +8,7 @@ export PYTHONDONTWRITEBYTECODE := 1
 PLUGIN := storytold@devsolux-storytold
 REPOSITORY := devsolux/storytold
 
-.PHONY: help setup setup-probe doctor refresh-releases sign-releases setup-confined check lint test test-sdk build verify-build publish-check package source release clean host-validate install-claude install-codex install-claude-local install-codex-local
+.PHONY: help setup setup-probe lock-probe doctor refresh-releases sign-releases setup-confined check lint test test-sdk build verify-build publish-check package source release clean host-validate install-claude install-codex install-claude-local install-codex-local
 
 help: ## Show maintenance targets; no tools installed or started
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  %-23s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -18,8 +18,12 @@ setup: ## Explicitly create a local .venv (core has no third-party dependencies)
 		echo 'Refusing to adopt an unrecognized or symlinked .venv' >&2; exit 1; fi
 	python3 -m venv .venv
 
-setup-probe: setup ## Explicit network opt-in: install the reviewed optional MCP client SDK
-	.venv/bin/python -m pip install -r requirements-probe.txt
+setup-probe: setup ## Explicit network opt-in: install the reviewed optional MCP client SDK (hash-locked wheels only)
+	.venv/bin/python -m pip install --isolated --require-hashes --only-binary=:all: -r requirements-probe.lock
+
+lock-probe: ## Maintainer network step: re-resolve requirements-probe.lock for every platform with hashes (uv), then review the diff
+	uv pip compile --universal --python-version 3.11 --generate-hashes --custom-compile-command 'make lock-probe' \
+		--index-url https://pypi.org/simple requirements-probe.txt -o requirements-probe.lock
 
 doctor: ## Report installed capabilities without starting hosts or native apps
 	"$(PYTHON)" storytold.py doctor

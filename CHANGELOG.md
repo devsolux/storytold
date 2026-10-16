@@ -54,6 +54,14 @@ review. No version change yet.
   `scripts/build.py check` on the published commit. A test keeps the split.
 - `scripts/refresh_releases.py --accept <app>` lets one app through the
   downgrade/re-publish guard after a maintainer reviewed it by hand.
+- The probe SDK is hash-locked: `requirements-probe.lock` (uv universal
+  resolution, 28 packages, every wheel's SHA-256, `pywin32` for Windows only)
+  ships with the plugin, and `setup`'s probe venv, `make setup-probe` and the
+  CI SDK job install only from it with `--isolated --require-hashes
+  --only-binary=:all:`, so no source build runs and no `PIP_*` variable or pip
+  configuration can redirect the index. `make lock-probe` regenerates it and
+  `make check` refuses a pin without a hash or an `mcp` that disagrees with
+  the SDK version.
 - `codex`/`claude mcp get`: only the host's own "No MCP server named" answer
   means "not registered"; any other failure is an error in `register`, an
   uninspectable entry that keeps the binary in `--remove`, and
