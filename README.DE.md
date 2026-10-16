@@ -91,7 +91,7 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 `--all --upgrade` lädt nur diese Apps erneut, verifiziert und prüft sie erneut
 und lässt die Registrierungen unverändert (gleicher Befehlspfad). Ändert ein
 Release die Startargumente einer App (WordCrafts Wurzel-Flags in 1.5.0,
-SoundCrafts nach 1.5.1), ergänze `--replace`, damit die abweichende
+SoundCrafts in 1.5.2), ergänze `--replace`, damit die abweichende
 Registrierung neu geschrieben wird; ohne das Flag meldet `setup` sie nur und
 lässt sie stehen. SoundCraft beachtet seine Wurzeln erst ab 0.7.0, daher wird
 ein älteres installiertes SoundCraft abgelehnt, bis

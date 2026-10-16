@@ -1,9 +1,9 @@
 {
   "files": {
-    ".claude-plugin/plugin.json": "a9632b96f19faefa2863327699be9b77a52f4b66af33b838a0fdb33527fb33c5",
+    ".claude-plugin/plugin.json": "27c1f5bd86a59c3402ef5273e613ecedbd13c7aedbeeef6482ab0e0ad0f743ed",
     "LICENSE": "1b27293f1fa43edad3840ee0ac38ea8de030f04ac58760002efa8f8475d4ac15",
     "LICENSE-NOTICE.md": "b4c1f5f62b300657a5dd594e87cf4a94402ec61d9487048cd92894ade5a9f883",
-    "README.md": "09cf154d7a876aeb203c07071c9d180725afcf1d0cd6fc160facfd895719c217",
+    "README.md": "0fbc424cea5e27cb661c8ea8bff92617c97e924d045b8d7c46bea73e89104f15",
     "SECURITY.md": "7be75fcea65ec11a2217283592a7d67a3b911f49b5da3e7bc3d1d15ad519abca",
     "config/apps.json": "fb5f2d94b43e84b92d78e38e7ea2bf0c784c29126a405d0237a789e0a7f81508",
     "config/claude.mcp.example.json": "589f3979f96f7fa1edd9fb3a8f07d11219365b214b004d24e5f988662edd1c3a",
@@ -14,13 +14,13 @@
     "config/signatures.json": "862524eff40c5ef6e99fb742aa05990551845f68bf9e24bf83101d86ba504656",
     "docs/acceptance.md": "ddd351e2e86506e774a96aaade66fe5136b9b6f154a4b8d50573a14051ad93ad",
     "docs/architecture.md": "274a5692d59fc99e550fa49f09cbf4c3a42b0569b06b0fdd15080b145b79ca05",
-    "docs/operations.md": "7cafba5341d55daaf8fa9277f57f4ff7dc812aff2ae71c8b72dccbff0c9345fc",
-    "docs/source-ledger.md": "3da8a82cceb5b5ce3f6042e1f128f3d73a6a212484ea2dce317fcb38f0b7c33c",
+    "docs/operations.md": "bfd70e05940815f3a1f972001937fc3b6473d10de1bfea7b4b8f07adc6768675",
+    "docs/source-ledger.md": "e8890bd764159c89c641ffeaf26e80cb3575cccd79e4d6e553b3e645abf62791",
     "docs/sources/Claude_Code_Craft_Native_MCP_Project_Plan.md": "fabea9691589f563c6f9f7a8df89d2d8b835ea933315ad4d6c1ad5b8dfd0cbc1",
     "docs/sources/Crafting_Apps_CLI_MCP_Integration_Reference.md": "3f0ec5724b801db503d10947c2e06c5a0c79e68f0996cb7684f10a77ef92f45c",
     "docs/sources/README.md": "b7bf7f4350bdb122dc05ec667293dc59618fdd063d59aa2ecb4a0b0d7fd843ce",
-    "docs/verification.md": "a9e698299c30de464be070f94a2a73058918aa30dd9bc5aa8a9c9db7acf033c8",
-    "plugin.json": "29e4f98c58229c5066b2f66fc6a81614b21e2b1ae026c7879c3f33da5a33f73e",
+    "docs/verification.md": "1bda57540b3f774ccdfd36952f27863319d13a4e4d3b3ea19ce1f30a5aecf682",
+    "plugin.json": "2ebebf3c7f8c68c995b93fb9a6ba3e753c228795db9ab4abb9f714e15dee08c7",
     "requirements-probe.lock": "d6463eecc8150c4dcb9b1e7e98050018812595df7c05eb53b800c370c1d3aee2",
     "requirements-probe.txt": "efa7100ef384c89d26e95f45f02c376dde47dc790523f726e21acbcf37368726",
     "skills/craft/SKILL.md": "9e2a1464336cebca64b0d0aa423738788b2721f304a2e3e2e67cf2af93e3c6ca",
@@ -35,7 +35,7 @@
     "skills/craft/references/apps/pdfcraft.md": "bfaa8421bc71b2c1c7dd94c61a1aaa19b516f565c2b69a69d9dd8ea45c6d0ea7",
     "skills/craft/references/apps/photocraft.md": "cef797e2759f0ca265c95cdbad7b7c17354071ad9df7892f2c8a6582bf905421",
     "skills/craft/references/apps/soundcraft.md": "99887107f07add4d912ec184cd19657a5c0daf2873ac04fa3191bb61f3186ebd",
-    "skills/craft/references/apps/vectorcraft.md": "50d75b49af630f4e3d622f67408873024532e2bf8b62341cb7a4540f5fbc87cc",
+    "skills/craft/references/apps/vectorcraft.md": "ff6907da910610b5a744f21feaf6fa92c0cf275dcf17b4f50749d0bfb0af5cc0",
     "skills/craft/references/apps/wordcraft.md": "3a77ecfae3e6c6b0722bf6c43f2a7e50e6c9be71b3efb740ea4b8a641dec804e",
     "skills/craft/references/safety.md": "f2f955c7f343cde66118f140c10fcc22263104ae70b86278dbb088b803347a75",
     "skills/craft/references/workflows/cross-app-handoff.md": "c1f119c95df7f7c5218daeaa251080d02052ddf570c8e904f0fe058e545893d4",
@@ -54,5 +54,5 @@
   },
   "generator": "storytold_tools.build",
   "schema_version": 1,
-  "version": "1.5.1"
+  "version": "1.5.2"
 }

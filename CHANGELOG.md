@@ -1,10 +1,13 @@
 # Changelog
 
-## Unreleased
+## 1.5.2 — 2026-10-16
 
 SoundCraft joins the root-confined apps; card rechecks for the seven pins
-moved since 1.5.1; fixes from a security, silent-failure and consistency
-review. No version change yet.
+moved since 1.5.1; fixes from a security, silent-failure, Python and
+consistency review (release-workflow token split and merge pinning, refresh
+guards, hash-locked probe SDK, setup and doctor hardening); and a CI fix that
+removes the failing checks on the bot's "Refresh Craft release pins" pull
+requests.
 
 - Release workflow: the verify jobs check out the exact commit the refresh
   job pushed, and the merge job merges only that commit
@@ -54,6 +57,12 @@ review. No version change yet.
   `scripts/build.py check` on the published commit. A test keeps the split.
 - `scripts/refresh_releases.py --accept <app>` lets one app through the
   downgrade/re-publish guard after a maintainer reviewed it by hand.
+- The first run of the split release workflow (run 38932488545) moved
+  VectorCraft to v0.12.0 and merged pull request #6 with no failing check.
+  The card was rechecked at the new tag (same flags and 32 tools; new
+  `query`/`brief` discovery, stroke options, `vertical` text, `ai` export) and
+  corrected: the `command_batch` tool never rolls back, even with `atomic`;
+  only the engine command `command.batch` puts the documents back.
 - CI: the `0b97a1f` push broke `ci.yml` (an unquoted `run:` value containing
   `:all: -r` is a YAML mapping, so GitHub could not load the workflow and the
   run failed in 0 s); the value is quoted and `make check` now refuses any

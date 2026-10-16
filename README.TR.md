@@ -90,7 +90,7 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 false`); `--all --upgrade` yalnızca o uygulamaları yeniden indirir, doğrular ve
 yeniden yoklar, kayıtları olduğu gibi bırakır (komut yolu aynıdır). Bir sürüm bir
 uygulamanın başlatma argümanlarını değiştirdiğinde (1.5.0'da WordCraft'ın,
-1.5.1'den sonra SoundCraft'ın kök bayrakları), farklı kaydın yeniden yazılması
+1.5.2'de SoundCraft'ın kök bayrakları), farklı kaydın yeniden yazılması
 için `--replace` ekleyin; o olmadan `setup` kaydı yalnızca bildirir ve olduğu
 gibi bırakır. SoundCraft köklerine yalnızca 0.7.0'dan itibaren uyar; bu yüzden
 daha eski bir kurulu SoundCraft, `setup --app soundcraft --upgrade --replace`

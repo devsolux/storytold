@@ -205,6 +205,28 @@ every release keeps the three asset names the manifest expects:
 Source review only; the seven new binaries ran only in the workflow's verify
 jobs, not on a developer machine.
 
+## Release-tag recheck of VectorCraft, moved by pull request #6 — 2026-10-16
+
+The hand-triggered run 38932488545, the first with the split release workflow,
+moved VectorCraft to v0.12.0 (tag commit `8bc6532`), verified it on the three
+runners with the confined launch and merged #6 as `b7e243f`. Same recheck:
+
+- The `mcp` parser and `crates/engine/src/file_access.rs` are unchanged:
+  `--headless` and both roots keep their semantics; no new attach or listener
+  flag. The same 32 tools; `doc_inspect` still needs no argument. The three
+  manifest assets are published and match `SHA256SUMS.txt`.
+- New: `list_commands`/`command_list` take `query`, `menu` and `brief`;
+  `draw_path`/`draw_shape` take `dash`, `cap`, `join`, `opacity`, `name` and
+  `effects` and may be `command_batch` steps (the reply adds `created`);
+  `add_text` takes `vertical`; `export` adds `ai` (legacy per-artboard with
+  `options.aiVersion: "7"`).
+- Correction: the 2026-10-14 entry above and the card said a failing
+  `atomic` `command_batch` restores the documents. The v0.12.0 docs describe
+  the tool as an undo group only (`edit.undoGroup.begin`/`end`) whose steps
+  that ran stay applied; the rollback that keeps the disk as written belongs
+  to the engine command `command.batch` run through `command_run`. The card
+  now says so.
+
 ## Build infrastructure
 
 The workflow uses reviewed full-commit action references:

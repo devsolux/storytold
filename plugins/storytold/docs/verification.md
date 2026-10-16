@@ -1,4 +1,4 @@
-# Verification status — 1.5.1
+# Verification status — 1.5.2
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All thirteen CLIs have
@@ -7,6 +7,22 @@ below): twelve on a developer Mac and on GitHub runners, FigCraft (added in
 1.4.0) on the three GitHub runners only. That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## Executed for 1.5.2 — October 16, 2026
+
+macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`), plus GitHub:
+
+| Gate | Result |
+|---|---|
+| `make release` | 74 check entries (new: release signers pinned to this repository, the probe SDK lock, parseable workflow `run:` values), **238 tests**, build, verify-build and reproducible 1.5.2 plugin and source ZIPs. |
+| `make setup-probe`, `make test-sdk` | The `.venv` was reinstalled from `requirements-probe.lock` with `--isolated --require-hashes --only-binary=:all:`; the 7 synthetic-fixture SDK checks passed on it, and on a fresh scratch venv installed the same way. |
+| `make host-validate` (Claude Code 2.1.282) | `claude plugin validate --strict` passed for the 1.5.2 manifests. |
+| CI, push of `cd20f67` (run 38932460443) | All seven jobs passed, including the hash-locked SDK install on `ubuntu-latest`. The previous push (`0b97a1f`, run 38931864760) had failed in 0 s because `ci.yml` did not parse; that is the bug this release fixes. |
+| Release workflow, `workflow_dispatch` (run 38932488545) | First run of the split layout: `refresh` (only `contents: read` and `id-token: write`) found VectorCraft v0.12.0, `publish` committed the hand-over and opened pull request #6, the three `verify` jobs checked out that exact commit, ran `scripts/build.py check` and the real strict `setup --all --acknowledge-unconfined`, and `merge` squash-merged it with `--match-head-commit` (`b7e243f`). No CI `pull_request` run was created for #6, so it shows no failing check. |
+
+Still not run: the Windows install of the probe SDK lock (Windows wheels are
+hashed, only CI's Linux and this Mac installed it), a refresh that hits the
+new downgrade/re-publish guard, and SoundCraft's root denial (M3).
 
 ## Release workflow runs after 1.5.1 — October 15 and 16, 2026
 

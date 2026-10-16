@@ -86,8 +86,8 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 `--list` shows which pins moved (`manifest_commit_pinned: false`);
 `--all --upgrade` re-downloads only those apps, verifies and re-probes them and
 leaves registrations as they are (same command path). When a release changes
-an app's launch arguments (WordCraft's root flags in 1.5.0, SoundCraft's after
-1.5.1), add `--replace` so the differing registration is re-registered; without
+an app's launch arguments (WordCraft's root flags in 1.5.0, SoundCraft's in
+1.5.2), add `--replace` so the differing registration is re-registered; without
 it `setup` reports it and leaves it alone. SoundCraft honours its roots only
 from 0.7.0, so an older installed SoundCraft is refused until
 `setup --app soundcraft --upgrade --replace` moves it. Remove:
