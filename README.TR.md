@@ -89,9 +89,12 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 `--list` hangi sabitlemelerin değiştiğini gösterir (`manifest_commit_pinned:
 false`); `--all --upgrade` yalnızca o uygulamaları yeniden indirir, doğrular ve
 yeniden yoklar, kayıtları olduğu gibi bırakır (komut yolu aynıdır). Bir sürüm bir
-uygulamanın başlatma argümanlarını değiştirdiğinde (1.5.0 WordCraft'ın kök
-bayraklarını ekler), farklı kaydın yeniden yazılması için `--replace` ekleyin; o
-olmadan `setup` kaydı yalnızca bildirir ve olduğu gibi bırakır. Kaldırma:
+uygulamanın başlatma argümanlarını değiştirdiğinde (1.5.0'da WordCraft'ın,
+1.5.1'den sonra SoundCraft'ın kök bayrakları), farklı kaydın yeniden yazılması
+için `--replace` ekleyin; o olmadan `setup` kaydı yalnızca bildirir ve olduğu
+gibi bırakır. SoundCraft köklerine yalnızca 0.7.0'dan itibaren uyar; bu yüzden
+daha eski bir kurulu SoundCraft, `setup --app soundcraft --upgrade --replace`
+onu güncelleyene kadar reddedilir. Kaldırma:
 
 ```bash
 python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.py setup --remove --all
@@ -165,7 +168,7 @@ uygulamasını çalıştırmaz. `make release` denetimleri, çekirdek testleri v
 yeniden üretilebilir paketlemeyi sıralar; yerel kabul iddia etmez ve hiçbir
 şey yayımlamaz. `make refresh-releases` ve `make sign-releases`, günlük iş
 akışının çalıştırdığı ağ adımlarıdır (ikincisi cosign gerektirir);
-`make setup-confined` bu makinede kök sınırlı beş uygulamayı kurar.
+`make setup-confined` bu makinede kök sınırlı altı uygulamayı kurar.
 [Makefile](Makefile) tüm hedefleri listeler.
 
 ## Yerel uygulamaları kurun (tek komut)
@@ -235,9 +238,9 @@ denetimleri ve gerçek `setup`'ı Linux, Windows ve macOS runner'larında
 `STORYTOLD_AUTO_MERGE=true` olarak ayarlanır). Kullanıcılar yeni sabitlemeleri
 bir sonraki eklenti güncellemesiyle alır.
 
-PhotoCraft, VectorCraft, EffectCraft, WordCraft ve PdfCraft yerel kök
+PhotoCraft, VectorCraft, EffectCraft, WordCraft, SoundCraft ve PdfCraft yerel kök
 bayraklarıyla çalışma alanına sınırlıdır ve varsayılan olarak kaydedilir. Diğer
-sekizi kullanıcınızın erişebildiği her şeyi okuyup yazabilir; bu yüzden yalnızca
+yedisi kullanıcınızın erişebildiği her şeyi okuyup yazabilir; bu yüzden yalnızca
 `--acknowledge-unconfined` ile kurulur ve kaydedilir: onları hassas olmayan işler için
 kullanın ya da işletim sistemi yalıtımı altında çalıştırın. Diğer platformlar,
 ağdan yalıtılmış makineler ve özel sabitlemeler
@@ -283,8 +286,8 @@ PdfCraft için PDF dışa aktarabilir. Bir aşama başarısız olursa son doğru
 yapıtta durun. Evrensel toplu işlem, otomatik yazma yinelemesi ya da gizli
 yedek yol vaat edilmez.
 
-Dört uygulamanın kaynakta belgelenmiş ayrı okuma/yazma kökleri vardır;
-PdfCraft'ın tek kökü vardır; sekiz uygulama işletim sistemi kullanıcısı
+Beş uygulamanın kaynakta belgelenmiş ayrı okuma/yazma kökleri vardır;
+PdfCraft'ın tek kökü vardır; yedi uygulama işletim sistemi kullanıcısı
 genelinde erişime sahip kabul edilmelidir. Ne Skill, ne yoklama makbuzları, ne
 de MCP yapılandırması bir işletim sistemi sanal alanıdır. Host'un diğer
 kabuk/dosya araçları da uygun izinlere ihtiyaç duyar. Bkz.

@@ -160,9 +160,13 @@
       "name": "SoundCraft",
       "purpose": "Offline audio sessions and mix bounce",
       "executable": "soundcraft-cli",
-      "confinement": "os_only",
+      "confinement": "read_write",
       "args": [
-        "mcp"
+        "mcp",
+        "--automation-read-root",
+        "{work}",
+        "--automation-write-root",
+        "{outputs}"
       ],
       "repository": "https://github.com/storytold/soundcraft",
       "documentation": "https://github.com/storytold/soundcraft/blob/main/docs/mcp.md"

@@ -8,7 +8,9 @@ from .common import ROOT, absolute, directory, encoded, digest, keys, load_json,
 
 APP_IDS = ('photocraft','vectorcraft','filmcraft','lightcraft','pdfcraft','effectcraft',
            'designcraft','gridcraft','wordcraft','deckcraft','cadcraft','soundcraft','figcraft')
-ROOTED = {'photocraft','vectorcraft','effectcraft','wordcraft'}
+ROOTED = {'photocraft','vectorcraft','effectcraft','wordcraft','soundcraft'}
+# Releases before these ignore unknown `mcp` flags, so they would drop the root flags and run unconfined.
+ROOTS_SINCE = {'soundcraft': (0,7,0)}
 
 def load_catalog(root: Path = ROOT) -> dict[str, dict]:
     raw = keys(load_json(root/'config/apps.json'), {'schema_version','basis','apps'}, label='catalog')
@@ -97,6 +99,12 @@ def preflight(bin_dir: Path, work: Path, outputs: Path, lock_path: Path,
     for app in apps:
         row=catalog[app]; pin=lock['apps'][app]; p=executable(bin_dir,app)
         h,_,_=snapshot(p); require(h==pin['sha256'], f'{app}: executable hash mismatch; stop and review the installed binary')
+        if app in ROOTS_SINCE:
+            # Fail closed: an unreadable or older version label could be a binary that silently drops the roots.
+            m=re.match(r'v?(\d+)\.(\d+)\.(\d+)\b', pin['version']); need='.'.join(map(str,ROOTS_SINCE[app]))
+            require(m is not None and tuple(map(int,m.groups()))>=ROOTS_SINCE[app],
+                    f'{app}: the pinned binary ({pin["version"].split(" ")[0][:40]}) predates its root flags ({need}+) and would run unconfined; '
+                    f'run setup --app {app} --upgrade --replace')
         if row['confinement']=='os_only':
             require(acknowledge_unconfined, f'{app}: no verified native root flags; use tested OS isolation or explicitly acknowledge non-sensitive local testing')
         args=[{'{work}':str(work),'{outputs}':str(outputs)}.get(x,x) for x in row['args']]

@@ -12,9 +12,18 @@ class CatalogTests(WorkspaceCase):
     def test_catalog_has_all_thirteen(self):
         self.assertEqual(set(self.catalog),set(APP_IDS))
     def test_native_root_flags_exact(self):
-        self.assertEqual(sum(a['confinement']=='read_write' for a in self.catalog.values()),4)
-        self.assertEqual(sum(a['confinement']=='os_only' for a in self.catalog.values()),8)
+        self.assertEqual(sum(a['confinement']=='read_write' for a in self.catalog.values()),5)
+        self.assertEqual(sum(a['confinement']=='os_only' for a in self.catalog.values()),7)
         self.assertIn('--headless',self.catalog['vectorcraft']['args'])
+    def test_roots_need_a_release_that_honours_them(self):
+        # SoundCraft before 0.7.0 ignores unknown mcp flags, so an older or unreadable pin must not launch with roots.
+        for label in ('0.6.1 (v0.6.1, synthetic)','synthetic-test-only','v0.6.9'):
+            self.pins['apps']['soundcraft']['version']=label;self.save_pins()
+            with self.assertRaisesRegex(StorytoldError,'--upgrade --replace'): self.pf(['soundcraft'],ack=False)
+        for label in ('0.7.0 (v0.7.0, synthetic)','v0.10.2'):
+            self.pins['apps']['soundcraft']['version']=label;self.save_pins()
+            x=self.pf(['soundcraft'],ack=False)['launches'][0]
+            self.assertEqual(x['args'],['mcp','--automation-read-root',str(self.work),'--automation-write-root',str(self.work/'outputs')])
     def test_only_documented_compact_flags(self):
         self.assertEqual({a for a,r in self.catalog.items() if '--compact' in r['args']},{'pdfcraft','lightcraft'})
     def test_no_live_or_http_flags(self):

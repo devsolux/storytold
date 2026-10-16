@@ -2,8 +2,24 @@
 
 ## Unreleased
 
-Documentation only; no code, catalog or version change.
+SoundCraft joins the root-confined apps; card rechecks for the seven pins
+moved since 1.5.1. No version change yet.
 
+- `config/apps.json` launches SoundCraft with `mcp --automation-read-root
+  {work} --automation-write-root {outputs}` (`read_write`), the flags its CLI
+  ships since 0.7.0. `ROOTED`, the inactive launch templates, the catalog
+  tests (five `read_write`, seven `os_only`), `make setup-confined` (six
+  apps), the card, the safety list, the READMEs, operations and acceptance
+  follow; SoundCraft no longer needs `--acknowledge-unconfined`.
+- SoundCraft before 0.7.0 silently ignores unknown `mcp` flags, so the new
+  launch would run an older binary unconfined. `preflight`, and with it
+  `setup`, `probe` and `configure`, now refuses a SoundCraft pin older than
+  0.7.0 or without a readable version and names
+  `setup --app soundcraft --upgrade --replace`; a new catalog test covers it.
+- Existing installs: run `setup --app soundcraft --upgrade --replace`. On the
+  maintainer's Mac that moved SoundCraft from 0.6.1 to 0.7.0, probed it with
+  the root arguments and replaced both host registrations (see the
+  verification report). Denial of an outside path was not tested.
 - The scheduled release runs 38717981671 and 38883983466 merged pull requests
   #4 and #5: CADCraft 0.7.0, EffectCraft 0.10.0, FilmCraft 0.8.0, GridCraft
   0.7.0, LightCraft 0.8.0, PhotoCraft 0.9.0 and SoundCraft 0.7.0, with the
@@ -14,8 +30,8 @@ Documentation only; no code, catalog or version change.
   list now names it among scripts. GridCraft's card corrects `.xls` (partial
   BIFF8 import, not refused) and lists the new save refusals. PhotoCraft's
   covers the lossy-ORA copy rule, `dpxBits` and Krita import, LightCraft's
-  `rendereddng`, and SoundCraft's the root flags 0.7.0 accepts but the
-  catalog does not pass yet, plus `bounce_mix` overwriting. EffectCraft's and
+  `rendereddng`, and SoundCraft's the root flags 0.7.0 accepts (adopted
+  above) plus `bounce_mix` overwriting. EffectCraft's and
   FilmCraft's only change their recheck dates. The source ledger records it.
 - AGENTS.md and `.claude/CLAUDE.md`: pull `main` first because the workflow
   merges on its own, finish every pin move with a card recheck and a ledger

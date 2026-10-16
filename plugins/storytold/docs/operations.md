@@ -245,8 +245,8 @@ Preflight validates all supplied lock entries, selected binaries and exact outpu
 root. Select only available apps; omission of `--app` means all thirteen. Multiple
 `--app` flags are allowed for preflight/configure, but a probe targets one app.
 
-FilmCraft, LightCraft, DesignCraft, GridCraft, DeckCraft, CADCraft, SoundCraft
-and FigCraft require tested external isolation for sensitive work.
+FilmCraft, LightCraft, DesignCraft, GridCraft, DeckCraft, CADCraft and FigCraft
+require tested external isolation for sensitive work.
 For an explicitly non-sensitive test, `--acknowledge-unconfined` records your
 decision to proceed;
 it does **not** claim isolation. PdfCraft's single root does not make inputs
@@ -431,10 +431,13 @@ to see which pins moved, then `setup --app <app> --upgrade` per app (or
 after download, hash, provenance, preflight and the probe of the staged
 candidate succeed, the lock entry is rewritten atomically, and the host
 registration is left alone because the command path does not change; when a
-release changes an app's launch arguments instead (1.5.0: WordCraft's root
-flags), `setup` refuses the differing registration until `--replace` is
-passed, then re-registers it and restores the old entry if the new one cannot
-be added. What a
+release changes an app's launch arguments instead (WordCraft's root flags in
+1.5.0, SoundCraft's after 1.5.1), `setup` refuses the differing registration
+until `--replace` is passed, then re-registers it and restores the old entry
+if the new one cannot be added. SoundCraft before 0.7.0 silently ignores
+unknown `mcp` flags, so `preflight` (and with it `setup`, `probe` and
+`configure`) refuses a SoundCraft pin older than 0.7.0 or without a readable
+version; `setup --app soundcraft --upgrade --replace` moves it. What a
 failure leaves behind: download, checksum, provenance, preflight or probe
 failure → nothing changed, `evidence/<app>-candidate.json` kept; failure during
 the file replace → the old file (the replace is atomic) and a `reverted`

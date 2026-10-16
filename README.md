@@ -86,9 +86,11 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 `--list` shows which pins moved (`manifest_commit_pinned: false`);
 `--all --upgrade` re-downloads only those apps, verifies and re-probes them and
 leaves registrations as they are (same command path). When a release changes
-an app's launch arguments (1.5.0 adds WordCraft's root flags), add `--replace`
-so the differing registration is re-registered; without it `setup` reports it
-and leaves it alone. Remove:
+an app's launch arguments (WordCraft's root flags in 1.5.0, SoundCraft's after
+1.5.1), add `--replace` so the differing registration is re-registered; without
+it `setup` reports it and leaves it alone. SoundCraft honours its roots only
+from 0.7.0, so an older installed SoundCraft is refused until
+`setup --app soundcraft --upgrade --replace` moves it. Remove:
 
 ```bash
 python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.py setup --remove --all
@@ -159,7 +161,7 @@ against a clearly synthetic stdio fixture. It does not run the thirteen Craft ap
 `make release` orders checks, core tests and reproducible packaging; it does not
 claim native acceptance or publish anything. `make refresh-releases` and
 `make sign-releases` are the network steps the daily workflow runs (the second
-needs cosign); `make setup-confined` installs the five root-confined apps on
+needs cosign); `make setup-confined` installs the six root-confined apps on
 this machine. [Makefile](Makefile) lists all targets.
 
 ## Set up the native apps (one command)
@@ -227,8 +229,8 @@ on `bot/releases` for review (set the repository variable
 `STORYTOLD_AUTO_MERGE=true` to merge green runs automatically). Users get the
 new pins with the next plugin update.
 
-PhotoCraft, VectorCraft, EffectCraft, WordCraft and PdfCraft are confined to the
-workspace by native root flags and register by default. The other eight can read and
+PhotoCraft, VectorCraft, EffectCraft, WordCraft, SoundCraft and PdfCraft are confined to the
+workspace by native root flags and register by default. The other seven can read and
 write anything your user can, so they are installed and registered only with
 `--acknowledge-unconfined`: keep them for non-sensitive work or run them under
 OS isolation. Other platforms, air-gapped machines and custom pins use the
@@ -270,8 +272,8 @@ PhotoCraft can export a PNG for DesignCraft; DesignCraft can export a PDF for
 PdfCraft. Stop at the last verified artifact if a stage fails. No universal batch
 transaction, automatic write retry, or hidden fallback is promised.
 
-Four apps have source-documented separate read/write roots; PdfCraft has one
-root; eight apps must be treated as OS-user-wide. Neither the Skill, probe
+Five apps have source-documented separate read/write roots; PdfCraft has one
+root; seven apps must be treated as OS-user-wide. Neither the Skill, probe
 receipts nor MCP config is an OS sandbox. Other host shell/file tools also need
 appropriate permissions. See [security](SECURITY.md).
 

@@ -193,10 +193,12 @@ every release keeps the three asset names the manifest expects:
 - SoundCraft v0.7.0: `mcp` adds `--automation-read-root DIR` and
   `--automation-write-root DIR` (existing folders, refused with `--connect`;
   the open session, plug-in loading and a `--connect` app are not covered).
-  The catalog still launches plain `mcp`, so SoundCraft stays `os_only`;
-  confining it is a reviewed catalog change with local binary acceptance, as
-  1.5.0 was for WordCraft. Other unknown `mcp` flags are still ignored, and
-  `bounce_mix` has no replace guard. Tools unchanged.
+  Other unknown `mcp` flags are still ignored, and `bounce_mix` has no
+  replace guard. Tools unchanged. The catalog now launches SoundCraft with
+  both roots (`read_write`), as 1.5.0 did for WordCraft, after local binary
+  acceptance of the pinned 0.7.0 (see [verification](verification.md));
+  because 0.6.1 ignored the root flags, `preflight` refuses a SoundCraft pin
+  below 0.7.0.
 
 Source review only; the seven new binaries ran only in the workflow's verify
 jobs, not on a developer machine.

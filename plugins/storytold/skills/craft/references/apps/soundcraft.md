@@ -13,9 +13,7 @@ the `.dmg` or the ArtCraft Launcher) holds only the desktop app: install the sep
 Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/soundcraft-cli`).
 The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
-Since 0.7.0 `mcp` accepts `--automation-read-root DIR` and `--automation-write-root DIR`,
-but the catalog still launches plain `mcp`, so the registered server is unconfined.
-Assume OS-user-wide access.
+Native source documents distinct read/write roots (since 0.7.0); still test the pinned binary and OS boundary.
 
 ## Discover before execution
 
@@ -23,7 +21,7 @@ Discover session inspection, audio import, native edit commands, save and bounce
 
 ## Workflow and risky operations
 
-Headless is an offline mix engine, not a live recording/playback device session. Plain mcp has no file-root restriction. The CLI now refuses a valueless --connect or root flag and the roots combined with --connect, but still silently ignores other unknown mcp flags (0.6.1 ignored the root flags too), so keep the registered args exactly as generated. UI tools are listed headless but need the desktop app. Unrelated-target replacement and source-media deletion need explicit approval.
+Headless is an offline mix engine, not a live recording/playback device session. The catalog launches mcp with --automation-read-root (the workspace) and --automation-write-root (outputs/): open_session, every import, track.load_preset and mix.sampler_load must read inside the read root, and every save, bounce, export, preset save and score command inside the write root, together with what a session save writes beside it (Audio Files/, Backups/, its temporary file); a refused path is an ordinary tool error (automation path rejected), and session media outside the read root loads as missing. Both folders must exist at launch, each flag is given once, --connect with them is an error, and the desktop app is never confined. Not covered: path-less commands still read and change the open session (and inspect_session returns it), and plug-in discovery loads native plug-in binaries from the system folders. Before 0.7.0 the CLI ignored the root flags, so preflight refuses an older pinned SoundCraft; it still silently ignores other unknown mcp flags, so keep the registered args exactly as generated. UI tools are listed headless but need the desktop app. Unrelated-target replacement and source-media deletion need explicit approval.
 
 ## Durable verification
 

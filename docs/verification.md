@@ -18,7 +18,25 @@ SoundCraft 0.7.0), signed their archives, passed its `verify` jobs on
 pull request #4 as `f49ce1e`. Run 38883983466 changed only the review date and
 merged #5 as `5fc911a`. The seven cards were rechecked at the new tags (see the
 [source ledger](source-ledger.md)). None of the seven new binaries has run on a
-developer machine, and SoundCraft's new root flags are not used or tested.
+developer machine, except SoundCraft below.
+
+### SoundCraft confined with its root flags — October 16, 2026
+
+The reviewed catalog change launches SoundCraft with `--automation-read-root`
+and `--automation-write-root`. Same machine as 1.5.0 (macOS, Darwin 27, arm64).
+The binary installed there was 0.6.1, which ignores the flags, so the local
+acceptance ran through the documented upgrade:
+
+| Step | Result |
+|---|---|
+| `preflight --app soundcraft` before the upgrade | Refused: the pinned binary (0.6.1) predates its root flags; nothing executed. |
+| `setup --app soundcraft --upgrade --replace` | Downloaded `soundcraft-cli-0.7.0-macos-universal.zip` (6,733,366 bytes; archive hash matched the manifest and upstream sums; notarized `DJ6XS33FX8`; Sigstore bundle verified with cosign), probed the staged candidate with `mcp --automation-read-root ~/craft-work-storytold --automation-write-root ~/craft-work-storytold/outputs` (official SDK 2.3.0: protocol `2025-06-18`, server `soundcraft` 0.7.0, 17 tools, `inspect_session` answered with `isError: false`), promoted it over 0.6.1, probed it again at the installed path with the same result, and in both Codex and Claude Code removed the previous user-scope entry and registered the root-flag launch. Lock pinned to v0.7.0 (`3a28a657…`). |
+| `preflight --app soundcraft` and `setup --list` afterwards | Preflight passes with the root arguments; `setup --list` reports SoundCraft pinned to the manifest commit, hash matching, registered with both hosts. |
+
+Not done: no path outside a root was tried (denial is an M3 test), plug-in
+loading and the open session are outside the roots by design, and host
+sessions opened before the re-registration keep the old launch until
+restarted. The probe evidence stays outside the repository.
 
 ## Executed for 1.5.0 and 1.5.1 — October 14, 2026
 
