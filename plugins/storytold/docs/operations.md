@@ -107,7 +107,14 @@ everything for an app whose marker is still present.
 Apps without root flags are neither downloaded, upgraded nor registered without
 `--acknowledge-unconfined` (one already installed at its manifest pin is reported
 `installed_not_registered`); the flag records your decision for non-sensitive
-work and is not isolation. `--dry-run` prints downloads, paths and registrations;
+work and is not isolation. Without it such an app is reported
+`needs_acknowledgement` and skipped, the other selected apps are still
+processed, and the run exits non-zero. `--all` and `--app` cannot be combined,
+and `--timeout` (the probe's limit) accepts at most 120 seconds. Each change to
+the lock is guarded by a sibling `<lock>.writing` marker: a second `setup`
+running at the same time stops with a message instead of dropping a pin; if no
+setup is running and the marker is left over from a killed run, delete it.
+`--dry-run` prints downloads, paths and registrations;
 `--list` shows manifest, installed, pinned and registered state. `--remove --app
 X` takes two separate decisions. The binary is deleted only when it is a
 plain, unlinked file whose SHA-256 equals the lock entry; then that pin is
@@ -125,10 +132,16 @@ report `attention`); a host CLI that is not on PATH is reported as not
 inspected. `--remove --dry-run` prints the same report with `would …` actions
 and changes nothing. The workspace is never touched.
 Maintainers refresh the manifest with `make refresh-releases` and review the
-diff; `make sign-releases` (cosign required) downloads and signs CLIs that have
-no current bundle. In the repository this runs daily: the
+diff; `python scripts/refresh_releases.py --accept <app>` lets one app through
+the downgrade/re-publish guard after its upstream change was reviewed by hand
+(the workflow never passes it). `make sign-releases` (cosign required)
+downloads and signs CLIs that have no current bundle. In the repository this
+runs daily: the
 [release workflow](https://github.com/devsolux/storytold/blob/main/.github/workflows/releases.yml) refreshes, signs keyless
-with its GitHub OIDC identity (`id-token: write`), rebuilds the plugin, runs
+with its GitHub OIDC identity (`id-token: write`) and rebuilds the plugin in a
+job that holds no write token, hands the changed files to a `publish` job that
+runs only `git` and `gh` (the one holding `contents: write`) to commit them,
+and runs `scripts/build.py check` (the published plugin matches its sources),
 the checks, `scripts/check_bundles.py` (every pinned archive must have a
 bundle) and a real `setup --all --acknowledge-unconfined` that verifies each
 bundle with cosign, never `--trust-upstream-sums`, on Linux, Windows and macOS
@@ -410,6 +423,7 @@ For each app, `connections.apps[]` shows the desktop app, a CLI in
 | `desktop_app_only` | Run the `setup` command doctor prints (macOS, Linux x86_64, Windows x64); elsewhere install the CLI (section 0). |
 | `cli_not_registered` | The `setup` command; elsewhere sections 1–5: lock, preflight, probe, configure, register. |
 | `registered_command_missing` | The binary moved or was removed; re-run `setup` (with `--upgrade` if a stale file remains) or reinstall and re-probe by hand. |
+| `registration_unknown` | A host configuration (or the lock) could not be read; `host_config_errors` names it. Fix the file, or wait until the host stops writing it, and run `doctor` again before re-registering. |
 | `registered` | Start a new host session; check `codex mcp get <app>` or `claude mcp get <app>` and approve the server. |
 
 `doctor` reads the Codex user (`$CODEX_HOME/config.toml`) and project
@@ -418,9 +432,15 @@ For each app, `connections.apps[]` shows the desktop app, a CLI in
 (`./.mcp.json`) scopes, and reports only each server's command, never other
 settings in those files. `python3 storytold.py setup --list` adds, per app,
 whether the installed binary matches its pin (`owned`), whether that pin is
-still the manifest's commit, and the `recovery` state of any interrupted
-upgrade (`none`, `consistent`, `completable`, `reverted`, `ambiguous`,
-`corrupt`).
+still the manifest's commit, the status recorded in its probe evidence
+(`probe_evidence`, `null` when there is none), the hosts that report it
+(`registered`) and those whose `mcp get` failed for another reason than "no
+such server" (`registration_unknown`), and the `recovery` state of any
+interrupted upgrade (`none`, `consistent`, `completable`, `reverted`,
+`ambiguous`, `corrupt`). `setup --remove` archives `<app>.json`,
+`<app>-candidate.json` and `<app>-call.json` under `evidence/archive/` rather
+than deleting any of them, and keeps the binary and its pin while a
+registration it must keep (or could not inspect) still launches that binary.
 
 PATH does not matter for the connection: hosts launch the absolute `command` from
 their config. Claude user-scope servers are outside this static check; use

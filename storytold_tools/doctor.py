@@ -9,7 +9,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 import platform
+import shlex
 import shutil
+import subprocess
 import tomllib
 from typing import Mapping
 from .catalog import APP_IDS, load_catalog
@@ -23,10 +25,15 @@ NEXT = {
     'cli_not_registered': 'CLI found but no host registration; run `{cmd}` (or follow docs/operations.md sections 1-5).',
     'desktop_app_only': 'The macOS desktop app contains no MCP server; run `{cmd}` to install the notarized {exe} and register it.',
     'not_installed': 'Not installed; run `{cmd}`.',
+    'registration_unknown': 'A host configuration could not be read (see host_config_errors), so this registration is unknown; '
+                            'fix that file or wait until the host stops writing it, then run doctor again before re-registering.',
 }
 
 def setup_command(plugin_root: Path, app: str, unconfined: bool) -> str:
-    return f'python3 {plugin_root/"storytold.py"} setup --app {app}' + (' --acknowledge-unconfined' if unconfined else '')
+    # Copy-pasteable on each platform: a quoted script path (spaces in a home folder) and the usual interpreter name.
+    script = str(plugin_root/'storytold.py')
+    quoted = subprocess.list2cmdline([script]) if os.name=='nt' else shlex.quote(script)
+    return f"{'python' if os.name=='nt' else 'python3'} {quoted} setup --app {app}" + (' --acknowledge-unconfined' if unconfined else '')
 
 def default_app_dirs(home: Path) -> list[Path]:
     return [Path('/Applications'), home/'Applications'] if platform.system()=='Darwin' else []
@@ -56,14 +63,16 @@ def registrations(path: Path, key: str) -> dict[str,object]:
 def runnable(command: object) -> bool:
     return isinstance(command, str) and Path(command).is_absolute() and Path(command).is_file() and os.access(command, os.X_OK)
 
-def pins(lock_path: Path) -> dict:
-    if not lock_path.is_file(): return {}
+def pins(lock_path: Path) -> tuple[dict, str | None]:
+    """Pinned version per app, and the reason the lock could not be read (None when it is absent or fine)."""
+    if not lock_path.is_file(): return {}, None
     try:
         lock = parse_json(snapshot(lock_path, limit=MAX_JSON, body=True)[2] or b'')
-    except (OSError, ValueError):
-        return {}
+    except (OSError, ValueError) as exc:
+        return {}, str(exc)[:300]
     apps = lock.get('apps') if isinstance(lock, dict) else None
-    return {a: r.get('version') for a, r in apps.items() if isinstance(r, dict)} if isinstance(apps, dict) else {}
+    if not isinstance(apps, dict): return {}, 'the lock has no apps object'
+    return {a: r.get('version') for a, r in apps.items() if isinstance(r, dict)}, None
 
 def report(env: Mapping[str,str], cwd: Path, home: Path, app_dirs: list[Path], plugin_root: Path = ROOT) -> dict:
     catalog = load_catalog(); releases = load_releases(); found = {}; errors = []
@@ -78,7 +87,10 @@ def report(env: Mapping[str,str], cwd: Path, home: Path, app_dirs: list[Path], p
     except (OSError, ValueError) as exc:
         errors.append({'host': 'setup_state', 'config': '', 'error': str(exc)[:300]}); paths = None; state = {}
     bin_dir = env.get('CRAFT_BIN_DIR') or (paths and str(paths['bin_dir']))
-    pinned = pins(paths['lock']) if paths else {}
+    pinned, lock_error = pins(paths['lock']) if paths else ({}, None)
+    if lock_error: errors.append({'host': 'installation_lock', 'config': str(paths['lock']), 'error': lock_error})
+    # A host file that failed to parse may hold any registration: absence there is unknown, not "not registered".
+    unreadable_hosts = any(e['host'] not in {'setup_state', 'installation_lock'} for e in errors)
     rows = []
     for app in APP_IDS:
         exe = catalog[app]['executable'] + ('.exe' if os.name=='nt' else '')
@@ -90,6 +102,7 @@ def report(env: Mapping[str,str], cwd: Path, home: Path, app_dirs: list[Path], p
                 for host, (path, servers) in found.items() if app in servers]
         status = ('registered' if regs and all(r['command_runnable'] for r in regs) else
                   'registered_command_missing' if regs else
+                  'registration_unknown' if unreadable_hosts else
                   'cli_not_registered' if cli else
                   'desktop_app_only' if desktop else 'not_installed')
         unconfined = catalog[app]['confinement']=='os_only'

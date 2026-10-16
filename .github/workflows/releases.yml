@@ -1,10 +1,12 @@
 name: Daily Craft release refresh
 # Refreshes config/releases.json from the latest upstream releases, signs each
-# pinned CLI keyless with this workflow's Sigstore identity, rebuilds the plugin
-# and opens (or updates) one pull request on the bot/releases branch. A verify
-# matrix then runs the real `setup` on Linux, Windows and macOS runners. Nothing
-# reaches main without that pull request; set the repository variable
-# STORYTOLD_AUTO_MERGE=true to let a fully green run merge it.
+# pinned CLI keyless with this workflow's Sigstore identity and rebuilds the
+# plugin in a job that can read the repository and mint an OIDC token, nothing
+# more. A separate publish job, which runs no repository code, commits those
+# files to bot/releases and opens (or updates) one pull request. A verify matrix
+# then runs the real `setup` on Linux, Windows and macOS runners against exactly
+# that commit. Nothing reaches main without that pull request; set the
+# repository variable STORYTOLD_AUTO_MERGE=true to let a fully green run merge it.
 on:
   schedule:
     - cron: '23 5 * * *'
@@ -18,13 +20,12 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    # Downloads and unpacks upstream archives and runs repository code: no write token here.
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
       id-token: write
     outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
+      changed: ${{ steps.diff.outputs.changed }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -44,23 +45,61 @@ jobs:
       - run: python scripts/build.py build
       - run: python scripts/check.py
       - run: python scripts/test.py
+      - name: Detect release changes
+        id: diff
+        run: |
+          if git diff --quiet -- config/releases.json config/signatures.json plugins/storytold; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No release changes."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Hand the refreshed files to the publish job
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: refreshed-pins
+          path: |
+            config/releases.json
+            config/signatures.json
+            plugins/storytold
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+  publish:
+    needs: refresh
+    if: needs.refresh.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Holds the write token, so it runs only git and gh: no repository code, no upstream archives.
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Clear the files the refresh job regenerated (deletions must carry over too)
+        run: rm -rf config/releases.json config/signatures.json plugins/storytold
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: refreshed-pins
       - name: Commit to bot/releases and open or update the pull request
         id: commit
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if git diff --quiet -- config/releases.json config/signatures.json plugins/storytold; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No release changes."
-            exit 0
-          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git checkout -B bot/releases
-          git add config/releases.json config/signatures.json plugins/storytold
+          git add -A config/releases.json config/signatures.json plugins/storytold
           git commit -m "Refresh Craft release pins and Sigstore bundles ($(date -u +%F))"
-          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" bot/releases
-          echo "changed=true" >> "$GITHUB_OUTPUT"
+          # gh supplies the credentials to git, so the token never appears in a URL or argv.
+          gh auth setup-git
+          git push --force origin bot/releases
           # The verify jobs check out, and the merge job merges, exactly this commit.
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           body="Automated refresh of config/releases.json and config/signatures.json from the latest upstream releases on $(date -u +%F) (commit $(git rev-parse HEAD)). Review the diff: a changed app needs its card and smoke tool rechecked at the new tag. This run's verify jobs execute the real setup on Linux, Windows and macOS runners; auto-merge happens only when all three pass."
@@ -72,8 +111,8 @@ jobs:
             echo "::warning::bot/releases was pushed but no pull request could be opened. Enable 'Allow GitHub Actions to create and approve pull requests' under Settings > Actions > General, or open it yourself: https://github.com/${GITHUB_REPOSITORY}/compare/main...bot/releases"
           fi
   verify:
-    needs: refresh
-    if: always() && needs.refresh.result == 'success'
+    needs: [refresh, publish]
+    if: always() && needs.refresh.result == 'success' && (needs.publish.result == 'success' || needs.publish.result == 'skipped')
     strategy:
       fail-fast: false
       matrix:
@@ -83,7 +122,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ needs.refresh.outputs.changed == 'true' && needs.refresh.outputs.sha || github.ref }}
+          ref: ${{ needs.refresh.outputs.changed == 'true' && needs.publish.outputs.sha || github.ref }}
           persist-credentials: false
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -91,6 +130,9 @@ jobs:
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
           cosign-release: 'v3.1.3'
+      - name: The published plugin must match its sources (an incomplete hand-over fails here)
+        shell: bash
+        run: python scripts/build.py check
       - name: Every pinned archive must have a Sigstore bundle before strict verification
         shell: bash
         run: python scripts/check_bundles.py
@@ -98,7 +140,7 @@ jobs:
         shell: bash
         run: python storytold.py setup --all --acknowledge-unconfined
   merge:
-    needs: [refresh, verify]
+    needs: [refresh, publish, verify]
     if: needs.refresh.outputs.changed == 'true' && vars.STORYTOLD_AUTO_MERGE == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -109,7 +151,7 @@ jobs:
       - name: Merge the reviewed-by-CI pull request
         env:
           GH_TOKEN: ${{ github.token }}
-          VERIFIED_SHA: ${{ needs.refresh.outputs.sha }}
+          VERIFIED_SHA: ${{ needs.publish.outputs.sha }}
         run: |
           open_pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --head bot/releases --state open --json number,isCrossRepository --jq '[.[] | select(.isCrossRepository | not)][0].number')
           if [ -z "$open_pr" ]; then

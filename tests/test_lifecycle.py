@@ -119,6 +119,14 @@ class RemovalOwnershipTests(SetupCase):
         entry=r['apps'][0];self.assertEqual(entry['binary']['action'],'kept');self.assertIn('`codex mcp remove photocraft`',entry['binary']['reason'])
         self.assertTrue(self.installed('photocraft').exists());self.assertEqual(entry['pin']['action'],'kept')
 
+    def test_remove_archives_every_evidence_file_instead_of_deleting(self):
+        self.setup(['photocraft']);ev=self.paths['evidence_dir']
+        for name in ('photocraft-candidate.json','photocraft-call.json'): (ev/name).write_text('{"kept": true}')
+        r=self.remove(['photocraft']);self.assertEqual(r['status'],'ok',r)
+        for name in ('photocraft.json','photocraft-candidate.json','photocraft-call.json'): self.assertFalse((ev/name).exists(),name)
+        archived={p.name.rsplit('-2',1)[0] for p in (ev/'archive').iterdir()}
+        self.assertEqual(archived,{'photocraft','photocraft-candidate','photocraft-call'})
+
     def test_registration_in_another_scope_is_kept(self):
         self.setup(['photocraft']);self.world.claude_scope='Project config (shared via .mcp.json)'
         r=self.remove(['photocraft']);rows={x['host']:x for x in r['apps'][0]['registrations']}
@@ -263,4 +271,10 @@ class StrictProvenanceTests(unittest.TestCase):
         text=(ROOT/'.github/workflows/releases.yml').read_text();verify=text[text.index('verify:'):text.index('merge:')]
         self.assertNotIn('--trust-upstream-sums',verify);self.assertLess(verify.index('scripts/check_bundles.py'),verify.index('storytold.py setup'))
         self.assertIn('sigstore/cosign-installer@',verify);self.assertLess(text.index('scripts/sign_releases.py'),text.index('verify:'))
-        self.assertTrue(re.search(r'needs:\s*refresh',verify))
+        self.assertTrue(re.search(r'needs:\s*\[?refresh',verify));self.assertIn('scripts/build.py check',verify)
+    def test_release_workflow_keeps_the_write_token_away_from_code(self):
+        text=(ROOT/'.github/workflows/releases.yml').read_text()
+        refresh=text[text.index('\n  refresh:'):text.index('\n  publish:')];publish=text[text.index('\n  publish:'):text.index('\n  verify:')]
+        self.assertNotIn('contents: write',refresh);self.assertNotIn('pull-requests: write',refresh);self.assertIn('id-token: write',refresh)
+        self.assertIn('contents: write',publish);self.assertNotIn('python',publish);self.assertNotIn('id-token',publish)
+        self.assertNotIn('x-access-token',text);self.assertIn('gh auth setup-git',publish)

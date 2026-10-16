@@ -63,7 +63,7 @@ def parser() -> argparse.ArgumentParser:
                                    'configure':'Create NEW host config after matching native discovery+call evidence'}[name])
         s.add_argument('--bin-dir',default=default('CRAFT_BIN_DIR','bin_dir'))
         s.add_argument('--work-root',default=default('CRAFT_WORK_ROOT','work_root'))
-        s.add_argument('--output-root',default=default('CRAFT_OUTPUT_ROOT','output_root'))
+        s.add_argument('--output-root',default=os.getenv('CRAFT_OUTPUT_ROOT'),help='Default: CRAFT_OUTPUT_ROOT, else <work root>/outputs')
         s.add_argument('--lock',default=default('CRAFT_LOCK','lock'),help='Installation lock (default: CRAFT_LOCK or the path recorded by setup)')
         s.add_argument('--app',action='append')
         s.add_argument('--acknowledge-unconfined',action='store_true',help='Explicitly acknowledge OS-only scope; NOT evidence of isolation')
@@ -145,8 +145,10 @@ def main(argv: list[str] | None=None) -> int:
                 require(bool(args.call_json)==bool(args.approve_call),'--call-json and --approve-call must be supplied together')
                 # Reject destination collisions BEFORE starting a native process.
                 output=local(args.output);require(output.parent.is_dir() and not output.exists(),'probe output must be a new file in an existing directory')
+            # The output root is always <work root>/outputs, so a --work-root override must not pair with a recorded one.
+            output_root=args.output_root or (str(Path(args.work_root)/'outputs') if args.work_root else None)
             pf=preflight(required_path(args.bin_dir,'CRAFT_BIN_DIR'),required_path(args.work_root,'CRAFT_WORK_ROOT'),
-                         required_path(args.output_root,'CRAFT_OUTPUT_ROOT'),required_path(args.lock,'CRAFT_LOCK (--lock)'),apps,load_catalog(),args.acknowledge_unconfined)
+                         required_path(output_root,'CRAFT_OUTPUT_ROOT'),required_path(args.lock,'CRAFT_LOCK (--lock)'),apps,load_catalog(),args.acknowledge_unconfined)
             if cmd=='preflight': result=pf
             elif cmd=='configure': result=write_config(pf,required_path(args.evidence_dir,'CRAFT_EVIDENCE_DIR (--evidence-dir)'),args.host,local(args.output))
             else:

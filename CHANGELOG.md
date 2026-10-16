@@ -45,6 +45,31 @@ review. No version change yet.
   `<x>`; `--timeout` accepts only the probe's (0, 120] seconds before anything
   is downloaded; a non-string workspace id or receipt path is a validation
   error, not a traceback.
+- Release workflow split: the job that downloads, unpacks and signs upstream
+  archives and runs repository code now holds only `contents: read` and
+  `id-token: write`; a separate `publish` job holds the write token, runs
+  only `git` and `gh` (through `gh auth setup-git`, so no token in a URL),
+  and receives the files through the pinned `actions/upload-artifact` v7.0.1
+  and `actions/download-artifact` v8.0.1. The verify jobs also run
+  `scripts/build.py check` on the published commit. A test keeps the split.
+- `scripts/refresh_releases.py --accept <app>` lets one app through the
+  downgrade/re-publish guard after a maintainer reviewed it by hand.
+- `codex`/`claude mcp get`: only the host's own "No MCP server named" answer
+  means "not registered"; any other failure is an error in `register`, an
+  uninspectable entry that keeps the binary in `--remove`, and
+  `registration_unknown` in `setup --list`, whose `probe_evidence` now shows
+  the recorded probe status instead of "a file exists".
+- `doctor`: an unreadable host config makes a server `registration_unknown`
+  instead of "not registered" or "not installed"; a corrupt lock is reported
+  in `host_config_errors` instead of being read as empty; the printed setup
+  command quotes its path and says `python` on Windows.
+- `setup`: an unacknowledged unconfined app is reported
+  `needs_acknowledgement` and skipped while the other selected apps are still
+  processed; lock updates are serialized with a `<lock>.writing` marker so
+  parallel runs cannot drop each other's pins; `--remove` archives the
+  candidate and call evidence instead of deleting it; `preflight`, `probe`
+  and `configure` derive the output root from `--work-root` unless
+  `--output-root` or `CRAFT_OUTPUT_ROOT` is given.
 - Docs: the READMEs say what the confined apps really read (the whole
   workspace) and write (`outputs/`); operations corrects the unconfined-app
   rule, adds `not_installed` to the doctor table and documents the workflow

@@ -109,4 +109,13 @@ class DoctorTests(unittest.TestCase):
         (self.home/'.claude.json').write_text('{not json')
         r,apps=self.run_report()
         self.assertEqual({e['host'] for e in r['host_config_errors']},{'codex','claude_project','claude_user'})
-        self.assertEqual(apps['photocraft']['status'],'not_installed')
+        # An unreadable host file may hold the registration: unknown, never "not installed" or "not registered".
+        self.assertEqual(apps['photocraft']['status'],'registration_unknown');self.assertIn('could not be read',apps['photocraft']['next'])
+
+    def test_corrupt_lock_is_reported_not_swallowed(self):
+        from storytold_tools.setup import state_dir
+        state=state_dir(self.env,self.home);state.mkdir(parents=True)
+        (state/'installations.lock.json').write_text('{truncated')
+        r,apps=self.run_report()
+        self.assertEqual([e['host'] for e in r['host_config_errors']],['installation_lock'])
+        self.assertIsNone(apps['gridcraft']['pinned_version']);self.assertEqual(apps['gridcraft']['status'],'not_installed')

@@ -188,9 +188,20 @@ class MacSetupTests(SetupCase):
         r=self.setup(['vectorcraft'],upgrade=True)
         self.assertEqual(r['status'],'failed');self.assertIn('Sigstore verification failed',r['apps'][0]['error'])
 
+    def test_unacknowledged_app_is_skipped_and_the_rest_still_processed(self):
+        r=self.setup(['cadcraft','photocraft']);rows={a['app']:a for a in r['apps']}
+        self.assertEqual(rows['cadcraft']['status'],'needs_acknowledgement');self.assertEqual(rows['photocraft']['status'],'registered')
+        self.assertEqual(r['status'],'failed');self.assertFalse(self.installed('cadcraft').exists());self.assertTrue(self.installed('photocraft').exists())
+    def test_a_held_lock_marker_stops_the_writer_instead_of_losing_pins(self):
+        self.setup(['photocraft']);marker=self.lock.with_name(self.lock.name+'.writing');marker.write_text('4242')
+        with self.assertRaisesRegex(StorytoldError,'another setup run is changing'):
+            s.pin(self.lock,'cadcraft',{'commit':'c'*40},'d'*64,'0.1.0 (test)')
+        self.assertNotIn('cadcraft',load_json(self.lock)['apps']);marker.unlink()
+        s.pin(self.lock,'cadcraft',{'commit':'c'*40},'d'*64,'0.1.0 (test)')
+        self.assertIn('cadcraft',load_json(self.lock)['apps']);self.assertFalse(marker.exists())
     def test_unconfined_app_needs_acknowledgement_before_any_download(self):
         r=self.setup(['cadcraft']);entry=r['apps'][0]
-        self.assertEqual(entry['status'],'failed');self.assertIn('--acknowledge-unconfined',entry['error'])
+        self.assertEqual(entry['status'],'needs_acknowledgement');self.assertIn('--acknowledge-unconfined',entry['error']);self.assertEqual(r['status'],'failed')
         self.assertFalse(self.installed('cadcraft').exists());self.assertFalse(any(c[0]=='fetch' for c in self.world.calls))
         r=self.setup(['cadcraft'],acknowledge_unconfined=True)
         self.assertEqual(r['apps'][0]['status'],'registered');self.assertEqual(self.world.hosts['codex']['cadcraft']['args'],['mcp'])
@@ -453,6 +464,12 @@ class PlatformTests(unittest.TestCase):
         self.assertEqual(calls,[])
         s.host_add('codex','photocraft','C:\\Users\\ab\\bin\\photocraft-cli.exe',['mcp'],run,lambda h:'C:\\x\\codex.cmd')
         self.assertEqual(calls[0][:4],['cmd.exe','/d','/c','C:\\x\\codex.cmd'])
+    def test_mcp_get_failure_is_not_absence(self):
+        broken=lambda argv:(1,'','Error: failed to parse config.toml')
+        for host in ('codex','claude'):
+            with self.assertRaisesRegex(StorytoldError,'could not be inspected'): s.host_get(host,'photocraft',broken,lambda h:'/fake/'+h)
+            for answer in ("Error: No MCP server named 'photocraft' found.",'No MCP server named "photocraft". Configured servers: x'):
+                self.assertIsNone(s.host_get(host,'photocraft',lambda argv,a=answer:(1,'',a),lambda h:'/fake/'+h))
     def test_codex_get_with_broken_json_is_a_parse_error_not_absence(self):
         current=s.host_get('codex','photocraft',lambda argv:(0,'not json',''),lambda h:'/fake/codex')
         self.assertIsNotNone(current);self.assertTrue(current['parse_error']);self.assertFalse(s.registration_matches(current,'/x',['mcp']))

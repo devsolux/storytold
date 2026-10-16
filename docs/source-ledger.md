@@ -212,11 +212,13 @@ The workflow uses reviewed full-commit action references:
 - [actions/checkout v7.0.1](https://github.com/actions/checkout/commit/3d3c42e5aac5ba805825da76410c181273ba90b1): `3d3c42e5aac5ba805825da76410c181273ba90b1`.
 - [actions/setup-python v7.0.0](https://github.com/actions/setup-python/commit/5fda3b95a4ea91299a34e894583c3862153e4b97): `5fda3b95a4ea91299a34e894583c3862153e4b97`.
 - [sigstore/cosign-installer v4.1.2](https://github.com/sigstore/cosign-installer/commit/6f9f17788090df1f26f669e9d70d6ae9567deba6): `6f9f17788090df1f26f669e9d70d6ae9567deba6`, installing cosign v3.1.3 (the release workflow only).
+- [actions/upload-artifact v7.0.1](https://github.com/actions/upload-artifact/commit/043fb46d1a93c77aae656e7c1c64a875d1fc6a0a): `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` and [actions/download-artifact v8.0.1](https://github.com/actions/download-artifact/commit/3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c): `3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c`, carrying the refreshed files from the token-less refresh job to the publish job (release workflow only; reviewed 2026-10-16). Deliberately not the newest v7.0.2/v8.0.2 of 2026-10-07, which only add rate-limit retries.
 
-Both tags resolve to those commits and were the latest releases on the review
-date, but GitHub Actions was not executed. Python 3.11/3.13 and
-Linux/macOS/Windows matrix entries are **configured targets**, not a claim that
-every combination was run. MCP is the only optional direct runtime dependency;
+Each tag resolved to the listed commit when it was reviewed. The CI matrix
+(Python 3.11/3.13 on Linux, macOS and Windows, plus the SDK contract job) ran
+in full on the 2026-10-16 push of `main` (run 38927511616), and the release
+workflow runs daily; none of this was executed locally. The artifact actions
+first run with the release workflow after this change. MCP is the only optional direct runtime dependency;
 its transitive resolution was installed for the SDK test but is not locked.
 Recheck releases before an intentional upgrade and run both core and SDK/native
 acceptance tests.

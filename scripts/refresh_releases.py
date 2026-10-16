@@ -7,6 +7,7 @@ for all supported platforms. Review the diff and rerun make check before
 committing; nothing is downloaded or executed beyond those small metadata files.
 """
 from __future__ import annotations
+import argparse
 from datetime import date
 import json
 import os
@@ -51,8 +52,10 @@ def guard(app: str, pinned: dict, latest: dict) -> None:
             require(before == asset, f"{app}: {asset['name']} was re-published under the unchanged tag {latest['tag']}; review it by hand")
 
 
-def refresh(token: str | None) -> dict:
+def refresh(token: str | None, accept: frozenset[str] = frozenset()) -> dict:
+    """`accept` names apps whose guarded change a maintainer reviewed by hand; the workflow never passes it."""
     current = load_releases()
+    require(accept <= set(APP_IDS), f'unknown app in --accept: {", ".join(sorted(accept - set(APP_IDS)))}')
     apps = {}
     changed = []
     for app in APP_IDS:
@@ -69,7 +72,7 @@ def refresh(token: str | None) -> dict:
             assets[plat] = {'name': name, 'sha256': published_hash(sums, name), 'bytes': by_name[name]}
         commit = json.loads(get(API + app + '/commits/' + tag, token))['sha']
         row = {'tag': tag, 'commit': commit, 'version': version, 'smoke_tool': current['apps'][app]['smoke_tool'], 'assets': assets}
-        guard(app, current['apps'][app], row)
+        if app not in accept: guard(app, current['apps'][app], row)
         if row != current['apps'][app]:
             changed.append(app)
         apps[app] = row
@@ -88,9 +91,13 @@ def refresh(token: str | None) -> dict:
             'note': 'Review the diff. A changed app needs its card and smoke tool rechecked at the new tag; run sign_releases.py next.'}
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(description='Rewrite config/releases.json from the latest upstream releases, for review.')
+    p.add_argument('--accept', action='append', default=[], metavar='APP',
+                   help='Skip the downgrade/re-publish guard for APP after reviewing that upstream change by hand (repeatable)')
+    args = p.parse_args(argv)
     try:
-        sys.stdout.buffer.write(encoded(refresh(os.getenv('GITHUB_TOKEN'))))
+        sys.stdout.buffer.write(encoded(refresh(os.getenv('GITHUB_TOKEN'), frozenset(args.accept))))
         return 0
     except (OSError, ValueError, KeyError, TypeError) as exc:
         print('storytold refresh-releases: ' + str(exc), file=sys.stderr)
