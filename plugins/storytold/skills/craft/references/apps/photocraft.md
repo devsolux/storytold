@@ -17,7 +17,7 @@ Native source documents distinct read/write roots; still test the pinned binary 
 
 ## Discover before execution
 
-Discover document inspection, registry search and save/export tools. Tools include doc_inspect, doc_new, doc_open, doc_place, doc_save, doc_export, doc_export_layers, doc_export_data_sets, doc_import_data_sets, doc_render_preview/render_preview, command_list, command_run and command_batch; ui_* and control_call return a bridge-only error headless. doc_inspect reports hasMask, hasVectorMask and vectorMaskEnabled per layer. Resolve the actual tool names and schemas, never guess a command id.
+Discover document inspection, registry search and save/export tools. Tools include doc_inspect, doc_new, doc_open, doc_place, doc_save, doc_export, doc_export_layers, doc_export_data_sets, doc_import_data_sets, doc_render_preview/render_preview, command_list, command_run and command_batch; ui_* and control_call return a bridge-only error headless. doc_inspect reports hasMask, hasVectorMask and vectorMaskEnabled per layer, and an adjustment {kind, params} on adjustment layers. doc_save and doc_export take dpxBits (8, 10, 12 or 16) for DPX; .kra and .krz open import-only. Resolve the actual tool names and schemas, never guess a command id.
 
 ## Workflow and risky operations
 
@@ -25,12 +25,12 @@ Inspect layer tree, dimensions, masks and colour mode/depth (doc_inspect has no 
 
 ## Durable verification
 
-Confirm pixel dimensions, layers where relevant, colour/profile expectations and visual appearance after reopening. PSD/interchange need not retain every native feature. A successful tool call is not a durable save: a flat PNG/JPEG export leaves the document unsaved; only a PSD, PSB, ORA or .pcraft save marks it saved.
+Confirm pixel dimensions, layers where relevant, colour/profile expectations and visual appearance after reopening. PSD/interchange need not retain every native feature. A successful tool call is not a durable save: a flat PNG/JPEG/DPX export leaves the document unsaved; only a PSD, PSB or .pcraft save marks it saved. An ORA save counts only when OpenRaster loses nothing: with masks, styles, adjustment, text, shape or smart layers, clipping, alpha channels, metadata or a non-sRGB profile it writes a copy, the document stays unsaved and a path-less doc_save refuses.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-14 against the upstream
+Reference, app-specific section, rechecked on 2026-10-16 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/photocraft/blob/main/docs/mcp.md).
 The binary has passed discovery and a read-only smoke call; see

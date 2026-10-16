@@ -8,6 +8,18 @@ below): twelve on a developer Mac and on GitHub runners, FigCraft (added in
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Release workflow runs after 1.5.1 — October 15 and 16, 2026
+
+The scheduled run 38717981671 moved seven pins (CADCraft 0.7.0, EffectCraft
+0.10.0, FilmCraft 0.8.0, GridCraft 0.7.0, LightCraft 0.8.0, PhotoCraft 0.9.0,
+SoundCraft 0.7.0), signed their archives, passed its `verify` jobs on
+`ubuntu-latest`, `windows-latest` and `macos-latest` (the real
+`setup --all --acknowledge-unconfined` with each app's smoke tool) and merged
+pull request #4 as `f49ce1e`. Run 38883983466 changed only the review date and
+merged #5 as `5fc911a`. The seven cards were rechecked at the new tags (see the
+[source ledger](source-ledger.md)). None of the seven new binaries has run on a
+developer machine, and SoundCraft's new root flags are not used or tested.
+
 ## Executed for 1.5.0 and 1.5.1 — October 14, 2026
 
 Same machine and gates as 1.4.1 (`make release`, `make test-sdk`,

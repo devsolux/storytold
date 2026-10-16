@@ -156,6 +156,51 @@ as `6fee7db`. Same recheck as above; no `mcp` launch flag changed:
   without running them; new resources and 3D effect parameters. Launch flags
   unchanged (`--headless`, both roots).
 
+## Release-tag recheck of the seven apps moved by pull request #4 — 2026-10-16
+
+The scheduled run 38717981671 moved CADCraft to v0.7.0, EffectCraft to v0.10.0,
+FilmCraft to v0.8.0, GridCraft to v0.7.0, LightCraft to v0.8.0, PhotoCraft to
+v0.9.0 and SoundCraft to v0.7.0, verified on the three runners and merged as
+`f49ce1e`; run 38883983466 changed only the review date (`5fc911a`). Same
+recheck as above. Every catalog launch is still accepted, every smoke tool
+still exists without required parameters, no tool was removed or renamed, and
+every release keeps the three asset names the manifest expects:
+
+- CADCraft v0.7.0: `mcp` adds `--lazy` and `--launch`, both only with
+  `--connect` (`--launch` opens the desktop app on macOS); still no root flag.
+  New `find_text` tool, `render` takes a `window`, and `inspect_drawing`
+  reports `skipped` records. New AutoLISP: `(expr)` in `command_line` or
+  `script`, `execute lisp` and `appload` run code whose `open`, `write-line`,
+  `load` and `findfile` use the file system without a root check, so the card
+  and the safety list treat it as a script.
+- EffectCraft v0.10.0: CLI parser, MCP tools and `docs/mcp.md` unchanged; new
+  engine commands only. Card unchanged except its recheck date.
+- FilmCraft v0.8.0: CLI parser, MCP tools and `docs/agents.md` unchanged; one
+  new engine command (`edit.rippleDeleteHead`). Card unchanged except its date.
+- GridCraft v0.7.0: `mcp` still takes only `--connect`, `--in` and `--sample`;
+  tools unchanged; `set_cell` accepts numbers and booleans and malformed
+  `oneOf` arguments return -32602. Save now refuses an unknown extension,
+  sheet names XLSX cannot hold, CSV/TSV over 512 MiB and HTML over 100,001
+  rows. The card's "legacy .xls is refused" was wrong at both tags: BIFF8
+  imports partially, and XLS, XLSB and ODS are all import-only.
+- LightCraft v0.8.0: `mcp` flags and helper tools unchanged; `export` gains
+  `rendereddng`, a linear 16-bit float DNG with the edit baked in.
+- PhotoCraft v0.9.0: `mcp` parser and root semantics unchanged; the same 25
+  tools. `doc_save`/`doc_export` take `dpxBits`, `doc_inspect` reports an
+  adjustment layer's `{kind, params}`, `.kra`/`.krz` open import-only, and an
+  `.ora` save that would lose content writes a copy and leaves the document
+  unsaved (a path-less save refuses).
+- SoundCraft v0.7.0: `mcp` adds `--automation-read-root DIR` and
+  `--automation-write-root DIR` (existing folders, refused with `--connect`;
+  the open session, plug-in loading and a `--connect` app are not covered).
+  The catalog still launches plain `mcp`, so SoundCraft stays `os_only`;
+  confining it is a reviewed catalog change with local binary acceptance, as
+  1.5.0 was for WordCraft. Other unknown `mcp` flags are still ignored, and
+  `bounce_mix` has no replace guard. Tools unchanged.
+
+Source review only; the seven new binaries ran only in the workflow's verify
+jobs, not on a developer machine.
+
 ## Build infrastructure
 
 The workflow uses reviewed full-commit action references:

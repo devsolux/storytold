@@ -17,11 +17,11 @@ No native MCP root restriction is established here. Assume OS-user-wide access.
 
 ## Discover before execution
 
-Discover workbook inspection, bounded range reads, formula evaluation, native edits and save. Preserve numbers, text, booleans, nulls and error objects (for example {"error":"#DIV/0!"}) as their actual types. Tools include inspect_workbook, read_range, get_cell, set_cell, write_range, evaluate_formula, execute_command and save_workbook.
+Discover workbook inspection, bounded range reads, formula evaluation, native edits and save. Preserve numbers, text, booleans, nulls and error objects (for example {"error":"#DIV/0!"}) as their actual types. Tools include inspect_workbook, read_range, get_cell, set_cell, write_range, evaluate_formula, execute_command and save_workbook. set_cell input takes a string, number or boolean; a malformed format_range borders or sort_range keys argument is refused as invalid params (-32602).
 
 ## Workflow and risky operations
 
-GridCraft owns formula calculation; do not substitute another model or recompute accounting truth in this Skill. The sources establish no native root flag. XLSB and ODS import values only, XLSB cannot be written and legacy .xls is refused; none of these round-trips.
+GridCraft owns formula calculation; do not substitute another model or recompute accounting truth in this Skill. mcp takes only --connect, --in and --sample, so no native root flag exists; never use --connect. XLSB and ODS import values only and legacy .xls (BIFF8) imports partially (formulas with cached results, no styles, charts or comments; encrypted and BIFF5 files refused); none of the three can be saved, so none round-trips. Save refuses an unknown extension (write .xlsx, .csv, .tsv, .json or .html), sheet names XLSX cannot hold, CSV/TSV over 512 MiB and HTML over 100,001 rows.
 
 ## Durable verification
 
@@ -30,7 +30,7 @@ Save XLSX where supported, reopen, compare formulas and recalculated/typed value
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-12 against the upstream
+Reference, app-specific section, rechecked on 2026-10-16 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/gridcraft/blob/main/docs/mcp.md) and [format limits](https://github.com/storytold/gridcraft/blob/main/docs/file-format-parity.md).
 Pin the source revision and executable hash, verify help/flags and current

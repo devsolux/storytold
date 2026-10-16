@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+Documentation only; no code, catalog or version change.
+
+- The scheduled release runs 38717981671 and 38883983466 merged pull requests
+  #4 and #5: CADCraft 0.7.0, EffectCraft 0.10.0, FilmCraft 0.8.0, GridCraft
+  0.7.0, LightCraft 0.8.0, PhotoCraft 0.9.0 and SoundCraft 0.7.0, with the
+  real `setup` passing on the Linux, Windows and macOS runners.
+- The seven cards were rechecked at the new tags; no catalog launch flag or
+  smoke tool changed. CADCraft's card covers `find_text`, `--lazy`/`--launch`
+  and the new AutoLISP, whose file functions reach any path, so the safety
+  list now names it among scripts. GridCraft's card corrects `.xls` (partial
+  BIFF8 import, not refused) and lists the new save refusals. PhotoCraft's
+  covers the lossy-ORA copy rule, `dpxBits` and Krita import, LightCraft's
+  `rendereddng`, and SoundCraft's the root flags 0.7.0 accepts but the
+  catalog does not pass yet, plus `bounce_mix` overwriting. EffectCraft's and
+  FilmCraft's only change their recheck dates. The source ledger records it.
+- AGENTS.md and `.claude/CLAUDE.md`: pull `main` first because the workflow
+  merges on its own, finish every pin move with a card recheck and a ledger
+  entry, treat a launch-flag change as a catalog change with local binary
+  acceptance and `--upgrade --replace`, and push, tag or release only on the
+  operator's request. The Skill notes that cards describe the pinned release
+  and that an older installed binary's live tool list wins.
+
 ## 1.5.1 — 2026-10-14
 
 Documentation and pin release; no code change.

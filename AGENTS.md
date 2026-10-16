@@ -9,10 +9,21 @@ remote transport belongs in this project.
 Work on the main branch only. There is no development, feature or release
 branch: commit directly to main, and push main only when the operator asks.
 The daily release workflow's bot/releases pull request is the one exception,
-and it is merged into main. Upstream references in app cards, the catalog's
-documentation links and the docs point at each Craft repository's main branch,
-never at a release tag or version number; release pins belong only in
-config/releases.json, which the workflow regenerates.
+and it is merged into main on its own, so start with `git pull --ff-only origin
+main` (or `make github-pull`) before reading or editing. Upstream references in
+app cards, the catalog's documentation links and the docs point at each Craft
+repository's main branch, never at a release tag or version number; release
+pins belong only in config/releases.json and config/signatures.json, which the
+workflow regenerates and nobody edits by hand.
+
+A merged pin move is not finished until each moved app is rechecked at its new
+tag: the CLI's `mcp` parser, MCP docs and tool definitions, the smoke tool,
+packaging and release assets. Update the card (its recheck date included) and
+record the findings, including "card unchanged", in docs/source-ledger.md. A
+change to an app's launch arguments or confinement in config/apps.json is a
+reviewed catalog change: source review plus a local `preflight` and `probe` of
+the pinned binary, and because it changes the registration `setup` writes,
+existing installs re-register with `setup --app <app> --upgrade --replace`.
 
 Read relevant source, configuration, and tests before editing. Canonical sources
 are skills/, config/, storytold_tools/, scripts/, and docs/. plugins/storytold/
@@ -37,3 +48,11 @@ Do not copy native command registries or reimplement rendering/document engines.
 Run make check, make test, make build, and make verify-build after changes. Keep
 native-host acceptance separate from offline/synthetic test results. Build input
 allowlists and generated-file ownership checks must preserve unexpected edits.
+Commit the regenerated plugins/storytold together with the source change that
+produced it; public installs read it from main.
+
+A release bumps packaging/project.json and updates CHANGELOG.md,
+docs/verification.md and docs/source-ledger.md together, then passes make
+release, make test-sdk and, with the Claude CLI installed, make host-validate.
+Pushing main, the lightweight `v<version>` tag and the GitHub release happen
+only when the operator asks, never as a side effect of a commit.

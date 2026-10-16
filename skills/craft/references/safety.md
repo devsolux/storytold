@@ -13,7 +13,8 @@ FigCraft must be treated as OS-user-wide unless the pinned binary proves otherwi
 External OS isolation is required when confidential data or strong confinement
 matters. Other host shell/file tools are not restricted by native MCP roots.
 
-Do not enable control ports, --connect, --bridge, --attach, scripts, macros, move-import or
+Do not enable control ports, --connect, --bridge, --attach, scripts (CADCraft's AutoLISP
+included), macros, move-import or
 unrelated-target replacement automatically. Keep one writer per artifact/library.
 Do not remove lock files or bypass host approvals. The default Skill has no
 allowed-tools grant, hooks, automatic host enablement or hidden execution step.
