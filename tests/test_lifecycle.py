@@ -10,6 +10,8 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 import re
+import subprocess
+import sys
 import unittest
 from unittest import mock
 from storytold_tools import setup as s
@@ -148,12 +150,52 @@ class RemovalOwnershipTests(SetupCase):
         self.assertEqual([x['action'] for x in entry['registrations']],['kept','kept']);self.assertIn('no pin',entry['registrations'][0]['reason'])
         self.assertEqual(entry['binary']['action'],'kept');self.assertEqual(self.mcp_mutations(),[]);self.assertTrue(self.installed('photocraft').exists())
 
-    def test_missing_host_cli_is_reported_not_guessed(self):
+    def test_missing_host_cli_is_read_from_its_user_scope_file_not_guessed(self):
         self.setup(['photocraft']);self.world.available={'codex'}
-        r=self.remove(['photocraft']);rows={x['host']:x for x in r['apps'][0]['registrations']}
-        self.assertEqual(rows['claude']['action'],'none');self.assertIn('not inspected',rows['claude']['reason']);self.assertEqual(r['status'],'ok')
-        self.setup(['vectorcraft'],hosts=['codex']);r=self.remove(['vectorcraft'],hosts=['claude']);self.assertEqual(r['status'],'attention')
-        self.assertEqual(r['apps'][0]['registrations'][0]['action'],'kept')
+        # claude is off PATH but ~/.claude.json still launches the binary: deleting it would leave claude a dangling server.
+        r=self.remove(['photocraft']);entry=r['apps'][0];rows={x['host']:x for x in entry['registrations']}
+        self.assertEqual(rows['codex']['action'],'unregister');self.assertEqual(rows['claude']['action'],'kept');self.assertIn('still registers photocraft',rows['claude']['reason'])
+        self.assertEqual(r['status'],'attention');self.assertEqual(entry['binary']['action'],'kept');self.assertEqual(entry['pin']['action'],'kept')
+        self.assertTrue(self.installed('photocraft').exists());self.assertIn('photocraft',load_json(self.home/'.claude.json')['mcpServers'])
+        self.world.available={'codex','claude'};r=self.remove(['photocraft'])
+        self.assertEqual(r['status'],'ok',r);self.assertFalse(self.installed('photocraft').exists());self.assertEqual(self.world.hosts['claude'],{})
+        # A host whose user-scope file has no entry is reported as such and blocks nothing.
+        self.world.available={'codex'};self.setup(['wordcraft']);r=self.remove(['wordcraft']);rows={x['host']:x for x in r['apps'][0]['registrations']}
+        self.assertEqual(rows['claude']['action'],'none');self.assertIn('no entry',rows['claude']['reason']);self.assertEqual(r['status'],'ok');self.assertFalse(self.installed('wordcraft').exists())
+        # Named explicitly but absent from PATH: never reported as cleanly removed.
+        self.setup(['vectorcraft'],hosts=['codex']);r=self.remove(['vectorcraft'],hosts=['claude']);rows={x['host']:x for x in r['apps'][0]['registrations']}
+        self.assertEqual(r['status'],'attention');self.assertEqual(rows['claude']['action'],'kept');self.assertIn('could not be inspected',rows['claude']['reason'])
+        self.assertEqual(rows['codex']['action'],'kept');self.assertTrue(self.installed('vectorcraft').exists())
+
+    def test_host_limited_removal_keeps_the_binary_another_host_launches(self):
+        self.setup(['photocraft'])
+        r=self.remove(['photocraft'],hosts=['claude']);entry=r['apps'][0];rows={x['host']:x for x in entry['registrations']}
+        self.assertEqual(rows['claude']['action'],'unregister');self.assertEqual(rows['codex']['action'],'kept');self.assertIn('--host codex',rows['codex']['reason'])
+        self.assertEqual(r['status'],'attention');self.assertEqual(entry['binary']['action'],'kept');self.assertEqual(entry['pin']['action'],'kept');self.assertIsNone(entry['evidence'])
+        self.assertTrue(self.installed('photocraft').exists());self.assertIn('photocraft',self.world.hosts['codex']);self.assertIn('photocraft',load_json(self.lock)['apps'])
+        r=self.remove(['photocraft'],hosts=['codex']);entry=r['apps'][0];rows={x['host']:x for x in entry['registrations']}
+        self.assertEqual(r['status'],'ok',r);self.assertEqual(rows['codex']['action'],'unregister');self.assertEqual(rows['claude']['action'],'none')
+        self.assertEqual(entry['binary']['action'],'delete');self.assertEqual(entry['pin']['action'],'drop');self.assertEqual(self.world.hosts,{'codex':{},'claude':{}})
+
+    def test_failed_unregistration_is_reported_and_the_rest_continues(self):
+        self.setup(['photocraft']);self.setup(['vectorcraft']);self.world.fail_remove={'claude'}
+        r=self.remove(['photocraft','vectorcraft']);self.assertEqual(r['status'],'attention')
+        for entry in r['apps']:
+            rows={x['host']:x for x in entry['registrations']}
+            self.assertEqual(rows['codex']['action'],'unregister');self.assertEqual(rows['claude']['action'],'kept');self.assertIn('removal failed',rows['claude']['reason'])
+            self.assertEqual(entry['binary']['action'],'kept');self.assertEqual(entry['pin']['action'],'kept');self.assertTrue(self.installed(entry['app']).exists())
+        self.world.fail_remove=set();r=self.remove(['photocraft','vectorcraft'])
+        self.assertEqual(r['status'],'ok',r);self.assertEqual(load_json(self.lock)['apps'],{});self.assertEqual(self.world.hosts,{'codex':{},'claude':{}})
+
+    def test_pin_outlives_a_registration_that_could_not_be_inspected(self):
+        self.setup(['photocraft']);self.installed('photocraft').unlink()
+        def flaky(argv):
+            if Path(argv[0]).name=='claude' and argv[2]=='get': return (2,'','claude: config is being written')
+            return self.world.run(argv)
+        r=self.remove(['photocraft'],run=flaky);entry=r['apps'][0];rows={x['host']:x for x in entry['registrations']}
+        self.assertEqual(r['status'],'attention');self.assertEqual(rows['claude']['action'],'kept');self.assertEqual(entry['pin']['action'],'kept')
+        self.assertIn('photocraft',load_json(self.lock)['apps'])  # without the pin, the next run could never prove the claude entry is Storytold's
+        r=self.remove(['photocraft']);self.assertEqual(r['status'],'ok',r);self.assertEqual(r['apps'][0]['pin']['action'],'drop');self.assertEqual(self.world.hosts['claude'],{})
 
     def test_removal_is_idempotent(self):
         self.setup(['photocraft']);first=self.remove(['photocraft']);self.assertEqual(first['status'],'ok')
@@ -164,6 +206,72 @@ class RemovalOwnershipTests(SetupCase):
         self.setup(['photocraft']);self.installed('photocraft').unlink()  # binary gone, pin and registration remain
         r=self.remove(['photocraft']);entry=r['apps'][0];self.assertEqual(r['status'],'ok')
         self.assertEqual([x['action'] for x in entry['registrations']],['unregister','unregister']);self.assertEqual(entry['pin']['action'],'drop');self.assertEqual(self.world.hosts,{'codex':{},'claude':{}})
+
+class OperatorIntentTests(SetupCase):
+    """A run does what the operator asked, refuses what it cannot do, and its preview says the same."""
+    def test_a_second_changing_run_is_refused_while_one_holds_the_run_lock(self):
+        self.setup(['photocraft']);before=self.snapshot_state();self.world.calls.clear()
+        with s.single_run(self.paths['state_dir']):
+            with self.assertRaisesRegex(StorytoldError,'another setup run'): self.setup(['vectorcraft'])
+            with self.assertRaisesRegex(StorytoldError,'another setup run'): self.remove(['photocraft'])
+            self.assertTrue(self.setup(['vectorcraft'],dry_run=True)['dry_run']);self.assertEqual(self.remove(['photocraft'],dry_run=True)['status'],'ok')  # previews take no lock
+        self.assertEqual(self.snapshot_state(),before);self.assertEqual(self.mcp_mutations(),[]);self.assertFalse(self.installed('vectorcraft').exists())
+        self.assertEqual(self.setup(['vectorcraft'])['status'],'passed')
+
+    def test_the_run_lock_is_released_when_its_holder_is_killed(self):
+        state=self.paths['state_dir'];state.mkdir(parents=True,mode=0o700)
+        code='import sys,time\nfrom pathlib import Path\nfrom storytold_tools import setup as s\nwith s.single_run(Path(sys.argv[1])):\n    print("held",flush=True);time.sleep(60)\n'
+        child=subprocess.Popen([sys.executable,'-c',code,str(state)],cwd=ROOT,stdout=subprocess.PIPE,text=True)
+        try:
+            self.assertEqual(child.stdout.readline().strip(),'held')
+            with self.assertRaisesRegex(StorytoldError,'another setup run'):
+                with s.single_run(state): pass
+        finally:
+            child.kill();child.wait();child.stdout.close()
+        with s.single_run(state): pass  # no cleanup ran in the killed holder; the OS released the lock
+
+    def test_an_explicitly_named_host_that_is_missing_fails_the_run(self):
+        self.world.available={'claude'}
+        r=self.setup(['photocraft'],hosts=['codex']);self.assertEqual(r['status'],'failed');self.assertEqual(r['apps'][0]['status'],'installed_no_host_cli')
+        self.assertIn('codex',r['warnings'][0]);self.assertEqual(self.world.hosts['claude'],{})
+        r=self.setup(['photocraft'],hosts=['codex','claude']);self.assertEqual(r['status'],'failed');self.assertEqual(r['apps'][0]['status'],'registered')
+        self.assertIn('photocraft',self.world.hosts['claude']);self.assertEqual(self.setup(['photocraft'])['status'],'passed')  # no --host: every CLI on PATH
+
+    def test_an_unacknowledged_app_is_skipped_and_never_stops_the_batch(self):
+        self.setup(['cadcraft'],acknowledge_unconfined=True);old=self.installed('cadcraft').read_bytes()
+        self.world.releases['apps']['cadcraft']['commit']='0a1b2c3d'*5;self.world.set_archive('cadcraft',b'SYNTHETIC cadcraft v2')
+        self.installed('filmcraft').write_bytes(b'not storytold')
+        r=self.setup(['filmcraft','cadcraft','soundcraft']);rows={a['app']:a for a in r['apps']}
+        self.assertEqual(rows['filmcraft']['status'],'needs_acknowledgement');self.assertIn('move it aside',rows['filmcraft']['error'])
+        self.assertEqual(rows['cadcraft']['status'],'needs_acknowledgement');self.assertIn('--upgrade',rows['cadcraft']['error'])
+        self.assertEqual(rows['soundcraft']['status'],'registered');self.assertEqual(r['status'],'failed')
+        self.assertEqual(self.installed('cadcraft').read_bytes(),old);self.assertEqual(self.installed('filmcraft').read_bytes(),b'not storytold')
+
+    def test_dry_run_predicts_what_the_real_run_does(self):
+        self.setup(['photocraft']);self.installed('vectorcraft').write_bytes(b'not storytold');before=self.snapshot_state();self.world.calls.clear()
+        r=self.setup(['photocraft','vectorcraft','wordcraft'],dry_run=True);rows={a['app']:a for a in r['apps']}
+        self.assertEqual((rows['photocraft']['binary'],rows['photocraft']['download'],rows['photocraft']['predicted_status']),('keep',None,'registered'))
+        self.assertEqual(rows['photocraft']['registrations'],{'codex':'already_registered','claude':'already_registered'})
+        self.assertEqual((rows['vectorcraft']['binary'],rows['vectorcraft']['predicted_status']),('refuse','failed'));self.assertIn('move it aside',rows['vectorcraft']['reason'])
+        self.assertEqual(rows['wordcraft']['predicted_status'],'not_reached');self.assertFalse(r['would_pass'])
+        self.assertEqual(self.snapshot_state(),before);self.assertEqual(self.world.calls,[])
+        real=self.setup(['photocraft','vectorcraft','wordcraft']);self.assertEqual([a['status'] for a in real['apps']],['registered','failed'])
+        # A moved pin needs --upgrade; a differing registration needs --replace.
+        self.installed('vectorcraft').unlink();self.world.releases['apps']['photocraft']['commit']='0a1b2c3d'*5;self.world.set_archive('photocraft',b'SYNTHETIC v2')
+        self.world.hosts['codex']['vectorcraft']={'command':'/elsewhere/vectorcraft-cli','args':['mcp']};self.world._sync_codex_toml()
+        r=self.setup(['photocraft','vectorcraft'],dry_run=True);self.assertEqual(r['apps'][0]['binary'],'refuse');self.assertIn('--upgrade',r['apps'][0]['reason'])
+        r=self.setup(['photocraft','vectorcraft'],dry_run=True,upgrade=True);rows={a['app']:a for a in r['apps']}
+        self.assertEqual(rows['photocraft']['binary'],'upgrade');self.assertTrue(rows['photocraft']['download'].endswith('.zip'))
+        self.assertEqual(rows['vectorcraft']['registrations'],{'codex':'refuse: registered differently; needs --replace','claude':'add'})
+        self.assertEqual(rows['vectorcraft']['predicted_status'],'partially_registered');self.assertFalse(r['would_pass'])
+        r=self.setup(['vectorcraft'],dry_run=True,replace=True);self.assertEqual(r['apps'][0]['registrations']['codex'],'replace');self.assertTrue(r['would_pass'])
+
+    def test_a_work_root_setup_would_refuse_is_caught_before_anything_is_created(self):
+        (self.home/'craft-work-storytold').mkdir()
+        r=self.setup(['photocraft'],dry_run=True);self.assertFalse(r['would_pass']);self.assertIn('not a Storytold workspace',r['warnings'][0])
+        self.assertEqual(r['apps'][0]['predicted_status'],'not_reached')
+        with self.assertRaisesRegex(StorytoldError,'not a Storytold workspace'): self.setup(['photocraft'])
+        self.assertFalse(self.paths['state_dir'].exists());self.assertFalse(self.bin.exists());self.assertEqual(self.world.calls,[])
 
 class ReplacementTests(SetupCase):
     def stale_codex(self,args=('mcp',)):

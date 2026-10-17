@@ -11,6 +11,7 @@ class CliTests(WorkspaceCase):
         env=os.environ.copy();env.update(extra_env or {})
         for key in ('CRAFT_BIN_DIR','CRAFT_WORK_ROOT','CRAFT_OUTPUT_ROOT'):env.pop(key,None)
         env['CODEX_HOME']=str(self.base/'codex-home')  # never read the operator's real Codex config
+        env['CLAUDE_CONFIG_DIR']=str(self.base/'claude-home')  # nor their ~/.claude.json, which setup --remove now reads
         env['STORYTOLD_STATE_DIR']=str(self.base/'state')  # nor the paths recorded by a real setup run
         return subprocess.run([sys.executable,str(ROOT/'storytold.py'),*args],capture_output=True,text=True,env=env)
     def test_doctor_never_executes(self):

@@ -14,7 +14,7 @@
     "config/signatures.json": "862524eff40c5ef6e99fb742aa05990551845f68bf9e24bf83101d86ba504656",
     "docs/acceptance.md": "ddd351e2e86506e774a96aaade66fe5136b9b6f154a4b8d50573a14051ad93ad",
     "docs/architecture.md": "274a5692d59fc99e550fa49f09cbf4c3a42b0569b06b0fdd15080b145b79ca05",
-    "docs/operations.md": "bfd70e05940815f3a1f972001937fc3b6473d10de1bfea7b4b8f07adc6768675",
+    "docs/operations.md": "f2626f138588e21d5e53686323c134f06495dec124b379706e71bf412e13f677",
     "docs/source-ledger.md": "e8890bd764159c89c641ffeaf26e80cb3575cccd79e4d6e553b3e645abf62791",
     "docs/sources/Claude_Code_Craft_Native_MCP_Project_Plan.md": "fabea9691589f563c6f9f7a8df89d2d8b835ea933315ad4d6c1ad5b8dfd0cbc1",
     "docs/sources/Crafting_Apps_CLI_MCP_Integration_Reference.md": "3f0ec5724b801db503d10947c2e06c5a0c79e68f0996cb7684f10a77ef92f45c",
@@ -49,7 +49,7 @@
     "storytold_tools/doctor.py": "57b2fb84bc7a7e49840662475d026f8629c1a1f7ddc8e6801f3afc74fd5948ff",
     "storytold_tools/probe.py": "b16ba3540273e3e6f76d2f75cd258b2258d8b1cd7fdf8557249c06cc85d6cc91",
     "storytold_tools/releases.py": "e1bec57789608027631c5862be85b9ba2afc212dae16761291bb80673943029f",
-    "storytold_tools/setup.py": "3c8fbe168504d7691eb7c407bac8569bb2710572bf4202f8bfda6c059a6865b9",
+    "storytold_tools/setup.py": "da07db4d8ccae4a0d49a5e8a962535fd5a01d2846a75e01caef6e7cdc9513f8c",
     "storytold_tools/workspace.py": "d4c5f61341a0e152493daa77b60d5a9146e18da95033ce5bb80c3946cd01fbfd"
   },
   "generator": "storytold_tools.build",

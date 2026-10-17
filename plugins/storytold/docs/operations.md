@@ -108,16 +108,40 @@ Apps without root flags are neither downloaded, upgraded nor registered without
 `--acknowledge-unconfined` (one already installed at its manifest pin is reported
 `installed_not_registered`); the flag records your decision for non-sensitive
 work and is not isolation. Without it such an app is reported
-`needs_acknowledgement` and skipped, the other selected apps are still
-processed, and the run exits non-zero. `--all` and `--app` cannot be combined,
-and `--timeout` (the probe's limit) accepts at most 120 seconds. Each change to
-the lock is guarded by a sibling `<lock>.writing` marker: a second `setup`
-running at the same time stops with a message instead of dropping a pin; if no
-setup is running and the marker is left over from a killed run, delete it.
-`--dry-run` prints downloads, paths and registrations;
-`--list` shows manifest, installed, pinned and registered state. `--remove --app
-X` takes two separate decisions. The binary is deleted only when it is a
-plain, unlinked file whose SHA-256 equals the lock entry; then that pin is
+`needs_acknowledgement` and skipped whatever its install path holds (the message
+also names a stale pin or a foreign file you would meet next), the other selected
+apps are still processed, and the run exits non-zero. `--all` and `--app` cannot
+be combined, and `--timeout` (the probe's limit) accepts at most 120 seconds.
+`--host` names the hosts to register with: a named host whose CLI is not on PATH
+is warned about and fails the run, while the other named hosts are still
+registered.
+
+One changing run at a time: `setup` and `setup --remove` hold an OS advisory lock
+on `setup.lock` in the state directory for the whole run, so a second one stops
+at once ("another setup run … is using …") and changes nothing. The operating
+system releases that lock when its process ends, however it ends, so a crash
+leaves nothing to delete. `--dry-run` and `--list` take no lock. Each rewrite of
+the installation lock is additionally guarded by a sibling `<lock>.writing`
+marker; if one is left over from a killed run while no setup is running, delete
+it.
+
+`--dry-run` makes the per-app decision a real run makes, from read-only checks,
+and reports it. `binary` is `keep` (installed and pinned at this release, no
+download), `install`, `upgrade`, `skip` (not acknowledged) or `refuse`, with a
+`reason` (a foreign file at the install path, a pin that needs `--upgrade`, an
+unresolved recovery marker). `download` is set only when one is needed.
+`registrations` says per host whether the entry would be added, kept, replaced
+or refused without `--replace`, judged from that host's user-scope file.
+`predicted_status` is the status the real run would report (`not_reached` after
+the first refusal, because the real run stops there), and `would_pass` sums it
+up together with warnings such as a missing named host or a work root setup
+would refuse. Downloads, provenance checks and probes are not attempted, so a
+passing preview is not a promise; a dry run exits 0 either way. `--list` shows
+manifest, installed, pinned and registered state.
+
+`--remove --app X` takes two separate decisions. The binary is deleted only when
+it is a plain, unlinked file whose SHA-256 equals the lock entry and no
+registration that may still launch it remains on any host; then that pin is
 dropped and its evidence archived. A registration is unregistered only when
 it is, in full, the user-scope entry `setup` writes: the command is the
 managed path, every argument is the catalog launch, the host reports user
@@ -128,9 +152,16 @@ gone. A same-name registration that points elsewhere or carries other
 arguments, one in another scope, one the host CLI cannot describe (or whose
 arguments only appear as joined text), one for an app without a pin, or one
 whose binary was modified is kept and listed with its reason (exit status 1,
-report `attention`); a host CLI that is not on PATH is reported as not
-inspected. `--remove --dry-run` prints the same report with `would …` actions
-and changes nothing. The workspace is never touched.
+report `attention`). Every host gets a row. A host whose CLI is not run, because
+it is not on PATH or `--host` left it out, has nothing unregistered, but its
+user-scope file is still read: while it registers the app at the managed binary
+(or cannot be read), the binary, its pin and its evidence stay, so no host is
+left with a dangling server. A registration that could not be inspected, or
+whose `mcp remove` failed, is kept the same way, and the run goes on with the
+other hosts and apps. The pin stays as long as any such registration does,
+because it is what lets a later `--remove` prove the entry is Storytold's.
+`--remove --dry-run` prints the same report with `would …` actions and changes
+nothing. The workspace is never touched.
 Maintainers refresh the manifest with `make refresh-releases` and review the
 diff; `python scripts/refresh_releases.py --accept <app>` lets one app through
 the downgrade/re-publish guard after its upstream change was reviewed by hand

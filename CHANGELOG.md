@@ -1,5 +1,52 @@
 # Changelog
 
+## Unreleased
+
+Operator-command review: `setup --remove`, concurrent runs, `--host` and
+`--dry-run` now do what the operator asked, refuse what they cannot do and
+say so. The version is unchanged until the next release.
+
+- `setup --remove` no longer deletes a binary that another host still
+  launches. Every host gets a row; one whose CLI is not run (not on PATH, or
+  left out with `--host`) has its user-scope file read, and while it still
+  registers the app at the managed binary, or cannot be read, the binary, pin
+  and evidence stay. Before, `--remove --host claude` deleted the binary under
+  a live Codex registration, and a host CLI missing from PATH left its
+  `~/.claude.json` or `config.toml` entry pointing at a deleted file, both
+  reported `ok`.
+- A failing `mcp remove` is reported in that host's row and the run continues
+  with the other hosts and apps; before, it aborted the whole removal without
+  a report after earlier hosts were already unregistered. A failed binary
+  delete or pin rewrite is reported the same way.
+- The pin now stays while any registration that may still launch the managed
+  path is kept (for example one whose `mcp get` timed out), so a later
+  `--remove` can still prove that entry is Storytold's and remove it. Before,
+  the pin was dropped and that registration could never be removed by
+  Storytold.
+- One changing run at a time: `setup` and `setup --remove` hold an OS advisory
+  lock (`setup.lock` in the state directory) for the whole run, released by
+  the OS when the process ends. The `<lock>.writing` marker guarded only the
+  lock rewrite, so two runs could clear each other's staging or recovery
+  marker.
+- An app without root flags and no `--acknowledge-unconfined` is skipped
+  whatever its install path holds; an outdated pin or a foreign file there no
+  longer stops the rest of the batch. The message names what the next run
+  would meet.
+- A host named with `--host` whose CLI is not on PATH now fails the run
+  (other named hosts are still registered); before, it was a warning with
+  exit status 0.
+- `--dry-run` shares the real run's decision function and reports, per app,
+  `binary` (`keep`, `install`, `upgrade`, `skip`, `refuse` with `reason`), a
+  `download` only where one is needed, per-host `registrations` judged from
+  the user-scope files, `predicted_status` and an overall `would_pass`.
+  Before, it listed a download and a registration for every app, including
+  ones the real run would skip or refuse. A work root that exists but is not a
+  Storytold workspace is now refused before any directory is created.
+- Tests: nine new regression tests; the test runner strips
+  `CLAUDE_CONFIG_DIR` and `CODEX_HOME`, and the CLI tests point
+  `CLAUDE_CONFIG_DIR` at a temporary directory, so no test reads the
+  operator's real host settings.
+
 ## 1.5.2 — 2026-10-16
 
 SoundCraft joins the root-confined apps; card rechecks for the seven pins

@@ -174,12 +174,12 @@ host session afterwards.
 |---|---|
 | `--app <app>` / `--all` | Select one app (repeatable) or all thirteen. |
 | `--acknowledge-unconfined` | Also install and register the seven user-wide apps. Not evidence of isolation. |
-| `--host {codex,claude}` | Register with one host only (default: every host CLI on PATH). |
-| `--dry-run` | Preview downloads, paths and registrations, or, with `--remove`, exactly what would be removed. Changes nothing. |
+| `--host {codex,claude}` | Register with the named host only (default: every host CLI on PATH); a named host that is not on PATH fails the run. |
+| `--dry-run` | Preview what a real run would do per app (`keep`, `install`, `upgrade`, `skip` or `refuse`, a download only where one is needed, each registration) and whether it would pass, or, with `--remove`, exactly what would be removed. Changes nothing. |
 | `--list` | Show manifest, installed, pinned and registered state, and the paths in use. |
 | `--upgrade` | Move an app whose pin changed to the manifest release. |
 | `--replace` | Re-register a same-name server that points elsewhere; the old entry is restored if the new one cannot be added. |
-| `--remove` | Unregister only the user-scope entries `setup` itself wrote (same command and arguments, app still pinned) and delete only a binary whose bytes match the lock; anything else is reported and left alone. |
+| `--remove` | Unregister only the user-scope entries `setup` itself wrote (same command and arguments, app still pinned) and delete only a binary whose bytes match the lock and that no remaining registration launches, on any host; anything else is reported and left alone. |
 | `--skip-probe` | Register without exercising the binary, and say so. |
 | `--trust-upstream-sums` | Linux/Windows: proceed on the manifest and `SHA256SUMS.txt` when no Sigstore bundle or cosign is available; recorded in the lock. |
 

@@ -189,12 +189,12 @@ bir host oturumu başlatın.
 |---|---|
 | `--app <app>` / `--all` | Tek bir uygulamayı (tekrarlanabilir) ya da on üçünün tamamını seçer. |
 | `--acknowledge-unconfined` | Kullanıcı genelindeki yedi uygulamayı da kurar ve kaydeder. Yalıtım kanıtı değildir. |
-| `--host {codex,claude}` | Yalnızca tek bir host'a kaydeder (varsayılan: PATH'teki her host CLI'si). |
-| `--dry-run` | İndirmeleri, yolları ve kayıtları ya da `--remove` ile birlikte tam olarak neyin kaldırılacağını önizler. Hiçbir şeyi değiştirmez. |
+| `--host {codex,claude}` | Yalnızca belirtilen host'a kaydeder (varsayılan: PATH'teki her host CLI'si); PATH'te olmayan belirtilmiş bir host çalıştırmayı başarısız kılar. |
+| `--dry-run` | Gerçek bir çalıştırmanın her uygulama için ne yapacağını (`keep`, `install`, `upgrade`, `skip` veya `refuse`, yalnızca gerektiğinde indirme, her kayıt) ve başarılı olup olmayacağını ya da `--remove` ile birlikte tam olarak neyin kaldırılacağını önizler. Hiçbir şeyi değiştirmez. |
 | `--list` | Manifest, kurulum, sabitleme ve kayıt durumunu ve kullanılan yolları gösterir. |
 | `--upgrade` | Sabitlemesi değişen bir uygulamayı manifest sürümüne taşır. |
 | `--replace` | Başka bir yere işaret eden aynı adlı sunucuyu yeniden kaydeder; yenisi eklenemezse eski kayıt geri getirilir. |
-| `--remove` | Yalnızca `setup`'ın kendi yazdığı kullanıcı kapsamı kayıtlarını (aynı komut ve argümanlar, uygulama hâlâ sabitlenmiş) kaldırır ve yalnızca baytları kilitle eşleşen bir ikili dosyayı siler; geri kalan her şey raporlanır ve korunur. |
+| `--remove` | Yalnızca `setup`'ın kendi yazdığı kullanıcı kapsamı kayıtlarını (aynı komut ve argümanlar, uygulama hâlâ sabitlenmiş) kaldırır ve yalnızca baytları kilitle eşleşen ve hiçbir host'ta kalan bir kaydın artık başlatmadığı bir ikili dosyayı siler; geri kalan her şey raporlanır ve korunur. |
 | `--skip-probe` | İkili dosyayı çalıştırmadan kaydeder ve bunu belirtir. |
 | `--trust-upstream-sums` | Linux/Windows: Sigstore paketi ya da cosign yokken yalnızca manifest ve `SHA256SUMS.txt` ile ilerler; bu, kilide kaydedilir. |
 

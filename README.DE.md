@@ -188,12 +188,12 @@ Host-Sitzung.
 |---|---|
 | `--app <app>` / `--all` | Eine App auswählen (wiederholbar) oder alle dreizehn. |
 | `--acknowledge-unconfined` | Auch die sieben benutzerweiten Apps installieren und registrieren. Kein Nachweis von Isolation. |
-| `--host {codex,claude}` | Nur bei einem Host registrieren (Standard: jede Host-CLI im PATH). |
-| `--dry-run` | Vorschau auf Downloads, Pfade und Registrierungen oder, mit `--remove`, genau auf das, was entfernt würde. Ändert nichts. |
+| `--host {codex,claude}` | Nur beim genannten Host registrieren (Standard: jede Host-CLI im PATH); ein genannter Host, der nicht im PATH ist, lässt den Lauf fehlschlagen. |
+| `--dry-run` | Vorschau darauf, was ein echter Lauf je App täte (`keep`, `install`, `upgrade`, `skip` oder `refuse`, ein Download nur, wo einer nötig ist, jede Registrierung) und ob er durchliefe, oder, mit `--remove`, genau auf das, was entfernt würde. Ändert nichts. |
 | `--list` | Manifest-, Installations-, Pin- und Registrierungsstand sowie die verwendeten Pfade anzeigen. |
 | `--upgrade` | Eine App mit geändertem Pin auf das Manifest-Release bringen. |
 | `--replace` | Einen gleichnamigen Server neu registrieren, der woanders hinzeigt; der alte Eintrag wird wiederhergestellt, wenn der neue nicht hinzugefügt werden kann. |
-| `--remove` | Nur die Benutzer-Registrierungen aufheben, die `setup` selbst geschrieben hat (gleicher Befehl und gleiche Argumente, App noch gepinnt), und nur eine Binärdatei löschen, deren Bytes zum Lock passen; alles andere wird gemeldet und bleibt. |
+| `--remove` | Nur die Benutzer-Registrierungen aufheben, die `setup` selbst geschrieben hat (gleicher Befehl und gleiche Argumente, App noch gepinnt), und nur eine Binärdatei löschen, deren Bytes zum Lock passen und die keine verbleibende Registrierung bei irgendeinem Host mehr startet; alles andere wird gemeldet und bleibt. |
 | `--skip-probe` | Registrieren, ohne die Binärdatei auszuführen, und das auch so melden. |
 | `--trust-upstream-sums` | Linux/Windows: allein auf Basis von Manifest und `SHA256SUMS.txt` fortfahren, wenn kein Sigstore-Bundle oder cosign verfügbar ist; wird im Lock vermerkt. |
 

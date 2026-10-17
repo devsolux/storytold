@@ -65,7 +65,8 @@ def run() -> int:
         home.mkdir()
         env = os.environ.copy()
         for key in list(env):
-            if key.startswith(('CRAFT_', 'STORYTOLD_')):
+            # Host config locations too: tests must never read or write the operator's real Claude Code or Codex settings.
+            if key.startswith(('CRAFT_', 'STORYTOLD_')) or key in {'CLAUDE_CONFIG_DIR', 'CODEX_HOME'}:
                 env.pop(key, None)
         env.update({'HOME': str(home), 'USERPROFILE': str(home),
                     'XDG_CONFIG_HOME': str(home / '.config'), 'XDG_CACHE_HOME': str(home / '.cache'),
