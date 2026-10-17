@@ -330,7 +330,7 @@ class MacSetupTests(SetupCase):
 
     def test_first_failure_stops_the_batch(self):
         self.world.releases['apps']['photocraft']['assets']['macos']['sha256']='0'*64
-        r=self.setup(['photocraft','vectorcraft']);self.assertEqual([a['status'] for a in r['apps']],['failed'])
+        r=self.setup(['photocraft','vectorcraft']);self.assertEqual([a['status'] for a in r['apps']],['failed','not_reached'])  # listed, never attempted
 
     def test_remove_dry_run_mutates_nothing(self):
         self.setup(['photocraft']);before=self.snapshot_state();self.world.calls.clear()

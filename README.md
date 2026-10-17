@@ -175,7 +175,7 @@ host session afterwards.
 | `--app <app>` / `--all` | Select one app (repeatable) or all thirteen. |
 | `--acknowledge-unconfined` | Also install and register the seven user-wide apps. Not evidence of isolation. |
 | `--host {codex,claude}` | Register with the named host only (default: every host CLI on PATH); a named host that is not on PATH fails the run. |
-| `--dry-run` | Preview what a real run would do per app (`keep`, `install`, `upgrade`, `skip` or `refuse`, a download only where one is needed, each registration) and whether it would pass, or, with `--remove`, exactly what would be removed. Changes nothing. |
+| `--dry-run` | Preview what a real run would do per app (`keep`, `install`, `upgrade`, `skip` or `refuse`, a download only where one is needed, each registration) and whether it would pass (exit status 1 if not), or, with `--remove`, exactly what would be removed. Changes nothing. |
 | `--list` | Show manifest, installed, pinned and registered state, and the paths in use. |
 | `--upgrade` | Move an app whose pin changed to the manifest release. |
 | `--replace` | Re-register a same-name server that points elsewhere; the old entry is restored if the new one cannot be added. |

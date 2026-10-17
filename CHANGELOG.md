@@ -1,10 +1,13 @@
 # Changelog
 
-## Unreleased
+## 1.5.3 — 2026-10-17
 
-Operator-command review: `setup --remove`, concurrent runs, `--host` and
+Operator-command hardening: `setup --remove`, concurrent runs, `--host` and
 `--dry-run` now do what the operator asked, refuse what they cannot do and
-say so. The version is unchanged until the next release.
+say so. A second pass with the ECC Python, silent-failure, security and
+test-coverage reviewers closed the gaps the first pass left (listed after the
+first-pass items). No release pin moved since 1.5.2, so no card was due for a
+recheck.
 
 - `setup --remove` no longer deletes a binary that another host still
   launches. Every host gets a row; one whose CLI is not run (not on PATH, or
@@ -46,6 +49,55 @@ say so. The version is unchanged until the next release.
   `CLAUDE_CONFIG_DIR` and `CODEX_HOME`, and the CLI tests point
   `CLAUDE_CONFIG_DIR` at a temporary directory, so no test reads the
   operator's real host settings.
+
+Second pass (ECC review of the first):
+
+- `setup --remove` keeps the binary and pin under a kept registration whose
+  command the host CLI does not show (`claude mcp get` text without a
+  `Command:` line, unparseable `codex mcp get --json`), and under one a local
+  or project entry shadows in `mcp get` while the user-scope file still names
+  the binary. Before deleting, it now searches both hosts' files for any
+  registration that starts the binary: another server name, another spelling
+  or symlink of the path, or a Claude Code local-scope entry, listed in
+  `references` by host, scope and name only. An `mcp remove` that exits 0 is
+  trusted only once the user-scope file no longer lists the entry.
+- A registration carrying settings `mcp add` never writes (tool lists,
+  timeouts, a non-stdio type) is no longer treated as Storytold's: removal
+  keeps it, and `--replace` refuses it instead of losing those settings on a
+  failed add.
+- A failing evidence archive, or any unexpected error in one app, no longer
+  ends `setup --remove` without a report: it becomes that app's row and the
+  other apps still run. A real `setup` that stops at a failure lists the apps
+  it never attempted as `not_reached`.
+- Refused before anything is created or downloaded: a leftover
+  `<lock>.writing` marker (also by `--remove`, before any binary is deleted),
+  a state or evidence directory that is not owner-only, and a bin directory
+  that group or others can write, which used to be found only after a
+  candidate was promoted and pinned.
+- `--dry-run` predicts those refusals, the Linux/Windows provenance gate (no
+  bundle or no cosign without `--trust-upstream-sums`), a `--replace` that
+  could not restore the old entry, and an unreadable user-scope file
+  (`registration_unknown`); it exits 1 when `would_pass` is false, like
+  `--remove --dry-run`. A real `setup` report without a recognized status no
+  longer reads as success.
+- Host files never reach a report: unparseable or too deeply nested JSON or
+  TOML (a `RecursionError` used to escape as a traceback) gives a fixed
+  message instead of the parser's text, which could quote keys, and only text
+  commands of at most 300 characters are shown. `doctor` does the same.
+- The run lock refuses a lock file that is a symlink, reparse point or not a
+  regular file (Windows has no `O_NOFOLLOW`), names a filesystem without file
+  locks instead of reporting "another setup run", always closes its file on
+  Windows, and two first runs racing to create the state directory meet the
+  lock instead of a raw `FileExistsError`.
+- Docs: operations says that `claude mcp get`, used by `--remove`, its dry
+  run, `--list` and registration, starts the registered server for its health
+  check, as a Claude Code session does.
+- Tests: thirteen more, 260 in all, including a run lock held by another
+  process blocking `setup` and `--remove`, the Windows `msvcrt` branch through
+  a fake module, every `unrun_host` branch, failed deletes and pin rewrites,
+  recovery markers in a dry run and a Linux provenance preview; the
+  killed-holder test has a watchdog and waits briefly for Windows to release
+  the lock.
 
 ## 1.5.2 — 2026-10-16
 

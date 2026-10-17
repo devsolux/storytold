@@ -1,6 +1,6 @@
 {
   "files": {
-    ".claude-plugin/plugin.json": "27c1f5bd86a59c3402ef5273e613ecedbd13c7aedbeeef6482ab0e0ad0f743ed",
+    ".claude-plugin/plugin.json": "9be8d2e009cbee1a098e61121fd92e3d5d0ba91592a994294c49d05d63e01a07",
     "LICENSE": "1b27293f1fa43edad3840ee0ac38ea8de030f04ac58760002efa8f8475d4ac15",
     "LICENSE-NOTICE.md": "b4c1f5f62b300657a5dd594e87cf4a94402ec61d9487048cd92894ade5a9f883",
     "README.md": "0fbc424cea5e27cb661c8ea8bff92617c97e924d045b8d7c46bea73e89104f15",
@@ -14,13 +14,13 @@
     "config/signatures.json": "862524eff40c5ef6e99fb742aa05990551845f68bf9e24bf83101d86ba504656",
     "docs/acceptance.md": "ddd351e2e86506e774a96aaade66fe5136b9b6f154a4b8d50573a14051ad93ad",
     "docs/architecture.md": "274a5692d59fc99e550fa49f09cbf4c3a42b0569b06b0fdd15080b145b79ca05",
-    "docs/operations.md": "f2626f138588e21d5e53686323c134f06495dec124b379706e71bf412e13f677",
-    "docs/source-ledger.md": "e8890bd764159c89c641ffeaf26e80cb3575cccd79e4d6e553b3e645abf62791",
+    "docs/operations.md": "ae4a4cd05d8893de73b2634e8dd9abeeca87eb063b64fd934fcfcaa198bc5c4c",
+    "docs/source-ledger.md": "ac25cfbe360835a0730a784239d5551c3705cf43d859e93aab91883935d00f31",
     "docs/sources/Claude_Code_Craft_Native_MCP_Project_Plan.md": "fabea9691589f563c6f9f7a8df89d2d8b835ea933315ad4d6c1ad5b8dfd0cbc1",
     "docs/sources/Crafting_Apps_CLI_MCP_Integration_Reference.md": "3f0ec5724b801db503d10947c2e06c5a0c79e68f0996cb7684f10a77ef92f45c",
     "docs/sources/README.md": "b7bf7f4350bdb122dc05ec667293dc59618fdd063d59aa2ecb4a0b0d7fd843ce",
-    "docs/verification.md": "1bda57540b3f774ccdfd36952f27863319d13a4e4d3b3ea19ce1f30a5aecf682",
-    "plugin.json": "2ebebf3c7f8c68c995b93fb9a6ba3e753c228795db9ab4abb9f714e15dee08c7",
+    "docs/verification.md": "e1a315caaabd15f238f09c1c13644f4dacefe8b99168aa20e6758244b11ecd0c",
+    "plugin.json": "b42a9929078c7f6fc6c61900a5738549ea5e8ee64c2cd71a54ba788c0a8f5163",
     "requirements-probe.lock": "d6463eecc8150c4dcb9b1e7e98050018812595df7c05eb53b800c370c1d3aee2",
     "requirements-probe.txt": "efa7100ef384c89d26e95f45f02c376dde47dc790523f726e21acbcf37368726",
     "skills/craft/SKILL.md": "9e2a1464336cebca64b0d0aa423738788b2721f304a2e3e2e67cf2af93e3c6ca",
@@ -43,16 +43,16 @@
     "storytold.py": "6f12077c17ad107e9036f50ae9228f0447cf62144111b0f947885d70e76b41ef",
     "storytold_tools/__init__.py": "f9c9193b346165809a2dccb19104b5ce571279f1c6c4fcc1dae77bfdac586b49",
     "storytold_tools/catalog.py": "18a18a7597e81e9ded39fb7c37e9779b062a8ed749a556c90a874e12ecb8dc16",
-    "storytold_tools/cli.py": "3987ff54e5cec087335c622590da354495a8714cfa7575ff1ed42e9955340f66",
+    "storytold_tools/cli.py": "b0e4b03611d0ea509a411f91e5f2e0cca66566ccda373c5c7600a9fe305ecac7",
     "storytold_tools/common.py": "ecf08a5efc2f480ec24503e07d1b5baca711f3116e228bacbf9582a816feb321",
     "storytold_tools/configuration.py": "8c8a32c9ccd64fada9defdebb421de382932fcd9ea21ad10c7f879c7860dc722",
-    "storytold_tools/doctor.py": "57b2fb84bc7a7e49840662475d026f8629c1a1f7ddc8e6801f3afc74fd5948ff",
+    "storytold_tools/doctor.py": "19c76757f114bbd8d1a0fb3bf516bfb9901293b4b946195a650577d80c05b314",
     "storytold_tools/probe.py": "b16ba3540273e3e6f76d2f75cd258b2258d8b1cd7fdf8557249c06cc85d6cc91",
     "storytold_tools/releases.py": "e1bec57789608027631c5862be85b9ba2afc212dae16761291bb80673943029f",
-    "storytold_tools/setup.py": "da07db4d8ccae4a0d49a5e8a962535fd5a01d2846a75e01caef6e7cdc9513f8c",
+    "storytold_tools/setup.py": "c277a08128d837c3ee09e9d89dedd9d0068ce8523f19ee7fd59e8e1c8d8aed33",
     "storytold_tools/workspace.py": "d4c5f61341a0e152493daa77b60d5a9146e18da95033ce5bb80c3946cd01fbfd"
   },
   "generator": "storytold_tools.build",
   "schema_version": 1,
-  "version": "1.5.2"
+  "version": "1.5.3"
 }

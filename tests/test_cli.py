@@ -42,9 +42,12 @@ class CliTests(WorkspaceCase):
         try: platform_key(platform.system(),platform.machine())
         except StorytoldError:
             self.assertNotEqual(r.returncode,0);self.assertIn('setup supports',r.stderr);return
-        self.assertEqual(r.returncode,0,r.stderr);plan=json.loads(r.stdout)
+        plan=json.loads(r.stdout)  # unacknowledged: the run it predicts would fail, so the preview exits 1 like --remove --dry-run
+        self.assertEqual(r.returncode,1,r.stderr);self.assertIs(plan['would_pass'],False);self.assertEqual(plan['apps'][0]['predicted_status'],'needs_acknowledgement')
         self.assertTrue(plan['dry_run']);self.assertEqual(plan['apps'][0]['install_to'],str(self.base/'bin'/('cadcraft-cli'+('.exe' if os.name=='nt' else ''))))
         self.assertTrue(plan['apps'][0]['needs_acknowledge_unconfined']);self.assertFalse((self.base/'state').exists())
+        r=self.run_cli('setup','--dry-run','--app','cadcraft','--acknowledge-unconfined','--bin-dir',str(self.base/'bin'));plan=json.loads(r.stdout)
+        self.assertEqual(r.returncode,0 if plan['would_pass'] else 1,plan);self.assertFalse((self.base/'state').exists())
     def test_apps_lists_thirteen(self):
         r=self.run_cli('apps');self.assertEqual(len(json.loads(r.stdout)['apps']),13)
     def test_missing_env_fails_closed(self):

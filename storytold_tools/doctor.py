@@ -15,7 +15,7 @@ import subprocess
 import tomllib
 from typing import Mapping
 from .catalog import APP_IDS, load_catalog
-from .common import MAX_JSON, ROOT, parse_json, require, snapshot
+from .common import MAX_JSON, ROOT, StorytoldError, parse_json, require, snapshot
 from .releases import load_releases
 from .setup import load_state, resolve_paths
 
@@ -54,7 +54,11 @@ def registrations(path: Path, key: str) -> dict[str,object]:
     `config.toml` also hold account data and settings that doctor never reports.
     """
     data = snapshot(path, limit=MAX_JSON, body=True)[2] or b''
-    parsed = tomllib.loads(data.decode('utf-8')) if path.suffix=='.toml' else parse_json(data)
+    try:
+        parsed = tomllib.loads(data.decode('utf-8')) if path.suffix=='.toml' else parse_json(data)
+    except (ValueError, RecursionError):
+        # A fixed message: a parser's own text can quote keys or bytes of a file that also holds account data.
+        raise StorytoldError(f"not valid {'TOML' if path.suffix=='.toml' else 'JSON'} (or nested too deeply)") from None
     require(isinstance(parsed, dict), 'host config must be an object/table')
     servers = parsed.get(key, {})
     require(isinstance(servers, dict), f'{key} must be an object/table')

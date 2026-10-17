@@ -1,4 +1,4 @@
-# Verification status — 1.5.2
+# Verification status — 1.5.3
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All thirteen CLIs have
@@ -7,6 +7,23 @@ below): twelve on a developer Mac and on GitHub runners, FigCraft (added in
 1.4.0) on the three GitHub runners only. That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## Executed for 1.5.3 — October 17, 2026
+
+macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`), plus GitHub:
+
+| Gate | Result |
+|---|---|
+| `make release` | 74 check entries, **260 tests** (22 new for the operator-command changes: removal across hosts and scopes, the run lock in and across processes and through a fake `msvcrt`, dry-run predictions against the real run, host-file contents kept out of reports), build, verify-build and reproducible 1.5.3 plugin and source ZIPs. |
+| `make test-sdk` | The 7 synthetic-fixture checks passed with `mcp` 2.3.0 from the hash-locked `.venv`. |
+| `make host-validate` (Claude Code 2.1.282) | `claude plugin validate --strict` passed for the 1.5.3 manifests. |
+| CI, push of `f259629` (run 39015290289) | All seven jobs passed for the first-pass operator changes: `core` on macOS, Windows and Ubuntu with Python 3.11 and 3.13, and `sdk-contract`. The Windows `core` jobs were the first to run the new run lock through the real `msvcrt`. |
+| ECC review of `f259629` | The Python, silent-failure, security and test-coverage reviewers each reproduced their findings with the test fakes; every confirmed finding is fixed in 1.5.3 and covered by a test (see the changelog). |
+| Host-file shape on this Mac | Only key names of the Craft entries were read: Claude Code user scope writes `type`, `command`, `args`, `env`; `codex mcp add` writes `command`, `args`. One older Codex entry (PhotoCraft) also carries a `cwd` from the manual `configure` path, so `--remove` keeps it as not Storytold's. No removal ran here. |
+
+Still not run: `setup --remove` against the real host CLIs (the new rules are
+exercised only through the fakes), the Windows lock under real contention, and
+the earlier items listed for 1.5.2.
 
 ## Executed for 1.5.2 — October 16, 2026
 

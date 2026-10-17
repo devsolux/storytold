@@ -1,6 +1,6 @@
 # Source ledger and verification scope
 
-Review dates: **2026-10-12 to 2026-10-16** (each section names its own). The integration uses the attached project plan as its
+Review dates: **2026-10-12 to 2026-10-17** (each section names its own). The integration uses the attached project plan as its
 architecture authority. Fresh public-document checks supplement its implementation
 mechanics; they do not silently replace its decisions or prove native behavior.
 
@@ -226,6 +226,14 @@ runners with the confined launch and merged #6 as `b7e243f`. Same recheck:
   that ran stay applied; the rollback that keeps the disk as written belongs
   to the engine command `command.batch` run through `command_run`. The card
   now says so.
+
+## No pin moved for 1.5.3 — 2026-10-17
+
+`config/releases.json` and `config/signatures.json` are unchanged since 1.5.2
+(no release-workflow merge in between), so no card was due for a recheck and
+every card is unchanged. 1.5.3 changes only Storytold's own `setup` and
+`doctor` logic, which reads the host CLIs' documented `mcp add`/`get`/`remove`
+behaviour already cited above.
 
 ## Build infrastructure
 

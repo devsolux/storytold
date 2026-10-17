@@ -190,7 +190,7 @@ bir host oturumu başlatın.
 | `--app <app>` / `--all` | Tek bir uygulamayı (tekrarlanabilir) ya da on üçünün tamamını seçer. |
 | `--acknowledge-unconfined` | Kullanıcı genelindeki yedi uygulamayı da kurar ve kaydeder. Yalıtım kanıtı değildir. |
 | `--host {codex,claude}` | Yalnızca belirtilen host'a kaydeder (varsayılan: PATH'teki her host CLI'si); PATH'te olmayan belirtilmiş bir host çalıştırmayı başarısız kılar. |
-| `--dry-run` | Gerçek bir çalıştırmanın her uygulama için ne yapacağını (`keep`, `install`, `upgrade`, `skip` veya `refuse`, yalnızca gerektiğinde indirme, her kayıt) ve başarılı olup olmayacağını ya da `--remove` ile birlikte tam olarak neyin kaldırılacağını önizler. Hiçbir şeyi değiştirmez. |
+| `--dry-run` | Gerçek bir çalıştırmanın her uygulama için ne yapacağını (`keep`, `install`, `upgrade`, `skip` veya `refuse`, yalnızca gerektiğinde indirme, her kayıt) ve başarılı olup olmayacağını (olmayacaksa çıkış kodu 1) ya da `--remove` ile birlikte tam olarak neyin kaldırılacağını önizler. Hiçbir şeyi değiştirmez. |
 | `--list` | Manifest, kurulum, sabitleme ve kayıt durumunu ve kullanılan yolları gösterir. |
 | `--upgrade` | Sabitlemesi değişen bir uygulamayı manifest sürümüne taşır. |
 | `--replace` | Başka bir yere işaret eden aynı adlı sunucuyu yeniden kaydeder; yenisi eklenemezse eski kayıt geri getirilir. |

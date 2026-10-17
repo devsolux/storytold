@@ -132,7 +132,9 @@ def main(argv: list[str] | None=None) -> int:
                 else:
                     result=run_setup(apps,acknowledge_unconfined=args.acknowledge_unconfined,skip_probe=args.skip_probe,upgrade=args.upgrade,
                                      replace=args.replace,dry_run=args.dry_run,timeout=args.timeout,trust_upstream_sums=args.trust_upstream_sums,**common)
-                    code=0 if result.get('status','passed')=='passed' else 1
+                    # A preview exits like the run it predicts, as --remove --dry-run does; a missing status never reads as success.
+                    passed=result.get('would_pass') is True if args.dry_run else result.get('status')=='passed'
+                    code=0 if passed else 1
         elif cmd=='workspace-init': result=init_workspace(required_path(args.root,'root'))
         elif cmd=='inventory':
             result=inventory(required_path(args.bin_dir,'CRAFT_BIN_DIR'),selected(args.app),load_catalog())

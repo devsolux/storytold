@@ -119,25 +119,37 @@ registered.
 One changing run at a time: `setup` and `setup --remove` hold an OS advisory lock
 on `setup.lock` in the state directory for the whole run, so a second one stops
 at once ("another setup run … is using …") and changes nothing. The operating
-system releases that lock when its process ends, however it ends, so a crash
-leaves nothing to delete. `--dry-run` and `--list` take no lock. Each rewrite of
-the installation lock is additionally guarded by a sibling `<lock>.writing`
-marker; if one is left over from a killed run while no setup is running, delete
-it.
+system releases that lock when its process ends, however it ends (Windows may
+take a moment), so a crash leaves nothing to delete; a filesystem without file
+locks is named as such instead. `--dry-run` and `--list` take no lock. Each
+rewrite of the installation lock is additionally guarded by a sibling
+`<lock>.writing` marker. Before anything is created or downloaded, `setup`
+refuses a leftover marker, a state or evidence directory that is not
+owner-only, a bin directory that group or others can write and a work root that
+is not a Storytold workspace; `setup --remove` refuses the leftover marker the
+same way, before any binary is deleted. Delete a leftover marker once no setup
+is running. After the first failure the run stops, and the apps it never
+attempted are listed as `not_reached`.
 
 `--dry-run` makes the per-app decision a real run makes, from read-only checks,
 and reports it. `binary` is `keep` (installed and pinned at this release, no
 download), `install`, `upgrade`, `skip` (not acknowledged) or `refuse`, with a
 `reason` (a foreign file at the install path, a pin that needs `--upgrade`, an
 unresolved recovery marker). `download` is set only when one is needed.
-`registrations` says per host whether the entry would be added, kept, replaced
-or refused without `--replace`, judged from that host's user-scope file.
-`predicted_status` is the status the real run would report (`not_reached` after
-the first refusal, because the real run stops there), and `would_pass` sums it
-up together with warnings such as a missing named host or a work root setup
-would refuse. Downloads, provenance checks and probes are not attempted, so a
-passing preview is not a promise; a dry run exits 0 either way. `--list` shows
-manifest, installed, pinned and registered state.
+On Linux and Windows a download without a published Sigstore bundle, or
+without cosign on PATH, is predicted to fail at provenance unless
+`--trust-upstream-sums` is given. `registrations` says per host whether the
+entry would be added (`add`), kept (`already_registered`) or replaced
+(`replace`), or why not: `refuse: …` without `--replace`, or for an entry with
+env, cwd or other settings `mcp add` could not restore, and `unknown: …` when
+the host's user-scope file cannot be read. `predicted_status` is the status the
+real run would report (`not_reached` after the first failure, because the real
+run stops there), and `would_pass` sums it up together with warnings such as a
+missing named host or a layout problem from the list above. A dry run exits 0
+only when `would_pass` is true, like `--remove --dry-run`, which exits 1 on
+`attention`. Downloads, notarization, Sigstore verification and probes are not
+attempted, so a passing preview is not a promise. `--list` shows manifest,
+installed, pinned and registered state.
 
 `--remove --app X` takes two separate decisions. The binary is deleted only when
 it is a plain, unlinked file whose SHA-256 equals the lock entry and no
@@ -146,9 +158,9 @@ dropped and its evidence archived. A registration is unregistered only when
 it is, in full, the user-scope entry `setup` writes: the command is the
 managed path, every argument is the catalog launch, the host reports user
 scope, the host's own user-scope file (`$CODEX_HOME/config.toml`,
-`$CLAUDE_CONFIG_DIR/.claude.json`) carries the same entry without cwd or env,
-the app is still pinned, and the pinned binary is either owned or already
-gone. A same-name registration that points elsewhere or carries other
+`$CLAUDE_CONFIG_DIR/.claude.json`) carries the same entry with nothing but
+command, arguments and an empty env (no cwd, no tool or timeout settings), the
+app is still pinned, and the pinned binary is either owned or already gone. A same-name registration that points elsewhere or carries other
 arguments, one in another scope, one the host CLI cannot describe (or whose
 arguments only appear as joined text), one for an app without a pin, or one
 whose binary was modified is kept and listed with its reason (exit status 1,
@@ -157,11 +169,22 @@ it is not on PATH or `--host` left it out, has nothing unregistered, but its
 user-scope file is still read: while it registers the app at the managed binary
 (or cannot be read), the binary, its pin and its evidence stay, so no host is
 left with a dangling server. A registration that could not be inspected, or
-whose `mcp remove` failed, is kept the same way, and the run goes on with the
-other hosts and apps. The pin stays as long as any such registration does,
-because it is what lets a later `--remove` prove the entry is Storytold's.
-`--remove --dry-run` prints the same report with `would …` actions and changes
-nothing. The workspace is never touched.
+whose `mcp remove` failed, or whose command the host does not show, is kept the
+same way, and an `mcp remove` that reports success is trusted only once the
+user-scope file no longer lists the entry. Before deleting, both hosts' files
+are also searched for any other registration that starts the binary: another
+server name, another spelling or link of the path, or a Claude Code
+local-scope entry; `references` lists them by host, scope and name (never a
+project path), and the binary stays until they are gone. The run goes on with
+the other hosts and apps, and an app that fails unexpectedly becomes a report
+row instead of ending the run. The pin stays as long as any such registration
+does, because it is what lets a later `--remove` prove the entry is
+Storytold's. Reports never quote host-file contents: an unreadable file is
+named, not excerpted, and only text commands are shown. `--remove --dry-run`
+prints the same report with `would …` actions and changes nothing on disk;
+note that `claude mcp get`, which `--remove`, its dry run, `--list` and
+registration all use, starts the registered server for its health check, as a
+Claude Code session does. The workspace is never touched.
 Maintainers refresh the manifest with `make refresh-releases` and review the
 diff; `python scripts/refresh_releases.py --accept <app>` lets one app through
 the downgrade/re-publish guard after its upstream change was reviewed by hand
