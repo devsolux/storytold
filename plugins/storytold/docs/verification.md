@@ -1,4 +1,4 @@
-# Verification status — 1.5.3
+# Verification status — 1.5.4
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All thirteen CLIs have
@@ -7,6 +7,22 @@ below), on GitHub runners and on a developer Mac (FigCraft there since
 October 18, 2026). That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## Executed for 1.5.4 — October 19, 2026
+
+macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`), plus GitHub:
+
+| Gate | Result |
+|---|---|
+| `make release` | 74 check entries, **266 tests** (6 new: the signing and download retries with a fake cosign that replays the 2026-10-18 Rekor `409`, and the four newly rooted apps' minimum releases), build, verify-build and reproducible 1.5.4 plugin and source ZIPs. |
+| `make test-sdk` | The 7 synthetic-fixture checks passed with `mcp` 2.3.0 from the hash-locked `.venv`. |
+| `make host-validate` (Claude Code 2.1.282) | `claude plugin validate --strict` passed for the 1.5.4 manifests. |
+| CI, pushes of `e1e0781` (run 39167459727) and `13c38e0` (run 39170003488) | All seven jobs passed on each: `core` on macOS, Windows and Ubuntu with Python 3.11 and 3.13, and `sdk-contract`. |
+| Release workflow and native acceptance | See the two sections below: the fixed run 39167465003 and its pin moves, and the local acceptance of the four newly rooted apps. |
+
+Still not run: the new root launches on Linux and Windows (the release
+workflow's next `verify` jobs run them), write denials for DeckCraft,
+DesignCraft and FigCraft, and the earlier items listed for 1.5.3.
 
 ## Release workflow runs after 1.5.3 — October 18, 2026
 

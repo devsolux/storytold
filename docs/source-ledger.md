@@ -1,6 +1,6 @@
 # Source ledger and verification scope
 
-Review dates: **2026-10-12 to 2026-10-17** (each section names its own). The integration uses the attached project plan as its
+Review dates: **2026-10-12 to 2026-10-18** (each section names its own). The integration uses the attached project plan as its
 architecture authority. Fresh public-document checks supplement its implementation
 mechanics; they do not silently replace its decisions or prove native behavior.
 

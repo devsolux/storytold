@@ -258,7 +258,7 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 
 Ändert ein Release die Startargumente einer App (WordCrafts Wurzel-Flags in
 1.5.0, SoundCrafts in 1.5.2, DeckCrafts, DesignCrafts, FigCrafts und PdfCrafts
-nach 1.5.3), ergänze `--replace`, damit die abweichende Registrierung neu
+in 1.5.4), ergänze `--replace`, damit die abweichende Registrierung neu
 geschrieben wird; ohne das Flag meldet `setup` die Abweichung nur und lässt sie
 stehen. SoundCraft beachtet seine Wurzeln erst ab 0.7.0, daher wird ein älteres
 installiertes SoundCraft abgelehnt, bis `setup --app soundcraft --upgrade

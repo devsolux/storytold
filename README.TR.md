@@ -258,7 +258,7 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 ```
 
 Bir sürüm bir uygulamanın başlatma argümanlarını değiştirdiğinde (1.5.0'da
-WordCraft'ın, 1.5.2'de SoundCraft'ın, 1.5.3'ten sonra DeckCraft, DesignCraft,
+WordCraft'ın, 1.5.2'de SoundCraft'ın, 1.5.4'te DeckCraft, DesignCraft,
 FigCraft ve PdfCraft'ın kök bayrakları), farklı kaydın yeniden yazılması için
 `--replace` ekleyin; o olmadan `setup` farkı yalnızca bildirir ve kaydı olduğu
 gibi bırakır. SoundCraft köklerine yalnızca 0.7.0'dan itibaren uyar; bu yüzden

@@ -1,11 +1,17 @@
 # Changelog
 
-## Unreleased
+## 1.5.4 — 2026-10-19
+
+Release-workflow resilience, all thirteen pins moved and rechecked, and four
+more apps launched with read/write roots. Existing installs of DeckCraft,
+DesignCraft, FigCraft and PdfCraft keep their old registration until
+`setup --app <app> --upgrade --replace` (or `make setup-confined`) moves the
+binary and re-registers the root launch.
 
 - Release workflow: the 2026-10-18 daily run (39116490412) failed while
   signing `cadcraft-cli.exe`, the third of the 39 archives that 13 new
-  upstream releases put up for signing. Rekor committed the entry but did not answer in
-  time; cosign's own HTTP retry resent it and got `409
+  upstream releases put up for signing. Rekor committed the entry but did not
+  answer in time; cosign's own HTTP retry resent it and got `409
   createLogEntryConflict`. `scripts/sign_releases.py` now tries each signing up
   to three times (15 s, then 45 s apart), each in a fresh cosign process with
   a new ephemeral key, so the retry makes a new, distinct log entry. A hung

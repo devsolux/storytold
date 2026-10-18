@@ -526,7 +526,7 @@ candidate succeed, the lock entry is rewritten atomically, and the host
 registration is left alone because the command path does not change; when a
 release changes an app's launch arguments instead (WordCraft's root flags in
 1.5.0, SoundCraft's in 1.5.2, DeckCraft's, DesignCraft's, FigCraft's and
-PdfCraft's after 1.5.3), `setup` refuses the differing registration
+PdfCraft's in 1.5.4), `setup` refuses the differing registration
 until `--replace` is passed, then re-registers it and restores the old entry
 if the new one cannot be added. SoundCraft before 0.7.0 silently ignores
 unknown `mcp` flags, so `preflight` (and with it `setup`, `probe` and

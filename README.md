@@ -243,7 +243,7 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 
 When a release changes an app's launch arguments (WordCraft's root flags in
 1.5.0, SoundCraft's in 1.5.2, and DeckCraft's, DesignCraft's, FigCraft's and
-PdfCraft's after 1.5.3), add `--replace` so the differing registration is
+PdfCraft's in 1.5.4), add `--replace` so the differing registration is
 re-registered; without it `setup` reports the difference and leaves it alone.
 SoundCraft honours its roots only from 0.7.0, so an older installed SoundCraft
 is refused until `setup --app soundcraft --upgrade --replace` moves it; the
