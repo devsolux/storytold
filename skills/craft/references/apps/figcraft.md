@@ -14,7 +14,8 @@ the `.dmg` or the ArtCraft Launcher) holds only the desktop app: install the sep
 Linux AppImage runs the same CLI as `FigCraft.AppImage cli <args>`; `setup` uses the
 tarball. The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
-No native MCP root restriction is established here. Assume OS-user-wide access.
+Native source documents distinct read/write roots (since 0.7.0), but the catalog
+launches plain `mcp` without them: assume OS-user-wide access.
 
 ## Discover before execution
 
@@ -22,16 +23,16 @@ Discover document and layer inspection, node creation and property edits, the co
 
 ## Workflow and risky operations
 
-Bare `mcp` is headless: an in-process session with one untitled document, no window and no plugins (import them first). Never add `--attach` (a loopback control port into the running app) to repair an error; attached calls are never replayed after a transport failure because the app may already have applied them. Coordinates are page units, y down; create_node and set_properties take x/y relative to the parent frame, and children of auto-layout frames are placed by the layout (set layout, gap, padding, alignment and sizing instead of x/y). Each mutation is one undo step, a failing command leaves the document unchanged, and batch is one undo step without rollback of preferences or clipboard. Edits inside an instance are refused (edit the main component or resize the instance); sections live only on the page or in sections; headless text is black on a #F5F5F5 page. A `.fig` input is opened best effort and never saved over. `--no-system-fonts` (or FIGCRAFT_NO_SYSTEM_FONTS=1) restricts text to the built-in fonts; it is not in the catalog, so text lays out with the machine's fonts like the desktop app. A request line above 32 MiB closes the session with JSON-RPC -32600. No native file-root flag is established.
+Bare `mcp` is headless: an in-process session with one untitled document, no window and no plugins (import them first). Never add `--attach` (a loopback control port into the running app) to repair an error; attached calls are never replayed after a transport failure because the app may already have applied them. Coordinates are page units, y down; create_node and set_properties take x/y relative to the parent frame, and children of auto-layout frames are placed by the layout (set layout, gap, padding, alignment and sizing instead of x/y). Each mutation is one undo step, a failing command leaves the document unchanged, and batch is one undo step without rollback of preferences or clipboard; since 0.7.0 a batch step can use an earlier step's result through `{"$step": n}` (zero-based), so `$step` is a reserved key in step params. Edits inside an instance are refused (edit the main component or resize the instance); sections live only on the page or in sections; headless text is black on a #F5F5F5 page. A `.fig` input is opened best effort and never saved over. `--no-system-fonts` (or FIGCRAFT_NO_SYSTEM_FONTS=1) restricts text to the built-in fonts; it is not in the catalog, so text lays out with the machine's fonts like the desktop app. A request line above 32 MiB closes the session with JSON-RPC -32600. The catalog passes neither `--automation-read-root` nor `--automation-write-root` (each repeatable, existing folders, refused with `--attach`), so file paths are unconfined.
 
 ## Durable verification
 
-save_file writes the editable `.figcraft`; export writes png, jpg, svg, webp or pdf (one PDF page per top-level frame) only when `path` is set, otherwise the image comes back inline, and the `fig` format is experimental and verified only through FigCraft's own importer. Reopen the output and compare frame count, bounds (inspect_document adds absoluteBounds in page coordinates), text, fonts and the colour profile: Display P3 documents convert to sRGB on SVG and PDF export and out-of-gamut colours clip. Verify numbers with inspect_document or get_node and pixels with screenshot or the exported image; a successful tool call is not a durable save.
+save_file writes the editable `.figcraft`; export writes png, jpg, svg, webp or pdf (one PDF page per top-level frame) only when `path` is set, otherwise the image comes back inline, and the `fig` format is experimental (round trips are tested through FigCraft's own importer; only the example documents and small test files were opened in other software); save_file to a `.fig` path writes such a copy and leaves the document's path and unsaved changes alone. set_properties lists in `warnings` the layers it skipped (auto layout keys apply only to frames, components and instances) and a fontStyle drawn in the nearest face of another weight or slant. Reopen the output and compare frame count, bounds (inspect_document adds absoluteBounds in page coordinates), text, fonts and the colour profile: Display P3 documents convert to sRGB on SVG and PDF export and out-of-gamut colours clip. Verify numbers with inspect_document or get_node and pixels with screenshot or the exported image; a successful tool call is not a durable save.
 
 ## Evidence and maintenance
 
 Basis: upstream FigCraft source (CLI parser, MCP documentation, MCP tool definitions,
-packaging and release assets), reviewed on 2026-10-14. FigCraft postdates the supplied
+packaging and release assets), rechecked on 2026-10-18. FigCraft postdates the supplied
 Native MCP Project Plan and CLI/MCP Integration Reference, which enumerate twelve apps;
 it is integrated the same way. This card is source-grounded guidance, not a
 runtime-tested capability contract. Upstream:

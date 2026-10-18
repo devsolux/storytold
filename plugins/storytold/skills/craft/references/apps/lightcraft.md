@@ -21,16 +21,16 @@ The documented --compact mode keeps discovery/dispatch while reducing generated 
 
 ## Workflow and risky operations
 
-Default to an ephemeral headless session. Persistent --library is deliberately not configured: it needs an explicit lock/ownership decision. Never open the same library in GUI and headless processes or remove its lock. Move-import can remove originals and needs separate consent. Import onDeleted now defaults to restore (a file found in Recently Deleted comes back with its edits) rather than skip; pass it explicitly. export with addToPhotos (macOS) hands the written files to Apple Photos through Apple Events, into photosAlbum, after a one-time macOS consent prompt, and headless waits for Photos: that writes into the user's Photos (and iCloud) library outside any workspace, so it needs its own approval and is never a default. Never start lightcraft-cli denoise-serve, a plain-TCP listener for remote denoise, or set LIGHTCRAFT_DENOISE_URL.
+Default to an ephemeral headless session. Persistent --library is deliberately not configured: it needs an explicit lock/ownership decision. Never open the same library in GUI and headless processes or remove its lock. Move-import can remove originals and needs separate consent. Import onDeleted now defaults to restore (a file found in Recently Deleted comes back with its edits) rather than skip; pass it explicitly. export with addToPhotos (macOS) hands the written files to Apple Photos through Apple Events, into photosAlbum, after a one-time macOS consent prompt, and headless waits for Photos: that writes into the user's Photos (and iCloud) library outside any workspace, so it needs its own approval and is never a default. export destinationMode sameAsOriginal writes each file into its original's folder instead of dir, and merge.* writes its -HDR/-Pano/-HDR-Pano DNG beside the first source photo (merge.hdrBatch once per bracket set): both write into photo folders and need approval. slideshow.templates save/import/delete change JSON files in the user's settings folder. Never start lightcraft-cli denoise-serve, a plain-TCP listener for remote denoise, or set LIGHTCRAFT_DENOISE_URL.
 
 ## Durable verification
 
-Verify RAW/develop expectations, rendered pixels, output filename and image properties. Exports may choose a new name on collision; repeated calls are not idempotent. Denoise runs in-process from per-user model folders (no weights are bundled); this plugin starts no denoise server, remote denoise-serve listener or live --connect session.
+Verify RAW/develop expectations, rendered pixels, output filename and image properties. Exports may choose a new name on collision; repeated calls are not idempotent. slideshow.export (PDF, JPEG sequence or AV1 video) runs in the background and returns a taskId unless wait: true; read slideshow.exportStatus before checking its output. print.exportPdf replaces an existing file at its path (never an original). Denoise runs in-process from per-user model folders (no weights are bundled); this plugin starts no denoise server, remote denoise-serve listener or live --connect session.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-16 against the upstream
+Reference, app-specific section, rechecked on 2026-10-18 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/lightcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

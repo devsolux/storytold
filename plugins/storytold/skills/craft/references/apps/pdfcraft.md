@@ -14,7 +14,9 @@ Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/p
 release also publishes a standalone `pdfcraft-cli-<version>-linux-x86_64.tar.gz`, which `setup` prefers.
 The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
-Native source documents one root; it does not separate read and write authority.
+The catalog's `--root` confines reads and writes to one tree. Since 0.9.0 `mcp` also takes
+`--automation-read-root`/`--automation-write-root` (separate read and write folders, applied on
+top of `--root`); the catalog does not pass them.
 
 ## Discover before execution
 
@@ -22,7 +24,7 @@ Discover actual PDF tools; compact mode may expose tool_search/tool_call rather 
 
 ## Workflow and risky operations
 
---root confines one tree, not a separate read-only input directory. Edits stay in memory until an explicit doc_save; saving in place appends an incremental update that keeps the original bytes, except after redaction or sanitizing, which force a full rewrite. Work on a new output. Destructive page/security/redaction changes require explicit permission; do not drive the separate desktop ui channel.
+--root confines one tree, not a separate read-only input directory. Edits stay in memory until an explicit doc_save; saving in place appends an incremental update that keeps the original bytes, except after redaction or sanitizing, which force a full rewrite. Work on a new output. Destructive page/security/redaction/XFA changes require explicit permission (xfa_to_static, and doc_flatten of an XFA form's fields, remove its XFA template, data and scripts); do not drive the separate desktop ui channel. Roots check file paths only: a doc_print job sent to a printer and a Keychain/Windows-store identity for sign_document are outside them.
 
 ## Durable verification
 
@@ -31,7 +33,7 @@ Reopen the saved PDF and check page count, text and rendering. For redactions, u
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-14 against the upstream
+Reference, app-specific section, rechecked on 2026-10-18 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [automation guide](https://github.com/storytold/pdfcraft/blob/main/crates/automation/README.md) and [MCP documentation](https://github.com/storytold/pdfcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

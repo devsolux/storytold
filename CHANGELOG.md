@@ -16,6 +16,26 @@
 - The release workflow's `actions/upload-artifact` and
   `actions/download-artifact` pins moved to v7.0.2 and v8.0.2 (HTTP 429
   retries); the source ledger records the reviewed commits.
+- The fixed workflow run (39167465003) moved all thirteen pins (pull request
+  #7: CADCraft 0.8.0, DeckCraft 0.8.0, DesignCraft 0.9.0, EffectCraft 0.11.1,
+  FigCraft 0.7.0, FilmCraft 0.9.0, GridCraft 0.8.0, LightCraft 0.9.1, PdfCraft
+  0.9.0, PhotoCraft 0.10.0, SoundCraft 0.8.0, VectorCraft 0.13.1, WordCraft
+  0.8.0). Every card was rechecked at its new tag; every catalog launch and
+  smoke tool still works, and no tool was removed or renamed. Cards now
+  cover: VectorCraft's cancellation and `-32003` busy refusal (the old "may
+  not support active cancellation" is gone, from the acceptance scenario
+  too); WordCraft's `file.rename` and `get_text` without tracked deletions;
+  PdfCraft's XFA-removing edits and what roots do not cover; LightCraft's
+  writes into photo folders and background slideshow export; GridCraft's
+  8,192-character formula limit; DesignCraft's `ime` tool, PowerPoint export
+  and argument refusal; DeckCraft's GIF export and argument refusal;
+  FigCraft's `{"$step": n}` batch references; and the stored-path rules of
+  CADCraft, DesignCraft, EffectCraft, FilmCraft and SoundCraft.
+- DeckCraft, DesignCraft, FigCraft and PdfCraft now ship read/write root
+  flags that the catalog does not pass yet, so their cards, the safety list,
+  the README legend and the `setup` messages say these apps are launched
+  without root flags instead of claiming they have none. Their launches are
+  unchanged; confining them is a separate reviewed catalog change.
 
 ## 1.5.3 — 2026-10-17
 

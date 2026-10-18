@@ -21,16 +21,16 @@ Discover inspect/get text, selection, formatting, tracked-change settings, save 
 
 ## Workflow and risky operations
 
-Preserve the agreed author and change-tracking mode; set explicit values rather than toggling an unknown state. The default config does not inject an author or start Zotero. The catalog launches mcp with --automation-read-root (the workspace) and --automation-write-root (outputs/): every path a command opens, inserts, compares or reads a template from must lie inside the read root, every save, export, print or template write inside the write root, and a refused path is an ordinary tool error (automation path rejected). Both folders must exist at launch, each flag is given once, --connect with them is an error, and the desktop app is never confined. Commands that take no path still read and change the open document, and the Zotero commands use a socket, not files. Scripts/macros are not a workaround.
+Preserve the agreed author and change-tracking mode; set explicit values rather than toggling an unknown state. The default config does not inject an author or start Zotero. The catalog launches mcp with --automation-read-root (the workspace) and --automation-write-root (outputs/): every path a command opens, inserts, compares or reads a template from must lie inside the read root, every save, export, print, rename or template write inside the write root, and a refused path is an ordinary tool error (automation path rejected). file.rename renames the open document's file on disk (the old name is gone), so that file must lie inside both roots. Both folders must exist at launch, each flag is given once, --connect with them is an error, and the desktop app is never confined. Commands that take no path still read and change the open document, and the Zotero commands use a socket, not files. Scripts/macros are not a workaround.
 
 ## Durable verification
 
-Reopen DOCX and review text, tracked changes, fonts, pagination and exported PDF appearance. Legacy .doc opens but cannot be saved. Formats supported for reading are not automatically writable or semantically equivalent. An .xml save is Word XML (Flat OPC) or, with format wordml2003, a Word 2003 XML document.
+Reopen DOCX and review text, tracked changes, fonts, pagination and exported PDF appearance. get_text omits tracked deletions, while inspect_document's paragraph text still includes them. Legacy .doc opens but cannot be saved. Formats supported for reading are not automatically writable or semantically equivalent. An .xml save is Word XML (Flat OPC) or, with format wordml2003, a Word 2003 XML document.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-14 against the upstream
+Reference, app-specific section, rechecked on 2026-10-18 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/wordcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

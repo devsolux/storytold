@@ -30,7 +30,7 @@ Confirm pixel dimensions, layers where relevant, colour/profile expectations and
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-16 against the upstream
+Reference, app-specific section, rechecked on 2026-10-18 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/photocraft/blob/main/docs/mcp.md).
 The binary has passed discovery and a read-only smoke call; see

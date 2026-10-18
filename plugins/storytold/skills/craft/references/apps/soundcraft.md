@@ -21,7 +21,7 @@ Discover session inspection, audio import, native edit commands, save and bounce
 
 ## Workflow and risky operations
 
-Headless is an offline mix engine, not a live recording/playback device session. The catalog launches mcp with --automation-read-root (the workspace) and --automation-write-root (outputs/): open_session, every import, track.load_preset and mix.sampler_load must read inside the read root, and every save, bounce, export, preset save and score command inside the write root, together with what a session save writes beside it (Audio Files/, Backups/, its temporary file); a refused path is an ordinary tool error (automation path rejected), and session media outside the read root loads as missing. Both folders must exist at launch, each flag is given once, --connect with them is an error, and the desktop app is never confined. Not covered: path-less commands still read and change the open session (and inspect_session returns it), and plug-in discovery loads native plug-in binaries from the system folders. Before 0.7.0 the CLI ignored the root flags, so preflight refuses an older pinned SoundCraft; it still silently ignores other unknown mcp flags, so keep the registered args exactly as generated. UI tools are listed headless but need the desktop app. Unrelated-target replacement and source-media deletion need explicit approval.
+Headless is an offline mix engine, not a live recording/playback device session. The catalog launches mcp with --automation-read-root (the workspace) and --automation-write-root (outputs/): open_session, every import, track.load_preset and mix.sampler_load must read inside the read root, and every save, bounce, export, preset save and score command inside the write root, together with what a session save writes beside it (Audio Files/, Backups/, its temporary file); a refused path is an ordinary tool error (automation path rejected), and session media outside the read root loads as missing; since 0.8.0 so does a stored source or movie path that names another computer (other than the session's own share), a device or a URL (not opened). Both folders must exist at launch, each flag is given once, --connect with them is an error, and the desktop app is never confined. Not covered: path-less commands still read and change the open session (and inspect_session returns it), and plug-in discovery loads native plug-in binaries from the system folders. Before 0.7.0 the CLI ignored the root flags, so preflight refuses an older pinned SoundCraft; it still silently ignores other unknown mcp flags, so keep the registered args exactly as generated. UI tools are listed headless but need the desktop app. Unrelated-target replacement and source-media deletion need explicit approval.
 
 ## Durable verification
 
@@ -30,7 +30,7 @@ Check missing media before bouncing. Verify actual audio duration, sample rate, 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-16 against the upstream
+Reference, app-specific section, rechecked on 2026-10-18 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/soundcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

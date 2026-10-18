@@ -141,10 +141,10 @@ Grund auf in Rust geschrieben und jedes eigenständig nutzbar. Die Spalte
 - **Einzelne Wurzel** (PdfCraft): eine Wurzel, die den ganzen Workspace
   einschließlich `inputs/` umfasst; das ist keine getrennte
   Lese-/Schreibbeschränkung.
-- **Benutzerweit** (sieben Apps): keine Wurzel-Flags, daher können sie alles
-  lesen und schreiben, was dein OS-Benutzer darf. `setup` installiert und
-  registriert sie nur mit `--acknowledge-unconfined`; nutze sie für unkritische
-  Arbeit oder lass sie unter OS-Isolation laufen.
+- **Benutzerweit** (sieben Apps): ohne Wurzel-Flags gestartet, daher können
+  sie alles lesen und schreiben, was dein OS-Benutzer darf. `setup`
+  installiert und registriert sie nur mit `--acknowledge-unconfined`; nutze
+  sie für unkritische Arbeit oder lass sie unter OS-Isolation laufen.
 
 ## Native Apps einrichten
 

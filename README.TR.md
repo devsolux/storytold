@@ -142,11 +142,11 @@ sütunu, Storytold'un her uygulamanın MCP sunucusunu nasıl başlattığını g
   bayraklarıyla başlatılır.
 - **Tek kök** (PdfCraft): `inputs/` dâhil tüm çalışma alanını kapsayan tek bir
   kök; ayrı okuma/yazma sınırlaması değildir.
-- **Kullanıcı geneli** (yedi uygulama): dosya kökü bayrağı yoktur, bu yüzden
-  işletim sistemi kullanıcınızın erişebildiği her şeyi okuyup yazabilir.
-  `setup` bunları yalnızca `--acknowledge-unconfined` ile kurar ve kaydeder;
-  onları hassas olmayan işler için kullanın ya da işletim sistemi yalıtımı
-  altında çalıştırın.
+- **Kullanıcı geneli** (yedi uygulama): dosya kökü bayrağı olmadan başlatılır,
+  bu yüzden işletim sistemi kullanıcınızın erişebildiği her şeyi okuyup
+  yazabilir. `setup` bunları yalnızca `--acknowledge-unconfined` ile kurar ve
+  kaydeder; onları hassas olmayan işler için kullanın ya da işletim sistemi
+  yalıtımı altında çalıştırın.
 
 ## Yerel uygulamaların kurulumu
 

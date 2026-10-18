@@ -235,6 +235,155 @@ every card is unchanged. 1.5.3 changes only Storytold's own `setup` and
 `doctor` logic, which reads the host CLIs' documented `mcp add`/`get`/`remove`
 behaviour already cited above.
 
+## Release-tag recheck of all thirteen apps, moved by pull request #7 — 2026-10-18
+
+The scheduled run 39116490412 found new releases of all thirteen apps and
+failed while signing (a transient Rekor `409`, fixed in `e1e0781`); the
+hand-triggered run 39167465003 signed all 39 archives, verified them on the
+three runners and merged #7 as `37889e2`. Same recheck as above, between the
+old and the new tag of each repository. Every catalog launch is still
+accepted, every smoke tool still exists without required parameters, no tool
+was removed or renamed, and every release keeps the three asset names the
+manifest expects plus `SHA256SUMS.txt`:
+
+- CADCraft v0.8.0 (`714111d`): `mcp` parser, MCP tools and `docs/mcp.md`
+  unchanged (only `--connect` with `--lazy`/`--launch`, no root flag, unknown
+  arguments refused; the same 12 headless tools). New
+  `crates/engine/src/doc_path.rs`: a path stored in a drawing (xrefs loaded on
+  `open` or reload, data links on `DATALINKUPDATE`) resolves beside it and is
+  followed only on this computer or the drawing's own share, otherwise the
+  xref stays Unresolved ("not opened"); paths given to `XATTACH`, `-XREF Path`
+  or `DATALINK` are used as given; xref reads are capped at 1 GiB in total.
+  Card adds the stored-path rule.
+- DeckCraft v0.8.0 (`22db926`): `mcp` adds `--automation-read-root DIR` and
+  `--automation-write-root DIR` (`apps/deckcraft-cli/src/automation_args.rs`;
+  existing folders, each once, refused with `--connect`, the whole process
+  confined; not covered: path-less commands, the font scan, the recovery
+  folder and the desktop app). Plain `mcp` still starts unconfined and other
+  unknown options are still refused. The same 25 tools; every tool refuses an
+  argument outside its schema; `export` adds `gif` (`width`,
+  `secondsPerSlide`, `loop`) and PDF `paper`/`orientation` for notes and
+  handouts; `pointer` adds `tripleclick`/`contextclick`. Card corrected: the
+  roots exist, but the catalog does not pass them.
+- DesignCraft v0.9.0 (`7cb8b12`): the same two root flags with the same rules
+  (`docs/mcp.md`, "Confining file access"; linked files a document names are
+  checked too); plain `mcp` unchanged and unconfined. New `ime` tool (25 to
+  26); an unknown tool argument or `execute`/`batch` params key is JSON-RPC
+  -32602, and `batch` checks every step before the first runs; `new_document`
+  adds `intent`, `units`, `startPage`, `slug` and `primaryTextFrame`; new
+  engine command `file.exportPptx`. Paths stored in documents (links, data
+  sources, book chapters, IDML package links) are followed only on this
+  computer or the document's share, otherwise missing with the reason in
+  `links.list`/Preflight; images inside SVGs are read only from `data:` URLs.
+  Card corrected like DeckCraft's and adds the stored-path rule, PowerPoint
+  export and the -32602 refusal.
+- EffectCraft v0.11.1 (`2a01226`; there is no v0.11.0 tag): `mcp` parser and
+  `crates/automation/src/confine.rs`, `tools.rs` and `backend.rs` unchanged, so
+  both root flags keep their semantics (scripts, `control`, `ui_*` and
+  `script_ui` still refused while confined); the same 36 tools and 382 engine
+  command ids; `docs/mcp.md` unchanged. New: a footage path stored in a
+  project resolves beside it and is followed only on this computer or the
+  project's own share, otherwise it is marked missing unread
+  (`file.findMissing`); a non-Unicode argument is a usage error; the bridge
+  (not used here) no longer replays a mutation whose reply was lost. Card adds
+  the stored-path rule.
+- FigCraft v0.7.0 (`47438dd`): `mcp` adds `--automation-read-root DIR` and
+  `--automation-write-root DIR` (repeatable, existing folders, refused with
+  `--attach`; `crates/engine/src/file_access.rs` checks every engine file
+  access, the app's own preference, recovery, plug-in and font folders
+  excepted); plain `mcp` unchanged and unconfined. The same 18 tools; `batch`
+  steps reference earlier results with `{"$step": n}`; `save_file` to a `.fig`
+  path writes an export copy and leaves the document unsaved; `set_properties`
+  returns `warnings`; `.fig` export now writes variables and shared styles,
+  and the example documents were opened in other software. The release also
+  ships `figcraft-server-*` tarballs, not used here. Card corrected (roots
+  exist but are not passed; the `.fig` claim) and adds `$step`, the `.fig`
+  copy and `warnings`. The 2026-10-14 rows above that say FigCraft has no
+  file-root flag describe v0.5.1/v0.6.0.
+- FilmCraft v0.9.0 (`4a69a03`): CLI parser, the 17 MCP tools
+  (`crates/automation` identical) and `docs/agents.md` unchanged; `mcp` still
+  takes only `--bridge`, `--project`, `--demo` and `--data-dir`. New
+  (`docs/project-files.md`): media and proxy paths stored in a project,
+  template or interchange file are followed only on this computer or the
+  document's own share, otherwise they count as missing and render the
+  offline slate; scratch folders named in a project are used only inside its
+  folder or when chosen locally; Edit Original opens only media files. Card
+  adds the stored-path rule.
+- GridCraft v0.8.0 (`823c565`): `apps/gridcraft-cli`, `crates/mcp`,
+  `docs/mcp.md` and `docs/cli.md` unchanged (`--connect`, `--in`, `--sample`;
+  21 tools). Formulas over Excel's 8,192 characters or past 256 postfix
+  nesting levels are now parse errors (an opened cell keeps its formula text
+  and cached value); the `--connect` control channel closes on a malformed
+  line. Card adds the formula limit.
+- LightCraft v0.9.1 (`4f0b110`; 0.9.1 only fixes 0.9.0's web build): `mcp`
+  flags unchanged (`--compact` accepted, unknown options refused; stdio now
+  shuts down on an output failure); the same 17 compact tools. `export` gains
+  `destinationMode` (`sameAsOriginal`) and lossy DNG; new `slideshow.*`,
+  `print.*` (`print.exportPdf`) and `merge.hdrBatch` commands are reachable
+  through `command_run`; merges write beside the first source photo. Card
+  adds the writes into photo folders, settings-folder slideshow templates,
+  the background `slideshow.export` and the overwriting `print.exportPdf`.
+- PdfCraft v0.9.0 (`645016a`): `--root` (once, with a value) and `--compact`
+  unchanged, `resolve_in_root` the same logic with clearer messages, unknown
+  options refused, no connect flag. New `--automation-read-root` and
+  `--automation-write-root` (`apps/pdfcraft-cli/src/automation_args.rs`) set
+  separate read and write folders on top of `--root`; neither covers a
+  `doc_print` printer job or a Keychain/Windows-store `sign_document`
+  identity. Tools 163 to 170 (`text_word_count`, `page_transition_set`,
+  `xfa_to_static`, four accessibility tools), nothing removed; the compact
+  core and `doc_inspect` unchanged; `doc_flatten` of XFA fields removes the
+  XFA. Card records the new flags (not passed), the XFA-removing edits and
+  what roots do not cover.
+- PhotoCraft v0.10.0 (`8407d9c`): `mcp` parser and root semantics unchanged
+  (unknown flags still refused; roots apply only without `--bridge`);
+  `crates/automation/src/workspace.rs` only tightens: `edit.keyboardShortcuts`
+  and `brush.presets.importImage` paths are refused, stored Displace and Color
+  Lookup smart-filter paths are re-checked at render time, and paths stored in
+  a document are followed only locally or on its own share. The same 25 tools
+  (`command_list` `filter` also matches keywords); `docs/mcp.md` unchanged.
+  Card unchanged except its recheck date.
+- SoundCraft v0.8.0 (`2578ea6`): no diff under `apps/`, `crates/automation/`
+  or `docs/`; `crates/engine/src/file_access.rs` changed only in a test. Roots
+  must exist, each flag once, refused with `--connect`; other unknown `mcp`
+  flags are still ignored; still not covered: the open session, plug-in
+  loading and a `--connect` app. New (`crates/engine/src/io.rs`): stored
+  source and movie paths resolve through `craft-docpath`, so ones on another
+  computer, a device or a URL are reported missing ("not opened"). The same
+  17 tools; `bounce_mix` still has no replace guard. Card adds the stored-path
+  refusal.
+- VectorCraft v0.13.1 (`904f0fe`): the `mcp` parser and
+  `crates/engine/src/file_access.rs` byte-identical; only unconfined headless
+  sessions now keep PDF presets, ICC profiles and plug-ins beside the
+  preferences. The same 32 tools; `doc_inspect`/`inspect_document` gain
+  `ids`, `kind`, `limit` and `offset`; `command_batch` code and schema
+  unchanged. The stdio server now honours `notifications/cancelled` (a queued
+  call is dropped; a running export, flatten, bake or render stops at its
+  next checkpoint and writes nothing), sends progress, and refuses other
+  engine requests behind a call that has run 2 s with -32003. Card adds
+  scoped inspection, the busy and cancel behaviour and that a confined server
+  keeps no stores; "may not support active cancellation" is gone from the
+  card and from the acceptance scenario.
+- WordCraft v0.8.0 (`f2e15cf`): the `mcp` branch, `automation_args.rs` and the
+  root checks unchanged (`file_access.rs` only exempts the desktop-only
+  recovery store in a test); new reads go through `check_read`. The same 16
+  tools; `get_text` now omits tracked deletions; new `file.rename` checks the
+  file against both roots and the new name against the write root. Card adds
+  both.
+
+Four apps now ship root flags the catalog does not pass: DeckCraft 0.8.0,
+DesignCraft 0.9.0 and FigCraft 0.7.0 (`--automation-read-root` and
+`--automation-write-root`) and PdfCraft 0.9.0 (the same two on top of
+`--root`). Their catalog launches are unchanged (plain `mcp`, `os_only`;
+PdfCraft `single_root`); adopting the flags is a reviewed catalog change with
+a local `preflight` and `probe`, as it was for SoundCraft and WordCraft. The
+README legend, the `setup` messages and the safety list now say these apps
+are launched without root flags rather than that they have none. Six releases
+also follow paths stored in documents only on this computer or the
+document's own share (CADCraft xrefs, DesignCraft links, EffectCraft footage,
+FilmCraft media, PhotoCraft smart filters, SoundCraft sources). Source review
+only; the thirteen new binaries ran only in the workflow's verify jobs, not on
+a developer machine.
+
 ## Build infrastructure
 
 The workflow uses reviewed full-commit action references:

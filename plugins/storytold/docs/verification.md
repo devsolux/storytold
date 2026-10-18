@@ -8,6 +8,18 @@ below): twelve on a developer Mac and on GitHub runners, FigCraft (added in
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Release workflow runs after 1.5.3 — October 18, 2026
+
+| Run or gate | Result |
+|---|---|
+| Scheduled run 39116490412 | Failed in `refresh`: all thirteen apps had new releases, and signing the third of the 39 archives (`cadcraft-cli.exe`) got Rekor `409 createLogEntryConflict`. Rekor had committed the entry (log index 3309717814, 09:44:48 UTC) without answering in time, and cosign's own HTTP retry resent it. The signature store was left unchanged and nothing was published. |
+| `e1e0781`, retries in `scripts/sign_releases.py` | Locally on Python 3.11.17 (`.venv`): `make check`, **265 tests**, build and verify-build passed; `tests.test_sign` also on Python 3.13. CI on the push (run 39167459727) passed all seven jobs. |
+| `workflow_dispatch` run 39167465003 on `e1e0781` | All jobs passed: `refresh` signed all 39 archives (no retry was needed), `publish` opened pull request #7, the three `verify` jobs ran `scripts/build.py check`, `scripts/check_bundles.py` and the real strict `setup --all --acknowledge-unconfined` with each app's smoke tool on `ubuntu-latest`, `windows-latest` and `macos-latest`, and `merge` squash-merged #7 as `37889e2`. As before, the merge created no CI run. |
+
+The thirteen cards were rechecked at the new tags (see the
+[source ledger](source-ledger.md)). None of the thirteen new binaries has run
+on a developer machine, and the retry path has run only in the unit tests.
+
 ## Executed for 1.5.3 — October 17, 2026
 
 macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`), plus GitHub:

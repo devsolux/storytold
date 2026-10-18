@@ -25,12 +25,12 @@ Bare mcp creates the documented headless project; its only options are --bridge,
 
 ## Durable verification
 
-Check duration, frame rate, timeline, audio and all media references. An offline clip (missing, made offline or unreadable) renders as a MEDIA NOT FOUND slate and the MCP export still succeeds: the result of file.exportMedia with wait: true, the job in jobs.list and each export.queue.list item carry offlineMedia, the items drawn as placeholders ([] when none). Treat a non-empty list as a failed deliverable, check with media.status or media.findMissing before exporting and inspect frames afterwards; only the standalone CLI export and render exit 1 on offline media unless --allow-offline. Neither file existence nor a retry proves the media was present.
+Check duration, frame rate, timeline, audio and all media references. An offline clip (missing, made offline or unreadable) renders as a MEDIA NOT FOUND slate and the MCP export still succeeds: the result of file.exportMedia with wait: true, the job in jobs.list and each export.queue.list item carry offlineMedia, the items drawn as placeholders ([] when none). Treat a non-empty list as a failed deliverable, check with media.status or media.findMissing before exporting and inspect frames afterwards; only the standalone CLI export and render exit 1 on offline media unless --allow-offline. Neither file existence nor a retry proves the media was present. Since 0.9.0 a media or proxy path stored in a project, template or interchange file resolves beside it and is followed only on this computer or the document's own share; any other (a device too) counts as missing and renders the slate.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-16 against the upstream
+Reference, app-specific section, rechecked on 2026-10-18 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [agent and MCP guide](https://github.com/storytold/filmcraft/blob/main/docs/agents.md).
 Pin the source revision and executable hash, verify help/flags and current

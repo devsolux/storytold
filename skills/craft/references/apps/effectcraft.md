@@ -25,12 +25,12 @@ The source-documented read/write roots enable restricted mode that refuses scrip
 
 ## Durable verification
 
-Check composition dimensions, timing, layer offset/stretch, expected frames and media. Preserve native warnings. batch rolls back when a step fails, while command_batch keeps one undo step per edit and stops at the first error; neither spans files or apps. Autosave is not enabled implicitly.
+Check composition dimensions, timing, layer offset/stretch, expected frames and media. Preserve native warnings. batch rolls back when a step fails, while command_batch keeps one undo step per edit and stops at the first error; neither spans files or apps. Autosave is not enabled implicitly. Since 0.11.1 a footage path stored in a project resolves beside it and is followed only on this computer or the project's own share; any other (a device or a non-file URL too) is marked missing without being read, so list missing footage with file.findMissing after opening.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-16 against the upstream
+Reference, app-specific section, rechecked on 2026-10-18 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [agent guide](https://github.com/storytold/effectcraft/blob/main/docs/agents.md) and [MCP documentation](https://github.com/storytold/effectcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

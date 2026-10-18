@@ -1044,11 +1044,11 @@ def setup(apps: list[str], *, acknowledge_unconfined: bool, hosts: list[str] | N
                     if decision['up_to_date']:
                         entry['install'] = {'path': current['path'], 'sha256': current['sha256'], 'unchanged': True, 'label': current['pin'].get('version')}
                         entry['pin'] = current['pin']; entry['status'] = 'installed_not_registered'
-                        entry['next'] = f'{app} is installed and pinned but has no file-root flags; re-run with --acknowledge-unconfined to register it.'
+                        entry['next'] = f'{app} is installed and pinned but runs without file-root flags; re-run with --acknowledge-unconfined to register it.'
                         report['apps'].append(entry); log(f'{app}: {entry["next"]}'); continue
                     # Skip, do not stop: the other selected apps (the confined ones included) still get processed.
                     entry['status'] = 'needs_acknowledgement'
-                    entry['error'] = (f'{app} has no file-root flags: it can read and write anywhere your user can. '
+                    entry['error'] = (f'{app} runs without file-root flags: it can read and write anywhere your user can. '
                                       f'Re-run with --acknowledge-unconfined to install and register it for non-sensitive work.'
                                       + (f' Setup would then also stop on: {decision["also"]}' if decision['also'] else ''))
                     report['apps'].append(entry); log(f"{app}: skipped: {entry['error']}"); continue

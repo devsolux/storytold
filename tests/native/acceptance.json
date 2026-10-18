@@ -36,7 +36,7 @@
         "warnings_reviewed",
         "failure_and_boundary_test"
       ],
-      "task": "Check artboard count, coordinates, paths, fonts and import/export warnings. Reopen SVG/PDF/native output as appropriate and inspect the rendered result. Synchronous native operations may not support active cancellation."
+      "task": "Check artboard count, coordinates, paths, fonts and import/export warnings. Reopen SVG/PDF/native output as appropriate and inspect the rendered result. A cancelled export, flatten, bake or render writes nothing; inspect the document after a cancel."
     },
     {
       "id": "filmcraft",

@@ -130,10 +130,10 @@ shows how Storytold launches each app's MCP server.
   them read the workspace and write only its `outputs/` directory.
 - **Single root** (PdfCraft): one root covering the whole workspace, `inputs/`
   included; it is not separate read/write confinement.
-- **User-wide** (seven apps): no file-root flags, so they can read and write
-  anything your OS user can. `setup` installs and registers them only with
-  `--acknowledge-unconfined`; keep them for non-sensitive work or run them under
-  OS isolation.
+- **User-wide** (seven apps): launched without file-root flags, so they can
+  read and write anything your OS user can. `setup` installs and registers
+  them only with `--acknowledge-unconfined`; keep them for non-sensitive work
+  or run them under OS isolation.
 
 ## Setting up the native apps
 

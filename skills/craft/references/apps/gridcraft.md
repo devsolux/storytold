@@ -25,12 +25,12 @@ GridCraft owns formula calculation; do not substitute another model or recompute
 
 ## Durable verification
 
-Save XLSX where supported, reopen, compare formulas and recalculated/typed values, and surface error cells. A structurally valid OOXML ZIP is not a formula/fidelity pass. Keep exported data provenance for downstream slide/document work.
+Save XLSX where supported, reopen, compare formulas and recalculated/typed values, and surface error cells. A formula longer than Excel's 8,192 characters is a parse error; in an opened file such a cell keeps its formula text and cached value. A structurally valid OOXML ZIP is not a formula/fidelity pass. Keep exported data provenance for downstream slide/document work.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-16 against the upstream
+Reference, app-specific section, rechecked on 2026-10-18 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/gridcraft/blob/main/docs/mcp.md) and [format limits](https://github.com/storytold/gridcraft/blob/main/docs/file-format-parity.md).
 Pin the source revision and executable hash, verify help/flags and current
