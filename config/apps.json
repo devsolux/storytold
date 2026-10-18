@@ -65,9 +65,13 @@
       "name": "PdfCraft",
       "purpose": "PDF inspection, operations and validation",
       "executable": "pdfcraft-cli",
-      "confinement": "single_root",
+      "confinement": "read_write",
       "args": [
         "mcp",
+        "--automation-read-root",
+        "{work}",
+        "--automation-write-root",
+        "{outputs}",
         "--root",
         "{work}",
         "--compact"
@@ -96,9 +100,13 @@
       "name": "DesignCraft",
       "purpose": "Page layout, stories and publishing",
       "executable": "designcraft-cli",
-      "confinement": "os_only",
+      "confinement": "read_write",
       "args": [
-        "mcp"
+        "mcp",
+        "--automation-read-root",
+        "{work}",
+        "--automation-write-root",
+        "{outputs}"
       ],
       "repository": "https://github.com/storytold/designcraft",
       "documentation": "https://github.com/storytold/designcraft/blob/main/docs/mcp.md"
@@ -136,9 +144,13 @@
       "name": "DeckCraft",
       "purpose": "Slide decks and presentations",
       "executable": "deckcraft-cli",
-      "confinement": "os_only",
+      "confinement": "read_write",
       "args": [
-        "mcp"
+        "mcp",
+        "--automation-read-root",
+        "{work}",
+        "--automation-write-root",
+        "{outputs}"
       ],
       "repository": "https://github.com/storytold/deckcraft",
       "documentation": "https://github.com/storytold/deckcraft/blob/main/docs/mcp.md"
@@ -176,9 +188,13 @@
       "name": "FigCraft",
       "purpose": "Interface design, components and prototypes",
       "executable": "figcraft-cli",
-      "confinement": "os_only",
+      "confinement": "read_write",
       "args": [
-        "mcp"
+        "mcp",
+        "--automation-read-root",
+        "{work}",
+        "--automation-write-root",
+        "{outputs}"
       ],
       "repository": "https://github.com/storytold/figcraft",
       "documentation": "https://github.com/storytold/figcraft/blob/main/docs/mcp.md"

@@ -13,8 +13,7 @@ the `.dmg` or the ArtCraft Launcher) holds only the desktop app: install the sep
 Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/designcraft-cli`).
 The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
-Native source documents distinct read/write roots (since 0.9.0), but the catalog
-launches plain `mcp` without them: assume OS-user-wide access.
+Native source documents distinct read/write roots (since 0.9.0); still test the pinned binary and OS boundary.
 
 ## Discover before execution
 
@@ -22,7 +21,7 @@ Discover document structure, story reading/editing, image placement, page render
 
 ## Workflow and risky operations
 
-Text positions are UTF-8 byte offsets, not character counts or JavaScript string lengths. Compute a boundary with len(prefix.encode("utf-8")) only when the native schema requires it. Coordinates use points and spread space; render_page and export_png page indices are 0-based. Commands that create items take spread: a body spread index, or {"kind": "parent", "index": n} for a parent spread (its index in the parents list of inspect_document); any other value is an error. batch stops at the first error (failedIndex) and earlier steps stay applied. The catalog passes neither --automation-read-root nor --automation-write-root, so file paths are unconfined.
+Text positions are UTF-8 byte offsets, not character counts or JavaScript string lengths. Compute a boundary with len(prefix.encode("utf-8")) only when the native schema requires it. Coordinates use points and spread space; render_page and export_png page indices are 0-based. Commands that create items take spread: a body spread index, or {"kind": "parent", "index": n} for a parent spread (its index in the parents list of inspect_document); any other value is an error. batch stops at the first error (failedIndex) and earlier steps stay applied. The catalog launches mcp with --automation-read-root (the workspace) and --automation-write-root (outputs/): every open, place, relink, load or import with a path, and the files a document names (links, data sources, book chapters, Document Fonts), must read inside the read root, so a stored path outside it reads as missing; every save, export, package, book and library write inside the write root; a refused path is an ordinary tool error (automation path rejected). Both folders must exist at launch, each flag is given once, --connect with them is an error, and the desktop app is never confined. Not covered: path-less commands, the system font scan, the recovery folder, and file.print, which hands a PDF to the system print spooler.
 
 ## Durable verification
 

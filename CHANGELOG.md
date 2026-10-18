@@ -32,10 +32,20 @@
   FigCraft's `{"$step": n}` batch references; and the stored-path rules of
   CADCraft, DesignCraft, EffectCraft, FilmCraft and SoundCraft.
 - DeckCraft, DesignCraft, FigCraft and PdfCraft now ship read/write root
-  flags that the catalog does not pass yet, so their cards, the safety list,
-  the README legend and the `setup` messages say these apps are launched
-  without root flags instead of claiming they have none. Their launches are
-  unchanged; confining them is a separate reviewed catalog change.
+  flags, so the `setup` messages and the README legend say an unconfined app
+  is launched without root flags instead of claiming it has none.
+- Reviewed catalog change: DeckCraft, DesignCraft and FigCraft are launched
+  with `--automation-read-root` (the workspace) and `--automation-write-root`
+  (`outputs/`), and PdfCraft adds the same two to its `--root`, so it reads
+  the workspace and writes only `outputs/` (before, it could write into
+  `inputs/`). Nine apps now run with roots and four (FilmCraft, LightCraft,
+  GridCraft, CADCraft) need `--acknowledge-unconfined`; `single_root` is
+  gone. `preflight` refuses DeckCraft before 0.8.0, DesignCraft before 0.9.0,
+  FigCraft before 0.7.0 and PdfCraft before 0.9.0, which would refuse the
+  flags; existing installs move with `setup --app <app> --upgrade --replace`.
+  `make setup-confined` now covers the nine apps. Accepted locally: upgrade,
+  probe and re-registration of all four, a read denial for each and a
+  write denial for PdfCraft.
 
 ## 1.5.3 — 2026-10-17
 

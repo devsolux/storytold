@@ -384,6 +384,49 @@ FilmCraft media, PhotoCraft smart filters, SoundCraft sources). Source review
 only; the thirteen new binaries ran only in the workflow's verify jobs, not on
 a developer machine.
 
+## DeckCraft, DesignCraft, FigCraft and PdfCraft launched with their root flags — 2026-10-18
+
+A reviewed catalog change after the recheck above. Source, at the pinned tags:
+
+- DeckCraft v0.8.0 and DesignCraft v0.9.0 add
+  `apps/<app>-cli/src/automation_args.rs` in that tag (no earlier tag has
+  it). Each flag is given once (`--flag DIR` or `--flag=DIR`), the folders
+  must exist, `--connect` with them is an error and the whole server process
+  is confined. Their `docs/mcp.md` ("Confining file access") lists every
+  read and write command; DesignCraft also checks the files a document
+  names. Not covered: path-less commands, the system font scan, the recovery
+  folder and, for DesignCraft, `file.print` to the system spooler.
+- FigCraft v0.7.0 adds the flags (commit `ac4b98d`, first in that tag): each
+  repeatable, existing folders, refused with `--attach`. Every engine file
+  access goes through `crates/engine/src/file_access.rs` (enforced for the
+  engine by `clippy.toml`); the app's own preference, recovery, plug-in and
+  font folders are excepted.
+- PdfCraft v0.9.0 takes the root flags out of the `mcp` arguments before
+  `validate_options` sees the rest (`apps/pdfcraft-cli/src/main.rs`,
+  `automation_roots`), so their order next to `--root` and `--compact` does
+  not matter. With `--root` both apply: a path must be inside `--root` and
+  inside the matching automation root (`docs/mcp.md`). Without `directories`,
+  `text_font_files` then searches the read root instead of the installed
+  fonts.
+- Older releases of all four refuse unknown `mcp` options (DeckCraft v0.7.0
+  `unknown mcp option`, FigCraft v0.6.0 `unknown option`, and the same for
+  DesignCraft v0.8.0 and PdfCraft v0.8.0), so an older pin would fail to start
+  rather than run unconfined.
+
+Decision: DeckCraft, DesignCraft and FigCraft move from `os_only` to
+`read_write` with the same two flags as WordCraft and SoundCraft. PdfCraft
+moves from `single_root` to `read_write`: it keeps `--root {work}` as an
+extra fence and adds `--automation-read-root {work}` and
+`--automation-write-root {outputs}`, so it reads the workspace and writes
+only `outputs/`, no longer `inputs/` or `receipts/`. `single_root` is gone
+from the catalog. `ROOTS_SINCE` in `storytold_tools/catalog.py` now names
+DeckCraft 0.8.0, DesignCraft 0.9.0, FigCraft 0.7.0 and PdfCraft 0.9.0, so
+`preflight` refuses an older pin before anything starts and `setup`
+upgrades it. Local acceptance, including a denial outside the read root for
+all four and outside the write root for PdfCraft, is in
+[verification](verification.md). Nine apps now run with roots; FilmCraft,
+LightCraft, GridCraft and CADCraft remain user-wide.
+
 ## Build infrastructure
 
 The workflow uses reviewed full-commit action references:

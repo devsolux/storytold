@@ -3,8 +3,8 @@
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All thirteen CLIs have
 passed the native probe through operator- or runner-run `setup` (tables
-below): twelve on a developer Mac and on GitHub runners, FigCraft (added in
-1.4.0) on the three GitHub runners only. That is M0-level evidence, not
+below), on GitHub runners and on a developer Mac (FigCraft there since
+October 18, 2026). That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
@@ -19,6 +19,26 @@ release from documentary evidence.
 The thirteen cards were rechecked at the new tags (see the
 [source ledger](source-ledger.md)). None of the thirteen new binaries has run
 on a developer machine, and the retry path has run only in the unit tests.
+
+### DeckCraft, DesignCraft, FigCraft and PdfCraft confined with their root flags — October 18, 2026
+
+The reviewed catalog change launches DeckCraft, DesignCraft and FigCraft with
+`--automation-read-root` (the workspace) and `--automation-write-root`
+(`outputs/`), and PdfCraft with the same two in addition to `--root` (the
+workspace). Same machine as 1.5.3 (macOS, Darwin 27, arm64), with the
+operator's approval for each step:
+
+| Step | Result |
+|---|---|
+| `setup --app deckcraft --app designcraft --app pdfcraft --upgrade --replace` | Replaced the installed DeckCraft 0.5.0, DesignCraft 0.6.0 and PdfCraft 0.7.1 with the pinned 0.8.0, 0.9.0 and 0.9.0 (`deckcraft-cli-0.8.0-macos-universal.zip` 72,514,092 bytes, `designcraft-cli-0.9.0-…` 71,114,625, `pdfcraft-cli-0.9.0-…` 61,512,027; archive hashes matched the manifest and upstream sums; notarized `DJ6XS33FX8`; Sigstore bundles verified with cosign). Each staged candidate and then each installed binary was probed with the root launch (official SDK 2.3.0, protocol `2025-06-18`): DeckCraft 25 tools with `list_commands`, DesignCraft 26 with `inspect_document`, PdfCraft 17 compact tools with `doc_inspect`, each answering `isError: false`. In Codex and Claude Code the previous user-scope entry was removed and the root launch registered. |
+| `setup --app figcraft` | First install on this Mac: `figcraft-cli-0.7.0-macos-universal.zip` (78,314,177 bytes, same checks), probed staged and installed (18 tools, `inspect_document` answered), registered in Codex and Claude Code with the root launch. |
+| `preflight` for the four apps | Passes without `--acknowledge-unconfined`; the launches resolve to the pinned versions with `--automation-read-root ~/craft-work-storytold --automation-write-root ~/craft-work-storytold/outputs` (PdfCraft adding `--root ~/craft-work-storytold --compact`). |
+| Root denial, an SDK script asking each server to open `/etc/hosts` | Each server announced its roots on stderr (`files confined: read root ~/craft-work-storytold, write root ~/craft-work-storytold/outputs`; FigCraft `file access confined to {"read": [workspace, outputs], "write": [outputs]}`). `open_presentation`, `open_document` and FigCraft's `open_file` answered `isError: true` with `automation path rejected: … outside the read root`; PdfCraft's `doc_open` was refused by `--root` first (`is outside the allowed directory`). |
+| PdfCraft write root | A blank `doc_create` document saved into `inputs/` (inside `--root`) was refused with `automation path rejected: outside the write root ~/craft-work-storytold/outputs` and nothing was written; the same save into `outputs/` wrote 566 bytes, and that test file was removed. |
+
+Not run: write denials for DeckCraft, DesignCraft and FigCraft, and these
+launches on Linux and Windows, which the release workflow's `verify` jobs run
+on their next run from `main`.
 
 ## Executed for 1.5.3 — October 17, 2026
 

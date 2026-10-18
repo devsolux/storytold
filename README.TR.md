@@ -127,22 +127,21 @@ sütunu, Storytold'un her uygulamanın MCP sunucusunu nasıl başlattığını g
 | <img src="https://raw.githubusercontent.com/storytold/vectorcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.vectorcraft.png" alt="" width="32" height="32"> | **VectorCraft** | Vektör illüstrasyon | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/vectorcraft) | [Web sitesi](https://getartcraft.com/apps/vectorcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/filmcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.filmcraft.png" alt="" width="32" height="32"> | **FilmCraft** | Video kurgu, renk ve ses | Kullanıcı geneli | [GitHub](https://github.com/storytold/filmcraft) | [Web sitesi](https://getartcraft.com/apps/filmcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/lightcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.lightcraft.png" alt="" width="32" height="32"> | **LightCraft** | Fotoğraf kütüphanesi ve RAW geliştirme | Kullanıcı geneli | [GitHub](https://github.com/storytold/lightcraft) | [Web sitesi](https://getartcraft.com/apps/lightcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/pdfcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.pdfcraft.png" alt="" width="32" height="32"> | **PdfCraft** | PDF okuma, düzenleme ve koruma | Tek kök | [GitHub](https://github.com/storytold/pdfcraft) | [Web sitesi](https://getartcraft.com/apps/pdfcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/pdfcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.pdfcraft.png" alt="" width="32" height="32"> | **PdfCraft** | PDF okuma, düzenleme ve koruma | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/pdfcraft) | [Web sitesi](https://getartcraft.com/apps/pdfcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/effectcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.effectcraft.png" alt="" width="32" height="32"> | **EffectCraft** | Hareketli grafik ve görsel efektler | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/effectcraft) | [Web sitesi](https://getartcraft.com/apps/effectcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/designcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.designcraft.png" alt="" width="32" height="32"> | **DesignCraft** | Sayfa mizanpajı ve yayıncılık | Kullanıcı geneli | [GitHub](https://github.com/storytold/designcraft) | [Web sitesi](https://getartcraft.com/apps/designcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/designcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.designcraft.png" alt="" width="32" height="32"> | **DesignCraft** | Sayfa mizanpajı ve yayıncılık | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/designcraft) | [Web sitesi](https://getartcraft.com/apps/designcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/gridcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.gridcraft.png" alt="" width="32" height="32"> | **GridCraft** | Hesap tabloları ve veri | Kullanıcı geneli | [GitHub](https://github.com/storytold/gridcraft) | [Web sitesi](https://getartcraft.com/apps/gridcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/wordcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.wordcraft.png" alt="" width="32" height="32"> | **WordCraft** | Kelime işlem ve belgeler | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/wordcraft) | [Web sitesi](https://getartcraft.com/apps/wordcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/deckcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.deckcraft.png" alt="" width="32" height="32"> | **DeckCraft** | Sunumlar ve slaytlar | Kullanıcı geneli | [GitHub](https://github.com/storytold/deckcraft) | [Web sitesi](https://getartcraft.com/apps/deckcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/deckcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.deckcraft.png" alt="" width="32" height="32"> | **DeckCraft** | Sunumlar ve slaytlar | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/deckcraft) | [Web sitesi](https://getartcraft.com/apps/deckcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/cadcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.cadcraft.png" alt="" width="32" height="32"> | **CADCraft** | Bilgisayar destekli tasarım (CAD) | Kullanıcı geneli | [GitHub](https://github.com/storytold/cadcraft) | [Web sitesi](https://getartcraft.com/apps/cadcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/soundcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.soundcraft.png" alt="" width="32" height="32"> | **SoundCraft** | Ses kaydı ve düzenleme | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/soundcraft) | [Web sitesi](https://getartcraft.com/apps/soundcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/figcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.figcraft.png" alt="" width="32" height="32"> | **FigCraft** | Arayüz tasarımı ve prototipleme | Kullanıcı geneli | [GitHub](https://github.com/storytold/figcraft) | [Web sitesi](https://getartcraft.com/apps/figcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/figcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.figcraft.png" alt="" width="32" height="32"> | **FigCraft** | Arayüz tasarımı ve prototipleme | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/figcraft) | [Web sitesi](https://getartcraft.com/apps/figcraft) |
 
-- **Okuma/yazma kökleri** (beş uygulama): çalışma alanını okumalarına ve
+- **Okuma/yazma kökleri** (dokuz uygulama): çalışma alanını okumalarına ve
   yalnızca onun `outputs/` dizinine yazmalarına izin veren yerel kök
-  bayraklarıyla başlatılır.
-- **Tek kök** (PdfCraft): `inputs/` dâhil tüm çalışma alanını kapsayan tek bir
-  kök; ayrı okuma/yazma sınırlaması değildir.
-- **Kullanıcı geneli** (yedi uygulama): dosya kökü bayrağı olmadan başlatılır,
+  bayraklarıyla başlatılır. PdfCraft ayrıca çalışma alanındaki tek `--root`
+  kökünü korur; ikisi birlikte geçerlidir.
+- **Kullanıcı geneli** (dört uygulama): dosya kökü bayrağı olmadan başlatılır,
   bu yüzden işletim sistemi kullanıcınızın erişebildiği her şeyi okuyup
   yazabilir. `setup` bunları yalnızca `--acknowledge-unconfined` ile kurar ve
   kaydeder; onları hassas olmayan işler için kullanın ya da işletim sistemi
@@ -188,7 +187,7 @@ bir host oturumu başlatın.
 | Seçenek | Etkisi |
 |---|---|
 | `--app <app>` / `--all` | Tek bir uygulamayı (tekrarlanabilir) ya da on üçünün tamamını seçer. |
-| `--acknowledge-unconfined` | Kullanıcı genelindeki yedi uygulamayı da kurar ve kaydeder. Yalıtım kanıtı değildir. |
+| `--acknowledge-unconfined` | Kullanıcı genelindeki dört uygulamayı da kurar ve kaydeder. Yalıtım kanıtı değildir. |
 | `--host {codex,claude}` | Yalnızca belirtilen host'a kaydeder (varsayılan: PATH'teki her host CLI'si); PATH'te olmayan belirtilmiş bir host çalıştırmayı başarısız kılar. |
 | `--dry-run` | Gerçek bir çalıştırmanın her uygulama için ne yapacağını (`keep`, `install`, `upgrade`, `skip` veya `refuse`, yalnızca gerektiğinde indirme, her kayıt) ve başarılı olup olmayacağını (olmayacaksa çıkış kodu 1) ya da `--remove` ile birlikte tam olarak neyin kaldırılacağını önizler. Hiçbir şeyi değiştirmez. |
 | `--list` | Manifest, kurulum, sabitleme ve kayıt durumunu ve kullanılan yolları gösterir. |
@@ -259,11 +258,14 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 ```
 
 Bir sürüm bir uygulamanın başlatma argümanlarını değiştirdiğinde (1.5.0'da
-WordCraft'ın, 1.5.2'de SoundCraft'ın kök bayrakları), farklı kaydın yeniden
-yazılması için `--replace` ekleyin; o olmadan `setup` farkı yalnızca bildirir ve
-kaydı olduğu gibi bırakır. SoundCraft köklerine yalnızca 0.7.0'dan itibaren
-uyar; bu yüzden daha eski bir kurulu SoundCraft,
-`setup --app soundcraft --upgrade --replace` onu güncelleyene kadar reddedilir.
+WordCraft'ın, 1.5.2'de SoundCraft'ın, 1.5.3'ten sonra DeckCraft, DesignCraft,
+FigCraft ve PdfCraft'ın kök bayrakları), farklı kaydın yeniden yazılması için
+`--replace` ekleyin; o olmadan `setup` farkı yalnızca bildirir ve kaydı olduğu
+gibi bırakır. SoundCraft köklerine yalnızca 0.7.0'dan itibaren uyar; bu yüzden
+daha eski bir kurulu SoundCraft, `setup --app soundcraft --upgrade --replace`
+onu güncelleyene kadar reddedilir. Bayrakları reddeden 0.8.0 öncesi DeckCraft,
+0.9.0 öncesi DesignCraft, 0.7.0 öncesi FigCraft ve 0.9.0 öncesi PdfCraft için
+de aynısı geçerlidir.
 
 ### Kaldırma
 
@@ -360,7 +362,7 @@ make verify-build
 | `make setup` / `make setup-probe` | Yerel bir `.venv` oluşturur; ardından açık bir ağ tercihi olarak özet kilitli resmi MCP SDK'yı (`mcp==2.3.0`) kurar. |
 | `make test-sdk` | Gerçek SDK'yı Craft uygulamalarına değil, sentetik bir stdio fikstürüne karşı sınar. |
 | `make refresh-releases` / `make sign-releases` | Günlük iş akışının çalıştırdığı ağ adımları (imzalama cosign gerektirir). |
-| `make setup-confined` | Kök sınırlı altı uygulamayı bu makinede kurar, sabitler, yoklar ve kaydeder. |
+| `make setup-confined` | Kök sınırlı dokuz uygulamayı bu makinede kurar, sabitler, yoklar ve kaydeder. |
 | `make clean` | Yalnızca işaretli `.build/` ve `dist/` dizinlerini kaldırır; çalışma alanları ve `.venv` kalır. |
 
 Derlemeler ve testler asla commit, push ya da kurulum yapmaz; yalnızca adıyla

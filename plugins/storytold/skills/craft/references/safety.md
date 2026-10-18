@@ -6,13 +6,11 @@ staging writes a new read-only copy and records the source/copy hash. POSIX file
 modes deter mistakes but are not immutable against the owning user. Windows
 requires a reviewed ACL. No script in this plugin claims to create an OS sandbox.
 
-PhotoCraft, VectorCraft, EffectCraft, WordCraft and SoundCraft are launched with
-source-documented distinct read/write roots. PdfCraft is launched with one root that
-includes both input and output paths. FilmCraft, LightCraft, DesignCraft, GridCraft,
-DeckCraft, CADCraft and FigCraft are launched without roots and must be treated as
-OS-user-wide unless the pinned binary proves otherwise. DeckCraft, DesignCraft, FigCraft
-and PdfCraft releases now also document read/write root flags, but the catalog does not
-pass them, so only the launched arguments count.
+PhotoCraft, VectorCraft, EffectCraft, WordCraft, SoundCraft, DeckCraft, DesignCraft,
+FigCraft and PdfCraft are launched with source-documented distinct read/write roots
+(PdfCraft also keeps its single --root on the workspace; both apply). FilmCraft,
+LightCraft, GridCraft and CADCraft are launched without roots and must be treated as
+OS-user-wide unless the pinned binary proves otherwise.
 External OS isolation is required when confidential data or strong confinement
 matters. Other host shell/file tools are not restricted by native MCP roots.
 

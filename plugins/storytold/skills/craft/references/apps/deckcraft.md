@@ -13,8 +13,7 @@ the `.dmg` or the ArtCraft Launcher) holds only the desktop app: install the sep
 Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/deckcraft-cli`).
 The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
-Native source documents distinct read/write roots (since 0.8.0), but the catalog
-launches plain `mcp` without them: assume OS-user-wide access.
+Native source documents distinct read/write roots (since 0.8.0); still test the pinned binary and OS boundary.
 
 ## Discover before execution
 
@@ -22,7 +21,7 @@ Discover presentation/slide inspection, shape/text/chart operations, save and ex
 
 ## Workflow and risky operations
 
-Preserve approved narrative/data and make layout changes only within scope. The catalog passes neither --automation-read-root nor --automation-write-root, so file paths are unconfined. batch stops at the first error without rollback. A headless session starts with no presentation open (inspect_document returns "no presentation open"); call new_presentation or open_presentation first. Save a separate editable native deck and requested interchange export when required.
+Preserve approved narrative/data and make layout changes only within scope. The catalog launches mcp with --automation-read-root (the workspace) and --automation-write-root (outputs/): open_presentation and every picture, audio or video insert with a path must read inside the read root, and every save, export and render_slide with a path (with the .saving temporary file) inside the write root; a refused path is an ordinary tool error (automation path rejected). Both folders must exist at launch, each flag is given once, --connect with them is an error, and the desktop app is never confined. Not covered: path-less commands still read and change the open deck, and the system font scan and the recovery folder are not checked. batch stops at the first error without rollback. A headless session starts with no presentation open (inspect_document returns "no presentation open"); call new_presentation or open_presentation first. Save a separate editable native deck and requested interchange export when required.
 
 ## Durable verification
 

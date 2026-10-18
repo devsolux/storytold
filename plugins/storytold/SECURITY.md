@@ -35,7 +35,7 @@ Required for business data: a restricted account/container/VM or equivalent test
 OS controls for unconfined apps, trusted immutable executable deployment, private
 work/evidence directories, reviewed permissions for all host tools, explicit
 human approval for destructive/high-impact actions, and native fidelity tests.
-PdfCraft's single root is not separate read/write confinement. POSIX read-only
+PdfCraft keeps its single `--root` next to its read/write roots; both apply. POSIX read-only
 copies are not immutable against their owner; Windows needs actual ACL review.
 
 File helpers reject symlink/reparse paths, traversal, non-regular files and

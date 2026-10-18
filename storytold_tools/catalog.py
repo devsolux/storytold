@@ -8,9 +8,10 @@ from .common import ROOT, absolute, directory, encoded, digest, keys, load_json,
 
 APP_IDS = ('photocraft','vectorcraft','filmcraft','lightcraft','pdfcraft','effectcraft',
            'designcraft','gridcraft','wordcraft','deckcraft','cadcraft','soundcraft','figcraft')
-ROOTED = {'photocraft','vectorcraft','effectcraft','wordcraft','soundcraft'}
-# Releases before these ignore unknown `mcp` flags, so they would drop the root flags and run unconfined.
-ROOTS_SINCE = {'soundcraft': (0,7,0)}
+ROOTED = {'photocraft','vectorcraft','effectcraft','wordcraft','soundcraft','deckcraft','designcraft','figcraft','pdfcraft'}
+# Releases before these lack the root flags: SoundCraft's ignore unknown `mcp` flags and would run
+# unconfined, the others refuse them and would not start. Either way the pin must move first.
+ROOTS_SINCE = {'soundcraft': (0,7,0), 'deckcraft': (0,8,0), 'designcraft': (0,9,0), 'figcraft': (0,7,0), 'pdfcraft': (0,9,0)}
 
 def honours_roots(app: str, label: str) -> bool:
     """Whether a lock label names a release that applies the catalog's root flags (always true outside ROOTS_SINCE)."""
@@ -29,12 +30,12 @@ def load_catalog(root: Path = ROOT) -> dict[str, dict]:
         require(row['executable']==app+'-cli', 'unexpected native executable')
         require(row['repository']=='https://github.com/storytold/'+app, 'unexpected upstream repository')
         for field in ('name','purpose','documentation'): text(row[field], field, 2048)
-        require(row['confinement']==('read_write' if app in ROOTED else 'single_root' if app=='pdfcraft' else 'os_only'), 'unexpected root policy')
+        require(row['confinement']==('read_write' if app in ROOTED else 'os_only'), 'unexpected root policy')
         # Integration flags, not engine commands. Keep the authorized native mode exact.
         expected = ['mcp']
         if app=='vectorcraft': expected += ['--headless']
         if app in ROOTED: expected += ['--automation-read-root','{work}','--automation-write-root','{outputs}']
-        if app=='pdfcraft': expected += ['--root','{work}','--compact']
+        if app=='pdfcraft': expected += ['--root','{work}','--compact']  # both apply: inside --root and the matching automation root
         if app=='lightcraft': expected += ['--compact']
         require(row['args']==expected, f'{app}: launch flags need a reviewed code/catalog change')
         result[app]=row
@@ -108,7 +109,7 @@ def preflight(bin_dir: Path, work: Path, outputs: Path, lock_path: Path,
         # Fail closed: an unreadable or older version label could be a binary that silently drops the roots.
         require(honours_roots(app, pin['version']),
                 f'{app}: the pinned binary ({pin["version"].split(" ")[0][:40]}) predates its root flags '
-                f'({".".join(map(str,ROOTS_SINCE.get(app,())))}+) and would run unconfined; run setup --app {app} --upgrade --replace')
+                f'({".".join(map(str,ROOTS_SINCE.get(app,())))}+), so it would ignore or refuse them; run setup --app {app} --upgrade --replace')
         if row['confinement']=='os_only':
             require(acknowledge_unconfined, f'{app}: no verified native root flags; use tested OS isolation or explicitly acknowledge non-sensitive local testing')
         args=[{'{work}':str(work),'{outputs}':str(outputs)}.get(x,x) for x in row['args']]

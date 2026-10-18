@@ -8,13 +8,21 @@
     },
     "deckcraft": {
       "args": [
-        "mcp"
+        "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
       ],
       "command": "${CRAFT_BIN_DIR}/deckcraft-cli"
     },
     "designcraft": {
       "args": [
-        "mcp"
+        "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
       ],
       "command": "${CRAFT_BIN_DIR}/designcraft-cli"
     },
@@ -30,7 +38,11 @@
     },
     "figcraft": {
       "args": [
-        "mcp"
+        "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
       ],
       "command": "${CRAFT_BIN_DIR}/figcraft-cli"
     },
@@ -56,6 +68,10 @@
     "pdfcraft": {
       "args": [
         "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}",
         "--root",
         "${CRAFT_WORK_ROOT}",
         "--compact"

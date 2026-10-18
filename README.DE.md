@@ -125,23 +125,21 @@ Grund auf in Rust geschrieben und jedes eigenständig nutzbar. Die Spalte
 | <img src="https://raw.githubusercontent.com/storytold/vectorcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.vectorcraft.png" alt="" width="32" height="32"> | **VectorCraft** | Vektorillustration | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/vectorcraft) | [Website](https://getartcraft.com/apps/vectorcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/filmcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.filmcraft.png" alt="" width="32" height="32"> | **FilmCraft** | Videoschnitt, Farbe und Ton | Benutzerweit | [GitHub](https://github.com/storytold/filmcraft) | [Website](https://getartcraft.com/apps/filmcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/lightcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.lightcraft.png" alt="" width="32" height="32"> | **LightCraft** | Fotobibliothek und RAW-Entwicklung | Benutzerweit | [GitHub](https://github.com/storytold/lightcraft) | [Website](https://getartcraft.com/apps/lightcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/pdfcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.pdfcraft.png" alt="" width="32" height="32"> | **PdfCraft** | PDFs lesen, ordnen und schützen | Einzelne Wurzel | [GitHub](https://github.com/storytold/pdfcraft) | [Website](https://getartcraft.com/apps/pdfcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/pdfcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.pdfcraft.png" alt="" width="32" height="32"> | **PdfCraft** | PDFs lesen, ordnen und schützen | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/pdfcraft) | [Website](https://getartcraft.com/apps/pdfcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/effectcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.effectcraft.png" alt="" width="32" height="32"> | **EffectCraft** | Motion Graphics und visuelle Effekte | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/effectcraft) | [Website](https://getartcraft.com/apps/effectcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/designcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.designcraft.png" alt="" width="32" height="32"> | **DesignCraft** | Seitenlayout und Publishing | Benutzerweit | [GitHub](https://github.com/storytold/designcraft) | [Website](https://getartcraft.com/apps/designcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/designcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.designcraft.png" alt="" width="32" height="32"> | **DesignCraft** | Seitenlayout und Publishing | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/designcraft) | [Website](https://getartcraft.com/apps/designcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/gridcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.gridcraft.png" alt="" width="32" height="32"> | **GridCraft** | Tabellenkalkulation und Daten | Benutzerweit | [GitHub](https://github.com/storytold/gridcraft) | [Website](https://getartcraft.com/apps/gridcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/wordcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.wordcraft.png" alt="" width="32" height="32"> | **WordCraft** | Textverarbeitung und Dokumente | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/wordcraft) | [Website](https://getartcraft.com/apps/wordcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/deckcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.deckcraft.png" alt="" width="32" height="32"> | **DeckCraft** | Präsentationen und Folien | Benutzerweit | [GitHub](https://github.com/storytold/deckcraft) | [Website](https://getartcraft.com/apps/deckcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/deckcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.deckcraft.png" alt="" width="32" height="32"> | **DeckCraft** | Präsentationen und Folien | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/deckcraft) | [Website](https://getartcraft.com/apps/deckcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/cadcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.cadcraft.png" alt="" width="32" height="32"> | **CADCraft** | Computergestütztes Konstruieren (CAD) | Benutzerweit | [GitHub](https://github.com/storytold/cadcraft) | [Website](https://getartcraft.com/apps/cadcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/soundcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.soundcraft.png" alt="" width="32" height="32"> | **SoundCraft** | Audioaufnahme und -bearbeitung | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/soundcraft) | [Website](https://getartcraft.com/apps/soundcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/figcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.figcraft.png" alt="" width="32" height="32"> | **FigCraft** | Interface-Design und Prototyping | Benutzerweit | [GitHub](https://github.com/storytold/figcraft) | [Website](https://getartcraft.com/apps/figcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/figcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.figcraft.png" alt="" width="32" height="32"> | **FigCraft** | Interface-Design und Prototyping | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/figcraft) | [Website](https://getartcraft.com/apps/figcraft) |
 
-- **Lese-/Schreibwurzeln** (fünf Apps): mit nativen Wurzel-Flags gestartet, die
+- **Lese-/Schreibwurzeln** (neun Apps): mit nativen Wurzel-Flags gestartet, die
   ihnen erlauben, den Workspace zu lesen und nur in dessen Verzeichnis
-  `outputs/` zu schreiben.
-- **Einzelne Wurzel** (PdfCraft): eine Wurzel, die den ganzen Workspace
-  einschließlich `inputs/` umfasst; das ist keine getrennte
-  Lese-/Schreibbeschränkung.
-- **Benutzerweit** (sieben Apps): ohne Wurzel-Flags gestartet, daher können
+  `outputs/` zu schreiben. PdfCraft behält zusätzlich seine einzelne
+  `--root` auf dem Workspace; beide gelten.
+- **Benutzerweit** (vier Apps): ohne Wurzel-Flags gestartet, daher können
   sie alles lesen und schreiben, was dein OS-Benutzer darf. `setup`
   installiert und registriert sie nur mit `--acknowledge-unconfined`; nutze
   sie für unkritische Arbeit oder lass sie unter OS-Isolation laufen.
@@ -187,7 +185,7 @@ Host-Sitzung.
 | Option | Wirkung |
 |---|---|
 | `--app <app>` / `--all` | Eine App auswählen (wiederholbar) oder alle dreizehn. |
-| `--acknowledge-unconfined` | Auch die sieben benutzerweiten Apps installieren und registrieren. Kein Nachweis von Isolation. |
+| `--acknowledge-unconfined` | Auch die vier benutzerweiten Apps installieren und registrieren. Kein Nachweis von Isolation. |
 | `--host {codex,claude}` | Nur beim genannten Host registrieren (Standard: jede Host-CLI im PATH); ein genannter Host, der nicht im PATH ist, lässt den Lauf fehlschlagen. |
 | `--dry-run` | Vorschau darauf, was ein echter Lauf je App täte (`keep`, `install`, `upgrade`, `skip` oder `refuse`, ein Download nur, wo einer nötig ist, jede Registrierung) und ob er durchliefe (sonst Exit-Status 1), oder, mit `--remove`, genau auf das, was entfernt würde. Ändert nichts. |
 | `--list` | Manifest-, Installations-, Pin- und Registrierungsstand sowie die verwendeten Pfade anzeigen. |
@@ -259,11 +257,13 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 ```
 
 Ändert ein Release die Startargumente einer App (WordCrafts Wurzel-Flags in
-1.5.0, SoundCrafts in 1.5.2), ergänze `--replace`, damit die abweichende
-Registrierung neu geschrieben wird; ohne das Flag meldet `setup` die Abweichung
-nur und lässt sie stehen. SoundCraft beachtet seine Wurzeln erst ab 0.7.0,
-daher wird ein älteres installiertes SoundCraft abgelehnt, bis
-`setup --app soundcraft --upgrade --replace` es aktualisiert.
+1.5.0, SoundCrafts in 1.5.2, DeckCrafts, DesignCrafts, FigCrafts und PdfCrafts
+nach 1.5.3), ergänze `--replace`, damit die abweichende Registrierung neu
+geschrieben wird; ohne das Flag meldet `setup` die Abweichung nur und lässt sie
+stehen. SoundCraft beachtet seine Wurzeln erst ab 0.7.0, daher wird ein älteres
+installiertes SoundCraft abgelehnt, bis `setup --app soundcraft --upgrade
+--replace` es aktualisiert; dasselbe gilt für DeckCraft vor 0.8.0, DesignCraft
+vor 0.9.0, FigCraft vor 0.7.0 und PdfCraft vor 0.9.0, die die Flags ablehnen.
 
 ### Entfernen
 
@@ -362,7 +362,7 @@ make verify-build
 | `make setup` / `make setup-probe` | Eine lokale `.venv` anlegen; danach als ausdrückliches Netzwerk-Opt-in das hash-gesperrte offizielle MCP-SDK (`mcp==2.3.0`) installieren. |
 | `make test-sdk` | Das echte SDK gegen ein synthetisches stdio-Fixture prüfen, nicht gegen die Craft-Apps. |
 | `make refresh-releases` / `make sign-releases` | Die Netzwerkschritte des täglichen Workflows (Signieren braucht cosign). |
-| `make setup-confined` | Die sechs wurzelbeschränkten Apps auf diesem Rechner installieren, pinnen, prüfen und registrieren. |
+| `make setup-confined` | Die neun wurzelbeschränkten Apps auf diesem Rechner installieren, pinnen, prüfen und registrieren. |
 | `make clean` | Nur markierte `.build/` und `dist/` entfernen; Workspaces und `.venv` bleiben. |
 
 Builds und Tests committen, pushen und installieren nie; nur die ausdrücklich

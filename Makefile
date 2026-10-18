@@ -35,8 +35,8 @@ sign-releases: ## Workflow step: download pinned CLIs and sign them keyless with
 	@command -v cosign >/dev/null || { echo "cosign is required (https://docs.sigstore.dev/cosign/system_config/installation/)" >&2; exit 1; }
 	"$(PYTHON)" scripts/sign_releases.py
 
-setup-confined: ## Explicit host/app-state change: install, pin, probe and register the six root-confined apps
-	"$(PYTHON)" storytold.py setup --app photocraft --app vectorcraft --app effectcraft --app wordcraft --app soundcraft --app pdfcraft
+setup-confined: ## Explicit host/app-state change: install, pin, probe and register the nine root-confined apps
+	"$(PYTHON)" storytold.py setup --app photocraft --app vectorcraft --app effectcraft --app wordcraft --app soundcraft --app pdfcraft --app deckcraft --app designcraft --app figcraft
 
 check: ## Validate source, links, identities, catalog, examples and inactive packaging
 	"$(PYTHON)" scripts/check.py

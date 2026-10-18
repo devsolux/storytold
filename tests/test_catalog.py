@@ -12,9 +12,19 @@ class CatalogTests(WorkspaceCase):
     def test_catalog_has_all_thirteen(self):
         self.assertEqual(set(self.catalog),set(APP_IDS))
     def test_native_root_flags_exact(self):
-        self.assertEqual(sum(a['confinement']=='read_write' for a in self.catalog.values()),5)
-        self.assertEqual(sum(a['confinement']=='os_only' for a in self.catalog.values()),7)
+        self.assertEqual(sum(a['confinement']=='read_write' for a in self.catalog.values()),9)
+        self.assertEqual({a for a,r in self.catalog.items() if r['confinement']=='os_only'},{'filmcraft','lightcraft','gridcraft','cadcraft'})
         self.assertIn('--headless',self.catalog['vectorcraft']['args'])
+        # Both PdfCraft roots apply: a path must be inside --root and inside the matching automation root.
+        self.assertEqual(self.catalog['pdfcraft']['args'],['mcp','--automation-read-root','{work}','--automation-write-root','{outputs}','--root','{work}','--compact'])
+    def test_newly_rooted_apps_need_the_release_that_added_the_flags(self):
+        # These releases refuse unknown mcp flags, so an older pin would not start; preflight refuses it before any launch.
+        for app,old,new in (('deckcraft','v0.7.0','0.8.0'),('designcraft','v0.8.0','0.9.0'),('figcraft','v0.6.0','0.7.0'),('pdfcraft','v0.8.0','0.9.0')):
+            self.pins['apps'][app]['version']=old;self.save_pins()
+            with self.assertRaisesRegex(StorytoldError,'ignore or refuse them; run setup --app '+app+' --upgrade --replace'): self.pf([app],ack=False)
+            self.pins['apps'][app]['version']=f'{new} (v{new}, synthetic)';self.save_pins()
+            x=self.pf([app],ack=False)['launches'][0]
+            self.assertEqual(x['args'][:5],['mcp','--automation-read-root',str(self.work),'--automation-write-root',str(self.work/'outputs')])
     def test_roots_need_a_release_that_honours_them(self):
         # SoundCraft before 0.7.0 ignores unknown mcp flags, so an older or unreadable pin must not launch with roots.
         for label in ('0.6.1 (v0.6.1, synthetic)','synthetic-test-only','v0.6.9','0.7.0-rc1','٠.٧.٠','0.7.0abc'):

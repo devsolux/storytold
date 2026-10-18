@@ -116,21 +116,20 @@ shows how Storytold launches each app's MCP server.
 | <img src="https://raw.githubusercontent.com/storytold/vectorcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.vectorcraft.png" alt="" width="32" height="32"> | **VectorCraft** | Vector illustration | Read/write roots | [GitHub](https://github.com/storytold/vectorcraft) | [Website](https://getartcraft.com/apps/vectorcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/filmcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.filmcraft.png" alt="" width="32" height="32"> | **FilmCraft** | Video editing, color and sound | User-wide | [GitHub](https://github.com/storytold/filmcraft) | [Website](https://getartcraft.com/apps/filmcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/lightcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.lightcraft.png" alt="" width="32" height="32"> | **LightCraft** | Photo library and raw development | User-wide | [GitHub](https://github.com/storytold/lightcraft) | [Website](https://getartcraft.com/apps/lightcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/pdfcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.pdfcraft.png" alt="" width="32" height="32"> | **PdfCraft** | Reading, organizing and protecting PDFs | Single root | [GitHub](https://github.com/storytold/pdfcraft) | [Website](https://getartcraft.com/apps/pdfcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/pdfcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.pdfcraft.png" alt="" width="32" height="32"> | **PdfCraft** | Reading, organizing and protecting PDFs | Read/write roots | [GitHub](https://github.com/storytold/pdfcraft) | [Website](https://getartcraft.com/apps/pdfcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/effectcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.effectcraft.png" alt="" width="32" height="32"> | **EffectCraft** | Motion graphics and visual effects | Read/write roots | [GitHub](https://github.com/storytold/effectcraft) | [Website](https://getartcraft.com/apps/effectcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/designcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.designcraft.png" alt="" width="32" height="32"> | **DesignCraft** | Page layout and publishing | User-wide | [GitHub](https://github.com/storytold/designcraft) | [Website](https://getartcraft.com/apps/designcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/designcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.designcraft.png" alt="" width="32" height="32"> | **DesignCraft** | Page layout and publishing | Read/write roots | [GitHub](https://github.com/storytold/designcraft) | [Website](https://getartcraft.com/apps/designcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/gridcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.gridcraft.png" alt="" width="32" height="32"> | **GridCraft** | Spreadsheets and data | User-wide | [GitHub](https://github.com/storytold/gridcraft) | [Website](https://getartcraft.com/apps/gridcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/wordcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.wordcraft.png" alt="" width="32" height="32"> | **WordCraft** | Word processing and documents | Read/write roots | [GitHub](https://github.com/storytold/wordcraft) | [Website](https://getartcraft.com/apps/wordcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/deckcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.deckcraft.png" alt="" width="32" height="32"> | **DeckCraft** | Presentations and slide decks | User-wide | [GitHub](https://github.com/storytold/deckcraft) | [Website](https://getartcraft.com/apps/deckcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/deckcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.deckcraft.png" alt="" width="32" height="32"> | **DeckCraft** | Presentations and slide decks | Read/write roots | [GitHub](https://github.com/storytold/deckcraft) | [Website](https://getartcraft.com/apps/deckcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/cadcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.cadcraft.png" alt="" width="32" height="32"> | **CADCraft** | Computer-aided design | User-wide | [GitHub](https://github.com/storytold/cadcraft) | [Website](https://getartcraft.com/apps/cadcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/soundcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.soundcraft.png" alt="" width="32" height="32"> | **SoundCraft** | Audio recording and editing | Read/write roots | [GitHub](https://github.com/storytold/soundcraft) | [Website](https://getartcraft.com/apps/soundcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/figcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.figcraft.png" alt="" width="32" height="32"> | **FigCraft** | Interface design and prototyping | User-wide | [GitHub](https://github.com/storytold/figcraft) | [Website](https://getartcraft.com/apps/figcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/figcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.figcraft.png" alt="" width="32" height="32"> | **FigCraft** | Interface design and prototyping | Read/write roots | [GitHub](https://github.com/storytold/figcraft) | [Website](https://getartcraft.com/apps/figcraft) |
 
-- **Read/write roots** (five apps): launched with native root flags that let
-  them read the workspace and write only its `outputs/` directory.
-- **Single root** (PdfCraft): one root covering the whole workspace, `inputs/`
-  included; it is not separate read/write confinement.
-- **User-wide** (seven apps): launched without file-root flags, so they can
+- **Read/write roots** (nine apps): launched with native root flags that let
+  them read the workspace and write only its `outputs/` directory. PdfCraft
+  also keeps its single `--root` on the workspace; both apply.
+- **User-wide** (four apps): launched without file-root flags, so they can
   read and write anything your OS user can. `setup` installs and registers
   them only with `--acknowledge-unconfined`; keep them for non-sensitive work
   or run them under OS isolation.
@@ -173,7 +172,7 @@ host session afterwards.
 | Option | Effect |
 |---|---|
 | `--app <app>` / `--all` | Select one app (repeatable) or all thirteen. |
-| `--acknowledge-unconfined` | Also install and register the seven user-wide apps. Not evidence of isolation. |
+| `--acknowledge-unconfined` | Also install and register the four user-wide apps. Not evidence of isolation. |
 | `--host {codex,claude}` | Register with the named host only (default: every host CLI on PATH); a named host that is not on PATH fails the run. |
 | `--dry-run` | Preview what a real run would do per app (`keep`, `install`, `upgrade`, `skip` or `refuse`, a download only where one is needed, each registration) and whether it would pass (exit status 1 if not), or, with `--remove`, exactly what would be removed. Changes nothing. |
 | `--list` | Show manifest, installed, pinned and registered state, and the paths in use. |
@@ -243,10 +242,13 @@ python3 ~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/storytold.
 ```
 
 When a release changes an app's launch arguments (WordCraft's root flags in
-1.5.0, SoundCraft's in 1.5.2), add `--replace` so the differing registration is
+1.5.0, SoundCraft's in 1.5.2, and DeckCraft's, DesignCraft's, FigCraft's and
+PdfCraft's after 1.5.3), add `--replace` so the differing registration is
 re-registered; without it `setup` reports the difference and leaves it alone.
 SoundCraft honours its roots only from 0.7.0, so an older installed SoundCraft
-is refused until `setup --app soundcraft --upgrade --replace` moves it.
+is refused until `setup --app soundcraft --upgrade --replace` moves it; the
+same holds for DeckCraft before 0.8.0, DesignCraft before 0.9.0, FigCraft
+before 0.7.0 and PdfCraft before 0.9.0, which refuse the flags.
 
 ### Remove
 
@@ -336,7 +338,7 @@ make verify-build
 | `make setup` / `make setup-probe` | Create a local `.venv`; then, as an explicit network opt-in, install the hash-locked official MCP SDK (`mcp==2.3.0`). |
 | `make test-sdk` | Exercise the real SDK against a synthetic stdio fixture, not the Craft apps. |
 | `make refresh-releases` / `make sign-releases` | The network steps the daily workflow runs (signing needs cosign). |
-| `make setup-confined` | Install, pin, probe and register the six root-confined apps on this machine. |
+| `make setup-confined` | Install, pin, probe and register the nine root-confined apps on this machine. |
 | `make clean` | Remove only marked `.build/` and `dist/`; workspaces and `.venv` stay. |
 
 Builds and tests never commit, push or install; only the explicitly named

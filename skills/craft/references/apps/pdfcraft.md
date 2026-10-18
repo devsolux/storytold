@@ -14,9 +14,9 @@ Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/p
 release also publishes a standalone `pdfcraft-cli-<version>-linux-x86_64.tar.gz`, which `setup` prefers.
 The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
-The catalog's `--root` confines reads and writes to one tree. Since 0.9.0 `mcp` also takes
-`--automation-read-root`/`--automation-write-root` (separate read and write folders, applied on
-top of `--root`); the catalog does not pass them.
+The catalog launches `mcp` with `--automation-read-root` (the workspace),
+`--automation-write-root` (outputs/) and `--root` (the workspace). Both kinds apply (since 0.9.0),
+so reads stay in the workspace and writes in outputs/; still test the pinned binary and OS boundary.
 
 ## Discover before execution
 
@@ -24,7 +24,7 @@ Discover actual PDF tools; compact mode may expose tool_search/tool_call rather 
 
 ## Workflow and risky operations
 
---root confines one tree, not a separate read-only input directory. Edits stay in memory until an explicit doc_save; saving in place appends an incremental update that keeps the original bytes, except after redaction or sanitizing, which force a full rewrite. Work on a new output. Destructive page/security/redaction/XFA changes require explicit permission (xfa_to_static, and doc_flatten of an XFA form's fields, remove its XFA template, data and scripts); do not drive the separate desktop ui channel. Roots check file paths only: a doc_print job sent to a printer and a Keychain/Windows-store identity for sign_document are outside them.
+Every file a tool reads must lie inside the read root and every file it writes (doc_save, also in place, extracts, splits, exports, reports, signing output) inside the write root, so save to outputs/, never over an input; a refused path is an ordinary tool error (automation path rejected). Without directories, text_font_files searches the read root, not the installed fonts. Edits stay in memory until an explicit doc_save; saving in place appends an incremental update that keeps the original bytes, except after redaction or sanitizing, which force a full rewrite. Work on a new output. Destructive page/security/redaction/XFA changes require explicit permission (xfa_to_static, and doc_flatten of an XFA form's fields, remove its XFA template, data and scripts); do not drive the separate desktop ui channel. Roots check file paths only: a doc_print job sent to a printer and a Keychain/Windows-store identity for sign_document are outside them.
 
 ## Durable verification
 
