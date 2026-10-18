@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+- Release workflow: the 2026-10-18 daily run (39116490412) failed while
+  signing `cadcraft-cli.exe`, the third of the 39 archives that 13 new
+  upstream releases put up for signing. Rekor committed the entry but did not answer in
+  time; cosign's own HTTP retry resent it and got `409
+  createLogEntryConflict`. `scripts/sign_releases.py` now tries each signing up
+  to three times (15 s, then 45 s apart), each in a fresh cosign process with
+  a new ephemeral key, so the retry makes a new, distinct log entry. A hung
+  cosign is stopped after 600 s and counts as a failed attempt. Each archive
+  and SHA256SUMS.txt download is retried the same way on network errors; a
+  size-limit refusal is final. The store is still published only when all 39
+  bundles are complete.
+- The release workflow's `actions/upload-artifact` and
+  `actions/download-artifact` pins moved to v7.0.2 and v8.0.2 (HTTP 429
+  retries); the source ledger records the reviewed commits.
+
 ## 1.5.3 — 2026-10-17
 
 Operator-command hardening: `setup --remove`, concurrent runs, `--host` and

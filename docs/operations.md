@@ -189,8 +189,12 @@ Maintainers refresh the manifest with `make refresh-releases` and review the
 diff; `python scripts/refresh_releases.py --accept <app>` lets one app through
 the downgrade/re-publish guard after its upstream change was reviewed by hand
 (the workflow never passes it). `make sign-releases` (cosign required)
-downloads and signs CLIs that have no current bundle. In the repository this
-runs daily: the
+downloads and signs CLIs that have no current bundle. Each download and each
+signing is tried up to three times (15 s, then 45 s apart), every signing in a
+fresh cosign process with a new ephemeral key, so a transient Fulcio, Rekor or
+download failure, including a Rekor `409 createLogEntryConflict` after cosign's
+own HTTP retry, does not fail the run; a size-limit or hash refusal is final.
+In the repository this runs daily: the
 [release workflow](https://github.com/devsolux/storytold/blob/main/.github/workflows/releases.yml) refreshes, signs keyless
 with its GitHub OIDC identity (`id-token: write`) and rebuilds the plugin in a
 job that holds no write token, hands the changed files to a `publish` job that

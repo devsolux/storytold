@@ -1,9 +1,10 @@
 """Signature-store rotation with injected downloads and a fake signer; no network, no cosign."""
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
-from scripts.sign_releases import publish, rotate
+from scripts.sign_releases import COSIGN_TIMEOUT, cosign_sign_blob, publish, retrying_fetch, rotate
 from storytold_tools.catalog import load_catalog
 from storytold_tools.common import StorytoldError, digest, encoded, load_json
 from storytold_tools.releases import load_releases, partition_signature_store, validate_signature_store
@@ -87,3 +88,50 @@ class RotationTests(unittest.TestCase):
         store,_=self.up.rotate(None)
         temp=tempfile.TemporaryDirectory(prefix='storytold-store-');self.addCleanup(temp.cleanup);path=Path(temp.name).resolve()/'signatures.json'
         publish(path,store,self.up.releases);self.assertEqual(validate_signature_store(load_json(path),self.up.releases),store)
+
+CONFLICT='Error: signing bundle: [POST /api/v1/log/entries][409] createLogEntryConflict {"code":409}'
+
+class RetryTests(unittest.TestCase):
+    """A transient Fulcio/Rekor/download failure is retried; the run 39116490412 failure mode is the fixture."""
+    def setUp(self):
+        temp=tempfile.TemporaryDirectory(prefix='storytold-cosign-');self.addCleanup(temp.cleanup)
+        self.binary=Path(temp.name).resolve()/'cadcraft-cli.exe';self.binary.write_bytes(b'cli');self.bundle=self.binary.with_name('cadcraft-cli.exe.sigstore.json')
+        self.calls=[];self.sleeps=[];self.logged=[]
+    def cosign(self,*outcomes):
+        """Each outcome is a return code (0 writes a bundle, nonzero leaves a partial one behind) or an exception to raise."""
+        queue=list(outcomes)
+        def run(cmd,**kw):
+            self.calls.append(cmd);self.assertEqual(kw['timeout'],COSIGN_TIMEOUT)
+            self.assertFalse(self.bundle.exists())  # every attempt starts without the previous attempt's bundle
+            outcome=queue.pop(0)
+            if isinstance(outcome,BaseException): raise outcome
+            self.bundle.write_text(json.dumps(bundle_for(str(len(self.calls)))) if outcome==0 else '{}')
+            return subprocess.CompletedProcess(cmd,outcome,'','' if outcome==0 else CONFLICT)
+        return cosign_sign_blob('cosign',run=run,sleep=self.sleeps.append,log=self.logged.append)
+    def test_rekor_conflict_is_retried_with_a_fresh_cosign_process(self):
+        self.assertEqual(self.cosign(1,0)(self.binary),bundle_for('2'))
+        self.assertEqual(len(self.calls),2);self.assertEqual(self.calls[0],self.calls[1]);self.assertEqual(self.sleeps,[15.0])
+        self.assertIn('createLogEntryConflict',self.logged[0]);self.assertIn('retrying in 15s',self.logged[0])
+    def test_signing_gives_up_after_the_third_attempt_with_the_last_output(self):
+        with self.assertRaises(StorytoldError) as cm: self.cosign(1,1,1)(self.binary)
+        self.assertIn('cosign sign-blob failed',str(cm.exception));self.assertIn('createLogEntryConflict',str(cm.exception))
+        self.assertEqual(len(self.calls),3);self.assertEqual(self.sleeps,[15.0,45.0])
+    def test_a_hung_cosign_is_a_failed_attempt(self):
+        self.assertEqual(self.cosign(subprocess.TimeoutExpired('cosign',COSIGN_TIMEOUT),0)(self.binary),bundle_for('2'))
+        self.assertIn('timed out',self.logged[0]);self.assertEqual(self.sleeps,[15.0])
+    def test_a_zero_exit_without_a_bundle_is_retried(self):
+        def run(cmd,**kw): self.calls.append(cmd);return subprocess.CompletedProcess(cmd,0,'','')
+        with self.assertRaises(OSError): cosign_sign_blob('cosign',run=run,sleep=self.sleeps.append)(self.binary)
+        self.assertEqual(len(self.calls),3)
+    def test_downloads_retry_network_errors_but_not_refusals(self):
+        attempts=[]
+        def flaky(url,dest,limit):
+            attempts.append(url)
+            if len(attempts)<3: raise ConnectionResetError('connection reset by peer')
+            return 7
+        self.assertEqual(retrying_fetch(flaky,sleep=self.sleeps.append,log=self.logged.append)('https://x/y/a.zip',Path('unused'),1),7)
+        self.assertEqual((len(attempts),self.sleeps),(3,[15.0,45.0]));self.assertTrue(self.logged[0].startswith('a.zip: '))
+        def refused(url,dest,limit): attempts.append(url);raise StorytoldError('download exceeds 1 bytes')
+        attempts.clear();self.sleeps.clear()
+        with self.assertRaises(StorytoldError): retrying_fetch(refused,sleep=self.sleeps.append)('https://x/y/a.zip',Path('unused'),1)
+        self.assertEqual((len(attempts),self.sleeps),(1,[]))

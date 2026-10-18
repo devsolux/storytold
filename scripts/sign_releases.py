@@ -7,10 +7,12 @@ same shape and signer checks as at runtime, but entries the manifest no longer
 pins (or whose archive hash moved) are dropped instead of rejected. Every
 archive without a current bundle is downloaded, checked against the manifest
 and the release's SHA256SUMS.txt, its one `<app>-cli` extracted and signed
-keyless with `cosign sign-blob --yes --bundle`. The complete result is strictly
-validated and then written over the old file in one atomic replace; any failure
-before that leaves the previous store exactly as it was. Nothing is executed
-except cosign; the binaries are never run here.
+keyless with `cosign sign-blob --yes --bundle`. Each download and each signing
+is tried up to three times, so one transient Fulcio, Rekor or download failure
+among the 39 archives does not cost the whole run. The complete result is
+strictly validated and then written over the old file in one atomic replace;
+any failure before that leaves the previous store exactly as it was. Nothing is
+executed except cosign; the binaries are never run here.
 """
 from __future__ import annotations
 import json
@@ -20,28 +22,65 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from typing import Callable
+import time
+from typing import Callable, Sequence, TypeVar
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from storytold_tools.catalog import load_catalog
-from storytold_tools.common import ROOT, encoded, load_json, require, snapshot
+from storytold_tools.common import ROOT, StorytoldError, encoded, load_json, require, snapshot
 from storytold_tools.releases import (PLATFORMS, asset_url, load_releases, partition_signature_store, published_hash,
                                       sums_url, validate_signature_store)
 from storytold_tools.setup import MAX_DOWNLOAD, extract_cli, fetch
 
 STORE = ROOT / 'config/signatures.json'
+RETRY_DELAYS = (15.0, 45.0)  # seconds slept before the second and the third attempt
+COSIGN_TIMEOUT = 600  # one sign-blob round trip; a hung cosign counts as a failed attempt
 Fetcher = Callable[[str, Path, int], int]
 Signer = Callable[[Path], dict]
+T = TypeVar('T')
 
 
-def cosign_sign_blob(cosign: str) -> Signer:
-    def sign_blob(binary: Path) -> dict:
-        bundle = binary.with_name(binary.name + '.sigstore.json')
-        r = subprocess.run([cosign, 'sign-blob', '--yes', '--bundle', str(bundle), str(binary)], capture_output=True, text=True, check=False)
+def retrying(call: Callable[[], T], what: str, retry_on: tuple[type[BaseException], ...], *,
+             delays: Sequence[float] = RETRY_DELAYS, sleep: Callable[[float], None] = time.sleep,
+             log: Callable[[str], None] = lambda s: None) -> T:
+    """Return `call()`, repeating it after each delay while it raises `retry_on`; the last attempt's error propagates."""
+    for delay in delays:
+        try:
+            return call()
+        except retry_on as exc:
+            log(f'{what}: {exc}; retrying in {delay:g}s')
+            sleep(delay)
+    return call()
+
+
+def retrying_fetch(fetch: Fetcher, **kw) -> Fetcher:
+    """Network errors are retried; a size-limit refusal (StorytoldError) is final."""
+    return lambda url, dest, limit: retrying(lambda: fetch(url, dest, limit), url.rsplit('/', 1)[1], (OSError,), **kw)
+
+
+def cosign_sign_blob(cosign: str, *, run: Callable[..., subprocess.CompletedProcess] = subprocess.run, **kw) -> Signer:
+    """Sign with up to three fresh cosign processes; each has its own ephemeral key and certificate.
+
+    A fresh process is what clears `409 createLogEntryConflict`: cosign's own
+    HTTP retry resent an entry Rekor had already committed but not answered
+    (release run 39116490412). A new key makes a new, distinct log entry; the
+    orphaned one is harmless because only the returned bundle is published.
+    """
+    def attempt(binary: Path, bundle: Path) -> dict:
+        bundle.unlink(missing_ok=True)
+        try:
+            r = run([cosign, 'sign-blob', '--yes', '--bundle', str(bundle), str(binary)], capture_output=True, text=True,
+                    check=False, timeout=COSIGN_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            raise StorytoldError(f'{binary.name}: cosign sign-blob timed out after {COSIGN_TIMEOUT}s') from None
         require(r.returncode == 0, f'{binary.name}: cosign sign-blob failed:\n{(r.stdout + r.stderr)[-800:]}')
         data = json.loads(bundle.read_text())
         require(isinstance(data, dict) and 'verificationMaterial' in data, f'{binary.name}: cosign produced no bundle')
         return data
+
+    def sign_blob(binary: Path) -> dict:
+        bundle = binary.with_name(binary.name + '.sigstore.json')
+        return retrying(lambda: attempt(binary, bundle), binary.name, (ValueError, OSError), **kw)
     return sign_blob
 
 
@@ -101,11 +140,13 @@ def main(argv: list[str]) -> int:
     if cosign is None:
         print('storytold sign-releases: cosign is not on PATH', file=sys.stderr)
         return 1
+    def log(s: str) -> None:
+        print('storytold sign-releases: ' + s, file=sys.stderr)
     try:
         releases = load_releases(); catalog = load_catalog()
         previous = load_json(STORE) if STORE.is_file() else None
-        store, summary = rotate(releases, catalog, previous, fetch=fetch, sign_blob=cosign_sign_blob(cosign), resign_all='--all' in argv,
-                                log=lambda s: print('storytold sign-releases: ' + s, file=sys.stderr))
+        store, summary = rotate(releases, catalog, previous, fetch=retrying_fetch(fetch, log=log), sign_blob=cosign_sign_blob(cosign, log=log),
+                                resign_all='--all' in argv, log=log)
         publish(STORE, store, releases)
         sys.stdout.buffer.write(encoded(summary))
         return 0
