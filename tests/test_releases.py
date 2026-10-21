@@ -1,11 +1,14 @@
+import http.client
+import io
 import json
 from pathlib import Path
 import tempfile
 import unittest
+import urllib.error
 from storytold_tools.catalog import APP_IDS,load_catalog
 from storytold_tools.common import ROOT,StorytoldError,encoded
 from storytold_tools.releases import PLATFORMS,asset_names,asset_url,load_releases,load_signatures,published_hash,sums_url
-from scripts.refresh_releases import guard
+from scripts.refresh_releases import MAX_METADATA,get,guard
 
 class RefreshGuardTests(unittest.TestCase):
     """The daily refresh must stop, not pin, on a downgrade or a re-published tag."""
@@ -27,6 +30,37 @@ class RefreshGuardTests(unittest.TestCase):
     def test_prerelease_versions_are_refused(self):
         with self.assertRaisesRegex(StorytoldError,'unexpected release version'):
             guard('soundcraft',self.pinned,self.latest(tag='v99.0.0-rc1',version='99.0.0-rc1'))
+
+class RefreshRetryTests(unittest.TestCase):
+    """One GitHub hiccup among the 39 small metadata requests is retried; a client error is a finding about the release."""
+    URL='https://api.github.com/repos/storytold/cadcraft/releases/latest'
+    def setUp(self): self.calls=[];self.sleeps=[];self.logged=[]
+    def urlopen(self,*outcomes):
+        """Each outcome is the response body, or an exception the connection raises."""
+        queue=list(outcomes)
+        def open_(request,timeout):
+            self.calls.append(request.full_url);self.assertEqual(timeout,60);self.assertEqual(request.get_header('Authorization'),'Bearer tok')
+            outcome=queue.pop(0)
+            if isinstance(outcome,BaseException): raise outcome
+            return io.BytesIO(outcome)
+        return open_
+    def http_error(self,code): return urllib.error.HTTPError(self.URL,code,'synthetic',{},None)
+    def get(self,*outcomes): return get(self.URL,'tok',urlopen=self.urlopen(*outcomes),sleep=self.sleeps.append,log=self.logged.append)
+    def test_server_errors_rate_limits_and_dropped_connections_are_retried(self):
+        self.assertEqual(self.get(self.http_error(503),self.http_error(429),b'{}'),b'{}')
+        self.assertEqual((len(self.calls),self.sleeps),(3,[15.0,45.0]));self.assertTrue(self.logged[0].startswith(self.URL+': '));self.assertIn('retrying in 15s',self.logged[0])
+        self.calls.clear();self.sleeps.clear()
+        self.assertEqual(self.get(http.client.RemoteDisconnected('gone'),ConnectionResetError('reset'),b'ok'),b'ok')
+        self.assertEqual((len(self.calls),self.sleeps),(3,[15.0,45.0]))
+    def test_a_client_error_is_final(self):
+        with self.assertRaises(urllib.error.HTTPError) as cm: self.get(self.http_error(404),b'{}')
+        self.assertEqual((cm.exception.code,len(self.calls),self.sleeps),(404,1,[]))
+    def test_the_third_failure_propagates(self):
+        with self.assertRaises(urllib.error.HTTPError): self.get(self.http_error(502),self.http_error(502),self.http_error(502))
+        self.assertEqual((len(self.calls),self.sleeps),(3,[15.0,45.0]))
+    def test_an_oversized_answer_is_refused_without_retry(self):
+        with self.assertRaisesRegex(StorytoldError,'unexpectedly large'): self.get(b'x'*MAX_METADATA)
+        self.assertEqual((len(self.calls),self.sleeps),(1,[]))
 
 class ReleaseManifestTests(unittest.TestCase):
     def test_manifest_covers_thirteen_apps_on_three_platforms(self):

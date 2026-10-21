@@ -189,11 +189,14 @@ Maintainers refresh the manifest with `make refresh-releases` and review the
 diff; `python scripts/refresh_releases.py --accept <app>` lets one app through
 the downgrade/re-publish guard after its upstream change was reviewed by hand
 (the workflow never passes it). `make sign-releases` (cosign required)
-downloads and signs CLIs that have no current bundle. Each download and each
-signing is tried up to three times (15 s, then 45 s apart), every signing in a
-fresh cosign process with a new ephemeral key, so a transient Fulcio, Rekor or
-download failure, including a Rekor `409 createLogEntryConflict` after cosign's
-own HTTP retry, does not fail the run; a size-limit or hash refusal is final.
+downloads and signs CLIs that have no current bundle. Each of the refresh's 39
+small metadata requests, each download and each signing is tried up to three
+times (15 s, then 45 s apart) on a dropped connection, a 5xx or a 429, every
+signing in a fresh cosign process with a new ephemeral key, so a transient
+GitHub, Fulcio or Rekor fault, including a Rekor `409 createLogEntryConflict`
+after cosign's own HTTP retry, does not fail the run. Any other HTTP error (a
+release without SHA256SUMS.txt, a missing asset) and a size-limit or hash
+refusal are final: they are findings about the release, not hiccups.
 In the repository this runs daily: the
 [release workflow](https://github.com/devsolux/storytold/blob/main/.github/workflows/releases.yml) refreshes, signs keyless
 with its GitHub OIDC identity (`id-token: write`) and rebuilds the plugin in a
@@ -204,7 +207,11 @@ the checks, `scripts/check_bundles.py` (every pinned archive must have a
 bundle) and a real `setup --all --acknowledge-unconfined` that verifies each
 bundle with cosign, never `--trust-upstream-sums`, on Linux, Windows and macOS
 runners, and opens one pull request on
-`bot/releases`. Review it (a changed app needs its card and smoke tool rechecked
+`bot/releases` (an open one is updated, title and body). The run's summary page
+shows the refresh and signing reports and the changed files, so a day's result
+is readable without the logs; a run takes about four minutes, most of it the
+three-OS verify downloading and probing all thirteen CLIs. Review the pull
+request (a changed app needs its card and smoke tool rechecked
 at the new tag) or set the repository variable `STORYTOLD_AUTO_MERGE=true` to
 merge green runs. The verify jobs check out the exact commit the refresh job
 pushed, and the merge job merges only that commit (`--match-head-commit`) of a

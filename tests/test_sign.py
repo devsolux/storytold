@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+import urllib.error
 from scripts.sign_releases import COSIGN_TIMEOUT, cosign_sign_blob, publish, retrying_fetch, rotate
 from storytold_tools.catalog import load_catalog
 from storytold_tools.common import StorytoldError, digest, encoded, load_json
@@ -135,3 +136,14 @@ class RetryTests(unittest.TestCase):
         attempts.clear();self.sleeps.clear()
         with self.assertRaises(StorytoldError): retrying_fetch(refused,sleep=self.sleeps.append)('https://x/y/a.zip',Path('unused'),1)
         self.assertEqual((len(attempts),self.sleeps),(1,[]))
+        def missing(url,dest,limit): attempts.append(url);raise urllib.error.HTTPError(url,404,'Not Found',{},None)  # the asset is not there: a finding, not a hiccup
+        attempts.clear()
+        with self.assertRaises(urllib.error.HTTPError): retrying_fetch(missing,sleep=self.sleeps.append)('https://x/y/a.zip',Path('unused'),1)
+        self.assertEqual((len(attempts),self.sleeps),(1,[]))
+        def unavailable(url,dest,limit):
+            attempts.append(url)
+            if len(attempts)<2: raise urllib.error.HTTPError(url,503,'Service Unavailable',{},None)  # a 5xx is a hiccup
+            return 2
+        attempts.clear()
+        self.assertEqual(retrying_fetch(unavailable,sleep=self.sleeps.append)('https://x/y/a.zip',Path('unused'),4),2)
+        self.assertEqual((len(attempts),self.sleeps),(2,[15.0]))

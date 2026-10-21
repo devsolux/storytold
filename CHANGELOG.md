@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- Release workflow: the refresh step's 39 small GitHub requests (latest
+  release, SHA256SUMS.txt and tag commit per app) had no retry, so one dropped
+  connection or 5xx failed the day's run, while the signing step had been
+  retrying since 1.5.4. The retry policy now lives in
+  `storytold_tools/releases.py` and both scripts share it: a dropped or
+  truncated connection, a 5xx or a 429 is tried up to three times (15 s, then
+  45 s apart); any other HTTP error is final, so a release without
+  SHA256SUMS.txt or a missing asset fails at once instead of after a minute of
+  retries that cannot help. `http.client` errors (a truncated or dropped
+  response) now end both scripts with their own diagnostic instead of a
+  traceback.
+- The workflow detects release changes with `git status`, not `git diff`, so a
+  file the rebuilt plugin adds is handed over too; an open `bot/releases` pull
+  request gets its title updated with its body; and the refresh report, the
+  signing report and the changed files appear on the run's summary page.
+
 ## 1.5.4 — 2026-10-19
 
 Release-workflow resilience, all thirteen pins moved and rechecked, and four

@@ -36,23 +36,35 @@ jobs:
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
           cosign-release: 'v3.1.3'
-      - name: Refresh manifest from upstream releases
+      # Each script's JSON report also goes to the run's summary page, so what the run did is readable without the logs.
+      - name: Refresh manifest from upstream releases (transient GitHub faults retried)
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: python scripts/refresh_releases.py
+        run: |
+          python scripts/refresh_releases.py > "$RUNNER_TEMP/refresh.json"
+          cat "$RUNNER_TEMP/refresh.json"
+          { echo '### Refresh'; echo '```json'; cat "$RUNNER_TEMP/refresh.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - name: Sign newly pinned CLI binaries (keyless; transient failures retried)
-        run: python scripts/sign_releases.py
+        run: |
+          python scripts/sign_releases.py > "$RUNNER_TEMP/sign.json"
+          cat "$RUNNER_TEMP/sign.json"
+          { echo '### Signatures'; echo '```json'; cat "$RUNNER_TEMP/sign.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - run: python scripts/build.py build
       - run: python scripts/check.py
       - run: python scripts/test.py
       - name: Detect release changes
         id: diff
+        # git status, not git diff: a file the rebuilt plugin adds is untracked, and publish must carry it too.
         run: |
-          if git diff --quiet -- config/releases.json config/signatures.json plugins/storytold; then
+          status=$(git status --porcelain -- config/releases.json config/signatures.json plugins/storytold)
+          if [ -z "$status" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No release changes."
+            echo "No release changes; the verify jobs run on \`$GITHUB_REF_NAME\`." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "$status"
+            { echo '### Changed files'; echo '```'; echo "$status"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Hand the refreshed files to the publish job
         if: steps.diff.outputs.changed == 'true'
@@ -106,7 +118,7 @@ jobs:
           # Same-repository pull requests only: a fork can name its branch bot/releases too.
           open_pr=$(gh pr list --head bot/releases --state open --json number,isCrossRepository --jq '[.[] | select(.isCrossRepository | not)][0].number')
           if [ -n "$open_pr" ]; then
-            gh pr edit "$open_pr" --body "$body" || echo "::warning::Could not update the pull request body."
+            gh pr edit "$open_pr" --title "Refresh Craft release pins ($(date -u +%F))" --body "$body" || echo "::warning::Could not update the pull request title and body."
           elif ! gh pr create --base main --head bot/releases --title "Refresh Craft release pins ($(date -u +%F))" --body "$body"; then
             echo "::warning::bot/releases was pushed but no pull request could be opened. Enable 'Allow GitHub Actions to create and approve pull requests' under Settings > Actions > General, or open it yourself: https://github.com/${GITHUB_REPOSITORY}/compare/main...bot/releases"
           fi

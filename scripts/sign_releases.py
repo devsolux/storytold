@@ -9,12 +9,14 @@ archive without a current bundle is downloaded, checked against the manifest
 and the release's SHA256SUMS.txt, its one `<app>-cli` extracted and signed
 keyless with `cosign sign-blob --yes --bundle`. Each download and each signing
 is tried up to three times, so one transient Fulcio, Rekor or download failure
-among the 39 archives does not cost the whole run. The complete result is
+among the 39 archives does not cost the whole run; an HTTP client error (the
+asset is not there) and a size-limit or hash refusal are final. The complete result is
 strictly validated and then written over the old file in one atomic replace;
 any failure before that leaves the previous store exactly as it was. Nothing is
 executed except cosign; the binaries are never run here.
 """
 from __future__ import annotations
+import http.client
 import json
 import os
 from pathlib import Path
@@ -22,40 +24,24 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import time
-from typing import Callable, Sequence, TypeVar
+from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from storytold_tools.catalog import load_catalog
 from storytold_tools.common import ROOT, StorytoldError, encoded, load_json, require, snapshot
 from storytold_tools.releases import (PLATFORMS, asset_url, load_releases, partition_signature_store, published_hash,
-                                      sums_url, validate_signature_store)
+                                      retrying, sums_url, transient, validate_signature_store)
 from storytold_tools.setup import MAX_DOWNLOAD, extract_cli, fetch
 
 STORE = ROOT / 'config/signatures.json'
-RETRY_DELAYS = (15.0, 45.0)  # seconds slept before the second and the third attempt
 COSIGN_TIMEOUT = 600  # one sign-blob round trip; a hung cosign counts as a failed attempt
 Fetcher = Callable[[str, Path, int], int]
 Signer = Callable[[Path], dict]
-T = TypeVar('T')
-
-
-def retrying(call: Callable[[], T], what: str, retry_on: tuple[type[BaseException], ...], *,
-             delays: Sequence[float] = RETRY_DELAYS, sleep: Callable[[float], None] = time.sleep,
-             log: Callable[[str], None] = lambda s: None) -> T:
-    """Return `call()`, repeating it after each delay while it raises `retry_on`; the last attempt's error propagates."""
-    for delay in delays:
-        try:
-            return call()
-        except retry_on as exc:
-            log(f'{what}: {exc}; retrying in {delay:g}s')
-            sleep(delay)
-    return call()
 
 
 def retrying_fetch(fetch: Fetcher, **kw) -> Fetcher:
-    """Network errors are retried; a size-limit refusal (StorytoldError) is final."""
-    return lambda url, dest, limit: retrying(lambda: fetch(url, dest, limit), url.rsplit('/', 1)[1], (OSError,), **kw)
+    """Dropped connections, 5xx and 429 are retried; an HTTP client error (a missing asset) and a size-limit refusal are final."""
+    return lambda url, dest, limit: retrying(lambda: fetch(url, dest, limit), url.rsplit('/', 1)[1], transient, **kw)
 
 
 def cosign_sign_blob(cosign: str, *, run: Callable[..., subprocess.CompletedProcess] = subprocess.run, **kw) -> Signer:
@@ -80,7 +66,8 @@ def cosign_sign_blob(cosign: str, *, run: Callable[..., subprocess.CompletedProc
 
     def sign_blob(binary: Path) -> dict:
         bundle = binary.with_name(binary.name + '.sigstore.json')
-        return retrying(lambda: attempt(binary, bundle), binary.name, (ValueError, OSError), **kw)
+        # A nonzero exit or a malformed bundle (ValueError) and a missing bundle file (OSError) are each worth a fresh process.
+        return retrying(lambda: attempt(binary, bundle), binary.name, lambda exc: isinstance(exc, (ValueError, OSError)), **kw)
     return sign_blob
 
 
@@ -150,7 +137,7 @@ def main(argv: list[str]) -> int:
         publish(STORE, store, releases)
         sys.stdout.buffer.write(encoded(summary))
         return 0
-    except (OSError, ValueError, KeyError, TypeError) as exc:
+    except (OSError, ValueError, KeyError, TypeError, http.client.HTTPException) as exc:
         print('storytold sign-releases: ' + str(exc) + '; the previous signature store was left unchanged', file=sys.stderr)
         return 1
 

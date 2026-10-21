@@ -24,6 +24,17 @@ Still not run: the new root launches on Linux and Windows (the release
 workflow's next `verify` jobs run them), write denials for DeckCraft,
 DesignCraft and FigCraft, and the earlier items listed for 1.5.3.
 
+## Release workflow hardening after 1.5.4 — October 21, 2026
+
+| Gate | Result |
+|---|---|
+| Scheduled runs since 1.5.4 | Runs 39241323534 (October 19) and 39406281597 (October 20) passed on `ff5f146`: no upstream change, `publish` skipped, the three `verify` jobs ran the real strict `setup --all` in one to three minutes each. The cron is 05:23 UTC; GitHub started both runs between 10:12 and 10:58 UTC. |
+| Shared retry policy in `storytold_tools/releases.py`, refresh retries, workflow summary and change detection | Locally on Python 3.11.17: `make check`, **270 tests** (4 new: the refresh's metadata requests retry a 503, a 429 and dropped connections; a 404 and an oversized answer are final; the third failure propagates; the download test adds a final 404 and a retried 503), build and verify-build passed. `.github/workflows/releases.yml` parses (Ruby YAML). |
+| `scripts/refresh_releases.py` against GitHub (dry run; the manifest was restored, pins are the workflow's to commit) | Exit 0 through the new retrying `get`. It found newer releases for all thirteen apps, none refused by the guard: CADCraft 0.10.0, DeckCraft 0.9.0, DesignCraft 0.10.0, EffectCraft 0.13.0, FigCraft 0.8.0, FilmCraft 0.10.0, GridCraft 0.9.0, LightCraft 0.10.0, PdfCraft 0.10.1, PhotoCraft 0.11.1, SoundCraft 0.10.0, VectorCraft 0.14.0, WordCraft 0.9.0. The next workflow run pins, signs and verifies them; each card then needs rechecking at its new tag. |
+
+Not run: the retry path against a real GitHub fault, and the changed workflow
+steps on a runner (the next daily run is the first).
+
 ## Release workflow runs after 1.5.3 — October 18, 2026
 
 | Run or gate | Result |
