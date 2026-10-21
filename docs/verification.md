@@ -24,6 +24,19 @@ Still not run: the new root launches on Linux and Windows (the release
 workflow's next `verify` jobs run them), write denials for DeckCraft,
 DesignCraft and FigCraft, and the earlier items listed for 1.5.3.
 
+## Pin move to the 2026-10-21 releases and card recheck — October 21, 2026
+
+| Gate | Result |
+|---|---|
+| `workflow_dispatch` run 39574679446 on `656515b` | All jobs passed: `refresh` found new releases of all thirteen apps and signed all 39 archives (no retry was needed; the refresh and signing reports and the changed files appeared on the run's summary page), `publish` opened pull request #8, the three `verify` jobs ran `scripts/build.py check`, `scripts/check_bundles.py` and the real strict `setup --all --acknowledge-unconfined` with each app's smoke tool on `ubuntu-latest`, `windows-latest` and `macos-latest`, and `merge` squash-merged #8 as `658e26f`. |
+| Card recheck at the thirteen new tags | Source review of blob-less clones (see the [source ledger](source-ledger.md)): every catalog launch accepted unchanged, every smoke tool present without a required parameter, no tool removed or renamed. Locally on Python 3.11.17: `make check`, **270 tests**, build and verify-build passed on the updated cards, ledger and changelog. |
+
+None of the thirteen new binaries has run on a developer machine; the cards
+are source-grounded. The 1.5.4 item above, "the new root launches on Linux
+and Windows", is now covered: the `verify` jobs of runs 39241323534,
+39406281597 and 39574679446 ran the rooted launches of DeckCraft,
+DesignCraft, FigCraft and PdfCraft on all three runners.
+
 ## Release workflow hardening after 1.5.4 — October 21, 2026
 
 | Gate | Result |

@@ -17,6 +17,26 @@
   file the rebuilt plugin adds is handed over too; an open `bot/releases` pull
   request gets its title updated with its body; and the refresh report, the
   signing report and the changed files appear on the run's summary page.
+- All thirteen pins moved again (pull request #8 from the
+  hand-triggered run 39574679446, merged as `658e26f`): CADCraft 0.10.0,
+  DeckCraft 0.9.0, DesignCraft 0.10.0, EffectCraft 0.13.0, FigCraft 0.8.0,
+  FilmCraft 0.10.0, GridCraft 0.9.0, LightCraft 0.10.0, PdfCraft 0.10.1,
+  PhotoCraft 0.11.1, SoundCraft 0.10.0, VectorCraft 0.14.0, WordCraft 0.9.0.
+  Every card was rechecked at its new tag: every catalog launch and smoke
+  tool still works, and no tool was removed or renamed. Cards now cover
+  CADCraft's `open` formats, `query_entities` `selected` and the `AUDITCTL`
+  log; DeckCraft's `lostSlides`, transparent PNG export and geometry limits;
+  DesignCraft's `story.replaceRange` refusal, relative package links,
+  `layout.parents.delete` and `font.reload`; EffectCraft's saved comp times
+  and match-name effect paths; FigCraft's font commands, effect-key refusal,
+  variable detaching and `pluginData`; FilmCraft's export-without-wait job
+  handle; GridCraft's PDF print on save, CSV-as-text open and numeric
+  filters; LightCraft's alpha-free exports; PdfCraft's complete compact
+  core, full rewrites, read-only refusal, `doc_close` and redaction
+  refusals; PhotoCraft's `file.saveACopy` guard; SoundCraft's 1000-call batch
+  limit and backup rule; VectorCraft's raster-only `scale`, `.ait` refusal,
+  `SOURCE_DATE_EPOCH` and stored-link rule; WordCraft's password and save
+  fallback.
 
 ## 1.5.4 — 2026-10-19
 

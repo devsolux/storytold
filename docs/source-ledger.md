@@ -427,6 +427,280 @@ all four and outside the write root for PdfCraft, is in
 [verification](verification.md). Nine apps now run with roots; FilmCraft,
 LightCraft, GridCraft and CADCraft remain user-wide.
 
+## Release-tag recheck of all thirteen apps, moved by pull request #8 — 2026-10-21
+
+Upstream published new releases of all thirteen apps between 2026-10-20 14:34
+and 2026-10-21 07:46 UTC. The hand-triggered run 39574679446 on `656515b` (the
+first with the refresh retries and the run summaries) pinned, signed and
+verified them on the three runners and merged #8 as `658e26f`. Same
+recheck as above, between the old and the new tag of each repository, by `git
+diff` and `git show` on blob-less clones; nothing from upstream was built or
+run. Every catalog launch is still accepted with unchanged meaning, every smoke
+tool still exists without a required parameter, no tool was removed or
+renamed, and every release keeps the three asset names the manifest expects
+plus `SHA256SUMS.txt`. Five ranges span a version that was never tagged or
+released (CADCraft 0.9.0, EffectCraft 0.12.x, PdfCraft 0.10.0, PhotoCraft
+0.11.0, SoundCraft 0.9.x), so each is one move. The releases also ship Arch
+`linux-{x86_64,aarch64}.pkg.tar.zst` packages and, for DesignCraft, FigCraft,
+GridCraft, PhotoCraft and SoundCraft, a new `freebsd-aarch64.tar.gz`; none is
+used here.
+
+- CADCraft v0.10.0 (`e86eacf`; no v0.9.0 tag or release, `b23d362` "Release
+  0.9.0" only bumps the version inside the range): `mcp` parser unchanged
+  (`parse_mcp_args`: only `--connect HOST:PORT`, once, with `--lazy`/`--launch`
+  that need it; anything else `mcp: unknown argument`; plain `mcp` headless,
+  no root flag); `crates/engine/src/doc_path.rs`, the AutoLISP file
+  functions, `crates/mcp/src/server.rs` and `backend.rs` unchanged. The same
+  12 headless tools (15 definitions with the bridged `screenshot`,
+  `ui_inspect`, `ui_click`); the one schema change is `query_entities`
+  `selected?: boolean` (the current selection in the active space, combined
+  with `type`/`layer`/`window` before paging; an empty selection returns no
+  entities; `"true"` or `1` is -32602). New engine commands through
+  `execute`: `shapes` (closed polylines, circles, full ellipses and closed
+  splines: perimeter, area, centroid, winding, first self-intersection,
+  `tolerance?`), BURST, TXT2MTXT, BREAKLINE, MOCORO, ALIASEDIT (reads a
+  `.pgp`), HATCHEDIT add/remove; `dist`/`id`/`list` report Z. `docs/mcp.md`
+  adds the `shapes` and `selected` rows, `docs/customization.md` is new. New
+  write: system variable `AUDITCTL` (default 0) at 1 makes `audit` and
+  `recover` write `<drawing>.adt` beside a drawing that has a path (an
+  unsaved drawing writes nothing). `open` is described as DXF, but at both
+  tags the reader takes DXF (ASCII or binary) and DWG by content and
+  SVG/SVGZ by name; an imported SVG leaves the drawing without a file name,
+  and the result's `warnings` now name what the import left out. Card
+  corrects `open`'s formats and adds `selected`, `shapes` and the `.adt` log.
+- DeckCraft v0.9.0 (`fe510bd`): the `mcp` branch of
+  `apps/deckcraft-cli/src/main.rs`, `automation_args.rs` and
+  `crates/engine/src/file_access.rs` unchanged (`--connect`, `--sample`, both
+  root flags once, existing folders, refused with `--connect`, the whole
+  process confined; other options `unknown mcp option`); `crates/mcp`
+  byte-identical, so the same 25 tools and schemas; `docs/mcp.md` unchanged.
+  Engine: `file.open`/`file.openBytes`, and so `open_presentation`, return
+  `lostSlides` next to `damagedMedia` (an unreadable `.pptx` slide is left out
+  and the title gets "(Repaired)"); `file.export` and `file.render` take
+  `transparentBackground` (PNG only), which the MCP `export` and
+  `render_slide` schemas do not, so a transparent PNG goes through
+  `run_command file.export`; `shape.move`, `shape.resize` and
+  `shape.setBounds` clamp sizes to 0..15,840 pt and positions to ±100,000 pt;
+  `comment.delete` refuses an `index` that is not a non-negative integer
+  (0.8.0 cleared the slide's comments instead); `shape.editPoints` is
+  undoable; native saves keep imported chart parts. Card adds `lostSlides`,
+  the transparent-PNG route, `comment.delete` and the geometry limits.
+- DesignCraft v0.10.0 (`15a2f3c`): the `mcp` branch of `main.rs`,
+  `automation_args.rs`, `crates/engine/src/file_access.rs` and `io.rs`
+  unchanged (`--connect PORT`, `--sample`, both root flags; unknown options
+  refused); `crates/mcp` byte-identical, the same 26 tools. `docs/mcp.md`
+  adds that `story.replaceRange` refuses an offset inside a character, an
+  `end` past the story or `start` after `end`, with the story length in bytes
+  and the story unchanged (0.9.0 snapped and clamped; `cmd/text.rs`);
+  `docs/agents.md` adds `\u000b` as a forced line break in text parameters
+  and a "Parent pages" section. New commands `layout.parents.delete {id}`
+  (the parent's shared artwork and its assignments go in one undo step, local
+  overrides stay as ordinary items) and `font.reload {}` (rescans the
+  installed font folders, fixed paths the roots do not check, without an
+  undo step). `file.package` writes the packaged `.designcraft` and IDML
+  links relative to the package (`Links/<name>`), resolved beside the
+  document on open through the same `io` checks; `links.copyTo` keeps full
+  paths. `links.list` lists anchored and inline images; `object.stroke`
+  refuses malformed `type` objects; the IDML, DOCX, RTF, Tagged Text and ASE
+  importers clamp non-finite values. Card adds the `replaceRange` refusal,
+  `\u000b`, the relative package links, `layout.parents.delete` and
+  `font.reload`.
+- EffectCraft v0.13.0 (`de3fec2`; no v0.12.x tag): the `mcp` branch of
+  `apps/effectcraft-cli/src/main.rs` unchanged (`--autosave | --bridge PORT`,
+  both root flags repeatable, unknown options refused); the only parser
+  change is the render-only `--progress` flag, which `mcp` accepts and
+  ignores like `--gpu`. `crates/automation` tree-identical (`tools.rs`,
+  `confine.rs`, `backend.rs`): the same 36 tools and 382 engine command ids,
+  scripts, `control`, `ui_*` and `script_ui` still refused while confined;
+  `docs/mcp.md` unchanged. `docs/agents.md` adds variable-font named
+  instances and `render --template --values` filling a Media Replacement
+  control. Behaviour: a saved project records each comp's current time
+  (`compTimes`, editor state older versions ignore) and reopens there;
+  `anim.applyPreset` and the property and link paste commands resolve
+  `effects/<match name>[#n]/<property>` paths; `keys.delete` returns the
+  number of keys removed; a pasted mask or shape path on Position becomes a
+  2 s motion path; the Linux/BSD font scan honours `FONTCONFIG_PATH`, still
+  outside the roots. Card adds the saved comp times, the `keys.delete` count
+  and the match-name effect paths.
+- FigCraft v0.8.0 (`594dc8c`): `apps/figcraft-cli/src/args.rs`
+  byte-identical; the `mcp` branch keeps `[--attach PORT]` and the two
+  repeatable root flags, refuses positionals and `--attach` with roots, and
+  builds the same `file_access::Roots`. New: `info`, `export`, `convert`,
+  `render` and `run` take the same two flags (`docs/cli.md`, "Confining a
+  run"; not used by the catalog). `crates/engine/src/file_access.rs` changes
+  only a refusal's wording: a path whose existing prefix resolves into a
+  root gets the OS reason (`automation path rejected: <path>: <why>`) and a
+  link leading out of a root is outside; the roots' meaning and the
+  uncovered folders are unchanged. `crates/mcp` identical except one
+  `create_node` description: the same 18 tools, the 32 MiB line limit and
+  -32600. New engine commands behind `run_command`: `text.missingFonts`,
+  `text.rescanFonts`, `text.loadFont {path | data}` (read through
+  `file_access::read_capped`, so confined), `text.refit`, `pref.uiScale`,
+  `pref.startOnHome`. Behaviour: an effect object with a key the effect does
+  not read is refused naming the keys it takes (#851); an explicit edit of a
+  variable-bound field detaches that field's variable; `get_node` and
+  `inspect_document` carry `pluginData`; `vector.create` and `create_node
+  {type: vector}` scale the path to `width`/`height` and refuse an empty path
+  or a size of 0; `variable.import` also reads top-level `variables` and
+  `variableCollections`. The release ships the `figcraft-server-*` tarballs
+  again. Card adds the CLI-subcommand roots, the font commands, the
+  effect-key refusal, the variable detaching, `pluginData` and the vector
+  sizing rule.
+- FilmCraft v0.10.0 (`cdf43fd`): the `mcp` branch of
+  `apps/filmcraft-cli/src/main.rs` unchanged, still refusing every option but
+  `--bridge`, `--project`, `--demo` and `--data-dir` (exit 2), so a root flag
+  is still rejected; the CLI's `exec` refuses dotted params past 64 nesting
+  levels and `render` a non-finite `--seconds`/`--scale`. `crates/automation`:
+  the same 17 tools; the one code change is `doc_inspect`, which now inspects
+  the sequence `project.activeSequence` names, so its pair is consistent in
+  bridge mode too (#1477). The same 413 engine command ids. `file.exportMedia`
+  without `wait` returns `{job, path, poll: "jobs.list", cancel:
+  "jobs.cancel"}` (`docs/agents.md`: `export.queue.list` lists the Export
+  Queue only); `timeline.setTrack` takes `label` and `sequence.inspect` tracks
+  report it; `effects.toggleAnimation` creates a missing parameter from its
+  default; a `.3dl` LUT with an input mesh outside 2-256 values is refused.
+  `docs/project-files.md` unchanged, so the stored-path rule stands. Card
+  adds the export-without-wait result and the consistent `doc_inspect` pair.
+- GridCraft v0.9.0 (`a2cc4b4`): `apps/gridcraft-cli`, `crates/mcp`,
+  `docs/mcp.md` and `docs/cli.md` byte-identical (`--connect`, `--in`,
+  `--sample`, each with a value; no root flag; the same 21 tools,
+  `inspect_workbook` with an empty schema). Engine: `execute_command
+  file.open {csvAsText: true}` keeps every CSV/TSV/TXT field as text
+  (`open_workbook` has no such parameter); signed and doubly-`$`
+  whole-row/column ranges (`+1:+3`, `$$A:$$C`) are refused; defined and table
+  names are at most 255 characters; `insert.pivotTable` refuses an unknown
+  value-field `func`; custom numeric filters match numbers only, hiding
+  blank and text rows; `range.fill` gives each cell the number format typing
+  there would; `.xls` import skips dialog sheets and reads WINDOW2.
+  Pre-existing and missing from the card: `save_workbook`/`file.save` with a
+  `.pdf` path is a print of the active sheet (Page Setup applies) that
+  leaves the workbook's own file and unsaved state untouched, while the
+  unknown-extension error names only .xlsx/.csv/.tsv/.json/.html. Card
+  corrects the save sentence and adds the CSV-as-text open, the new refusals
+  and the filter rule.
+- LightCraft v0.10.0 (`a2a4138`): `apps/lightcraft-cli`, `crates/mcp` and
+  `docs/mcp.md` byte-identical (`mcp [--connect [ADDR]] [--demo] [--library
+  DIR] [--compact] [--headless] [FILES…]`, other options refused; no root
+  flag); the same 17 compact tools. Behaviour: opaque 8-bit PNG, TIFF and
+  WebP exports are written without an alpha channel, real transparency is
+  kept (#1670); `photo.rename` refuses a `start` out of range; `print.set
+  page` gains `pageNumbers`, `pageInfo` and `cropMarks`; slideshow and print
+  colour strings must be six hex digits; model downloads honour the connect
+  timeout and Cancel; the denoise cap rises to 110 MP; a catalog snapshot
+  with an out-of-range `seq` is refused as corrupt; the new "last merge
+  settings" in prefs.json are written only by the desktop merge dialog. Card
+  adds the alpha-free exports; otherwise unchanged except its recheck date.
+- PdfCraft v0.10.1 (`b77d570`; no v0.10.0 tag): `automation_args.rs`,
+  `crates/automation/src/file_access.rs` and `mcp.rs` byte-identical; in
+  `main.rs` the `mcp` function, `automation_roots`, `validate_options` and
+  `MCP_OPTIONS` are untouched (`--root` once with a value, `--compact`, both
+  root flags, unknown options refused before any file is read; `--root`
+  applies on top of both roots), and `resolve`, `resolve_in_root` and
+  `check_roots` in `crates/automation/src/lib.rs` are outside every hunk.
+  Tools 170 to 171: `page_reverse`, nothing removed or renamed;
+  `page_duplicate` takes `at`; `doc_set_info` also sets custom properties,
+  listed by `doc_info` under `custom`; `form_fields` and `form_set_props`
+  handle push-button captions; `doc_export_office` reports `truncated`. The
+  compact core is the same fifteen tools plus `tool_search` and `tool_call`;
+  `doc_inspect` still has no required parameter. Saving
+  (`crates/platform/src/staging.rs`, every tool write): a read-only target is
+  refused before anything is written, a replaced file keeps its Unix mode
+  and macOS/Windows creation date; a file whose cross-reference index had to
+  be rebuilt on open is written in full even without edits (#1937);
+  `doc_close` refuses a new or recovered document with unsaved state even
+  after undo unless `discard_changes` (#2346). Redaction: `redact_apply`
+  removes the replies of the annotations it removes (#2659), clears image
+  pixels under the marks (#3368), walks the structure tree from the parent
+  and ID trees too and refuses, with the document unchanged, a tagged PDF
+  whose tree it cannot clean (#2447, #3302); `text_edit` refuses a rewrite
+  that would remove text drawn as a clipping path (#3447); in AES-256 files
+  `/Perms` limits an edited `/P`. `docs/mcp.md` adds "Install and register".
+  Card completes the compact-core list, corrects the save sentence (full
+  rewrites, read-only refusal, `doc_close`) and adds the redaction and
+  `text_edit` refusals.
+- PhotoCraft v0.11.1 (`46e538b`; no v0.11.0 tag, `cd79a5a` "Release 0.11.0"
+  is only a commit, and 0.11.1 adds the FreeBSD build fix):
+  `apps/photocraft-cli` byte-identical (`mcp` takes `--bridge`,
+  `--control-token`, `--control-token-file` and the two root flags, any other
+  flag `unknown flag` with exit 2; roots apply only without `--bridge`);
+  `crates/automation/src/server.rs` identical, the same 25 tools;
+  `workspace.rs` changes only how a file inside the write root is replaced
+  (the old file's extended attributes are copied through the two open
+  descriptors, nothing reaches outside the root); `files.rs` reports open
+  warnings for a `.pcraft` as for imports; `docs/mcp.md` adds "Install and
+  register", its tool and cancellation sections unchanged. Engine, through
+  `command_run`: `file.saveACopy` whose `path` is the document's own file is
+  refused unless `overwrite: true` (#7437); a `.pcraft` with out-of-range
+  numbers is refused on open (#6862); `edit.presets.exportImportPresets`
+  moves tool presets as in-memory `data`, no path; `filter.cameraRaw`
+  exposure is clamped to -5..5. Card adds the `file.saveACopy` guard.
+- SoundCraft v0.10.0 (`e894076`; no v0.9.x tag or release):
+  `apps/soundcraft-cli` (`main.rs`, `automation_args.rs`),
+  `crates/engine/src/file_access.rs` and the confinement section of
+  `docs/mcp.md` unchanged (`--connect`, `--demo`, both roots once, existing
+  folders, refused with `--connect`; other unknown `mcp` flags still ignored).
+  The same 17 tools; `batch` takes at most 1000 `calls` (`maxItems`) and
+  refuses a longer list as `isError` before any call runs (0.8.0 ran the
+  first 1000 and dropped the rest silently). `crates/engine/src/io.rs`: a
+  session backup (`Backups/<name> backup <n>`) is checked against the write
+  root and never replaces an existing entry or follows a link
+  (`create_new`); a `.scraftz` bundle whose sources share one file loads them
+  all; `automation.clear` with an unknown `param` is refused instead of
+  clearing every lane. The 0.8.0 stored-path rule is unchanged; `bounce_mix`
+  still has no replace guard. Card adds the batch limit and the backup rule.
+- VectorCraft v0.14.0 (`ad05669`): the `mcp` parser,
+  `crates/engine/src/file_access.rs` and `crates/mcp/src/server.rs` (the
+  -32003 busy refusal after 2 s, `notifications/cancelled`, the 256-step,
+  8 MiB and 16 MiB limits) byte-identical; a confined server still keeps no
+  preset, profile or plug-in store. The same 32 tools; `export` passes
+  `scale` to `document.export` only for a raster format
+  (`named_export_params`), so it no longer resizes a DXF; `open_file` also
+  reads Targa. `crates/mcp/src/intake.rs`: a parse error or overlong line now
+  waits for room in the 64-line queue instead of being answered at once.
+  `docs/mcp.md` (+352 lines): `document.export`, `serialize`,
+  `exportSelection` and `exportForScreens` refuse a `.ait` path or `format:
+  "ait"` naming `file.saveAsTemplate` (which refuses `aiVersion: "7"`);
+  `edit.clearHistory` removes every undo and redo step; `SOURCE_DATE_EPOCH`
+  pins the time PNG, PDF, EPS, `.ai`, zip and `.vectorcraft` output records,
+  an encrypted PDF still differs (`crates/doc/src/metadata.rs`); a PDF
+  export, `.ai` save or `file.print` leaves out an undecodable image and
+  warns once; a document on a Windows mapped drive finds its links on the
+  share behind it (`document_path_with`/`share_path`); numbers given as text
+  are refused by the Object-menu, blend, envelope, mesh and `path.*`
+  commands; `object.objectsOnPath.*`, `object.path.simplify`, library groups
+  and exporter plug-ins (`format: "plugin.<id>"`, unreachable confined) are
+  new. Card adds the raster-only `scale`, the `.ait` refusal, Targa,
+  `SOURCE_DATE_EPOCH`, `edit.clearHistory`, the undecodable-image warning and
+  the stored-link rule.
+- WordCraft v0.9.0 (`2e6db0b`): the `mcp` branch of
+  `apps/wordcraft-cli/src/main.rs` (`--connect`, `--author`, both roots
+  through `automation_args.rs`; roots or `--author` with `--connect` refused;
+  other options refused by `validate_options`), `automation_args.rs`,
+  `crates/engine/src/file_access.rs` and `crates/mcp/src/server.rs`
+  unchanged. The other CLI subcommands gain `--password`, `--password-file`,
+  `WORDCRAFT_PASSWORD` and `run --script FILE|-` (a JSON job file, at most
+  4 MiB; `docs/mcp.md` "Scripts from the command line"); neither reaches
+  `mcp`. The same 16 tools; `open_document` gains an optional `password`
+  forwarded to `file.open` and says a protected file without it fails asking
+  for one; `file.open`, `file.save`, `file.saveAs` and `file.encrypt` take
+  `password` at this tag, and a document opened with one is saved with it
+  again (`file.encrypt` with null or "" saves it plain).
+  `crates/engine/src/io/safe_save.rs`: where the folder refuses the temporary
+  file a safe save needs (macOS privacy-protected or read-only folders), a
+  new file is written directly (removed again on failure) and an existing
+  file is left unchanged with an error saying so; the write-root check
+  happens before either. Card adds the password and the save fallback.
+
+No catalog launch, smoke tool or `ROOTS_SINCE` minimum changes: DeckCraft
+0.9.0, DesignCraft 0.10.0, FigCraft 0.8.0 and PdfCraft 0.10.1 are above their
+root-flag minimums, SoundCraft still ignores unknown `mcp` flags, and
+FilmCraft, LightCraft, GridCraft and CADCraft still ship no root flag. Neither
+`skills/craft/SKILL.md`, the workflow references nor
+`tests/native/acceptance.json` names a tool these releases changed.
+Release-note claims that were not confirmed in source stayed out of the
+cards. Source review only; the thirteen new binaries ran only in the
+workflow's verify jobs, not on a developer machine.
+
 ## Build infrastructure
 
 The workflow uses reviewed full-commit action references:

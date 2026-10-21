@@ -21,7 +21,7 @@ Discover document inspection, registry search and save/export tools. Tools inclu
 
 ## Workflow and risky operations
 
-Inspect layer tree, dimensions, masks and colour mode/depth (doc_inspect has no ICC profile field); keep open/save warnings, including missing fonts. Work on a copy: image.duplicate or history.newDocument creates a new active document and leaves the source unchanged. command_batch stops at the first error by default (stop_on_error) and never rolls back: completed and the per-step results list what applied; recover with edit.undo once per history entry while inspecting history, and undo does not roll back files written to disk. Save the editable project separately from the delivery raster.
+Inspect layer tree, dimensions, masks and colour mode/depth (doc_inspect has no ICC profile field); keep open/save warnings, including missing fonts. Work on a copy: image.duplicate or history.newDocument creates a new active document and leaves the source unchanged. file.saveACopy refuses a path that is the document's own file unless overwrite: true (since 0.11); a copy over the original in a flat or lossy format cannot be undone, so give it another path. command_batch stops at the first error by default (stop_on_error) and never rolls back: completed and the per-step results list what applied; recover with edit.undo once per history entry while inspecting history, and undo does not roll back files written to disk. Save the editable project separately from the delivery raster.
 
 ## Durable verification
 
@@ -30,7 +30,7 @@ Confirm pixel dimensions, layers where relevant, colour/profile expectations and
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-18 against the upstream
+Reference, app-specific section, rechecked on 2026-10-21 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/photocraft/blob/main/docs/mcp.md).
 The binary has passed discovery and a read-only smoke call; see
