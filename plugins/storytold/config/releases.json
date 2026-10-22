@@ -49,71 +49,71 @@
     "designcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 81565055,
-          "name": "designcraft-0.10.0-linux-x86_64.tar.gz",
-          "sha256": "4a3708fa878daf5188aa2ba66fd7cd186bf38690a6c15246ec83d853e0deeb94"
+          "bytes": 81575295,
+          "name": "designcraft-0.11.0-linux-x86_64.tar.gz",
+          "sha256": "12076f89ce445af5cf96c0048701a7d48373dccbd524de19fe2308601b554d58"
         },
         "macos": {
-          "bytes": 71026911,
-          "name": "designcraft-cli-0.10.0-macos-universal.zip",
-          "sha256": "0a88351d7f82f71f8c11e1c3464a1225ad9cd48554191a6411b93e723ff0285e"
+          "bytes": 71159835,
+          "name": "designcraft-cli-0.11.0-macos-universal.zip",
+          "sha256": "f70cde1d39cfa8307db7aa036d5fce66a509e47d4059d984b93b0a4ce26b974d"
         },
         "windows-x64": {
-          "bytes": 81247594,
-          "name": "designcraft-0.10.0-windows-x64-portable.zip",
-          "sha256": "13f27e2a2f73e9e9a21281a1a209cbbdd77341933c58cb78617bafcdb298759f"
+          "bytes": 81272427,
+          "name": "designcraft-0.11.0-windows-x64-portable.zip",
+          "sha256": "960666ce7bde2e1a9563e7460e0cfd8d96cf72f31de038036784a537ff2894ac"
         }
       },
-      "commit": "15a2f3c8c88ae2e011e5912149ac67460ea6d949",
+      "commit": "4d62a501c18fb3cf453c6e9f19f15cbc9c558e26",
       "smoke_tool": "inspect_document",
-      "tag": "v0.10.0",
-      "version": "0.10.0"
+      "tag": "v0.11.0",
+      "version": "0.11.0"
     },
     "effectcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 64229418,
-          "name": "effectcraft-0.13.0-linux-x86_64.tar.gz",
-          "sha256": "cb9c007f80802549f11efcf1e030c56c2a44ab11870a588850355dadfa5ab18c"
+          "bytes": 64229588,
+          "name": "effectcraft-0.14.0-linux-x86_64.tar.gz",
+          "sha256": "7f464e4cedcda418f8b84063c5b3a79bdf59a8a6c0a4e229bf7aaaf052a5d9a7"
         },
         "macos": {
-          "bytes": 60624604,
-          "name": "effectcraft-cli-0.13.0-macos-universal.zip",
-          "sha256": "81babf492f2ce35ef9e2c3590d2647b69f507dd0485c7f72a4da426822caca93"
+          "bytes": 60623466,
+          "name": "effectcraft-cli-0.14.0-macos-universal.zip",
+          "sha256": "e32f4c5b735d2573ce5ddbc831ed9c96fdb22f7c56a484f2e0ddd31fc24d84fe"
         },
         "windows-x64": {
-          "bytes": 67506367,
-          "name": "effectcraft-0.13.0-windows-x64-portable.zip",
-          "sha256": "441a1905165d80eb374bc89f653fdb04d2e528fbf690d9d5323d6820f4d924b2"
+          "bytes": 67507747,
+          "name": "effectcraft-0.14.0-windows-x64-portable.zip",
+          "sha256": "63e96a7f53b743d8c3590ce9f5785b18035fd592bb076ade44cd0881ac20ab0e"
         }
       },
-      "commit": "de3fec28ed7a3d7a700a9d8ea307779dcda99a8e",
+      "commit": "26b40199b72121aa7f4e55a63718e1b4dd48a859",
       "smoke_tool": "doc_inspect",
-      "tag": "v0.13.0",
-      "version": "0.13.0"
+      "tag": "v0.14.0",
+      "version": "0.14.0"
     },
     "figcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 88827057,
-          "name": "figcraft-0.8.0-linux-x86_64.tar.gz",
-          "sha256": "c350dc5ae7e30c85a06357a94cfdf604f2b26f3a4eb637b44f0f78bff7c34985"
+          "bytes": 88843669,
+          "name": "figcraft-0.9.0-linux-x86_64.tar.gz",
+          "sha256": "67f786c816c255598bc120a150ac57cb5a8f246935d29fe8b4d2afa08f88330c"
         },
         "macos": {
-          "bytes": 78517445,
-          "name": "figcraft-cli-0.8.0-macos-universal.zip",
-          "sha256": "c89850dc87804b6254d5d186937bd838c9f1a5e244b435df49772309a4b355bd"
+          "bytes": 78591804,
+          "name": "figcraft-cli-0.9.0-macos-universal.zip",
+          "sha256": "95589286450b7398b883f3dbee0fb6ac43ebd65968e043dd53ee9e00344bd3ed"
         },
         "windows-x64": {
-          "bytes": 88647223,
-          "name": "figcraft-0.8.0-windows-x64-portable.zip",
-          "sha256": "b6bb37f420feec898b55a8adc4f655230f25a3e4e0c09aa1e22d1d58402dca4c"
+          "bytes": 88597087,
+          "name": "figcraft-0.9.0-windows-x64-portable.zip",
+          "sha256": "a0718ff23e373563bbac7a16600f8c147cb16de8f26bd6c1f5eeb3cebd4ac416"
         }
       },
-      "commit": "594dc8c6cf50a03b6d88abce877794f286f759b9",
+      "commit": "28de91d9ae72fc7fbc2199ac5ee2c8be237980d5",
       "smoke_tool": "inspect_document",
-      "tag": "v0.8.0",
-      "version": "0.8.0"
+      "tag": "v0.9.0",
+      "version": "0.9.0"
     },
     "filmcraft": {
       "assets": {
@@ -141,117 +141,117 @@
     "gridcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 19870388,
-          "name": "gridcraft-0.9.0-linux-x86_64.tar.gz",
-          "sha256": "811482f2e4bb66f8c35d59b79e532e1d0812d362bac24e63fd6ddc0844d66bc9"
+          "bytes": 19869415,
+          "name": "gridcraft-0.10.0-linux-x86_64.tar.gz",
+          "sha256": "b78a28605cd34594fc35dfc1ad36a924054571a1382625fb7506fd70cdfb9197"
         },
         "macos": {
-          "bytes": 11107867,
-          "name": "gridcraft-cli-0.9.0-macos-universal.zip",
-          "sha256": "763327fd926920b9a78d27bc8baf24825eb98e89cc26d4fb2c125d753e4eb455"
+          "bytes": 11108887,
+          "name": "gridcraft-cli-0.10.0-macos-universal.zip",
+          "sha256": "e336fce4555a3ef83d6c1aaa3779d0895470f527a35ac28e386166c9f1b850b4"
         },
         "windows-x64": {
-          "bytes": 18696696,
-          "name": "gridcraft-0.9.0-windows-x64-portable.zip",
-          "sha256": "8bf499edd5b0db010c90f8aeb287f82de24f82e0065bf248acb9602c2990dd0a"
+          "bytes": 18695156,
+          "name": "gridcraft-0.10.0-windows-x64-portable.zip",
+          "sha256": "b3af8987e1bee1970de5e681a6a6505a1943084a4375df8189569fef0d800315"
         }
       },
-      "commit": "a2cc4b42cac6e2c41bae71fba4607300755a0b47",
+      "commit": "2ebdf164c2c9c536122e0a2cffe79078b5c818ac",
       "smoke_tool": "inspect_workbook",
-      "tag": "v0.9.0",
-      "version": "0.9.0"
+      "tag": "v0.10.0",
+      "version": "0.10.0"
     },
     "lightcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 108735689,
-          "name": "lightcraft-0.10.0-linux-x86_64.tar.gz",
-          "sha256": "1ca12590463a75f425c1ed76ebfcbf72548de25db8cf590c5ab6bd4d224db4df"
+          "bytes": 109535627,
+          "name": "lightcraft-0.11.0-linux-x86_64.tar.gz",
+          "sha256": "a2d1be1c52abb81f5a0736624a20ce9287183e0b0955005829f4a9dda41496ba"
         },
         "macos": {
-          "bytes": 107796185,
-          "name": "lightcraft-cli-0.10.0-macos-universal.zip",
-          "sha256": "cc95e914e7198a0bdc80a104d964311d28302351daf8142a29697d11ac391842"
+          "bytes": 108298166,
+          "name": "lightcraft-cli-0.11.0-macos-universal.zip",
+          "sha256": "29e057886ef22d22fc48db515d4f6a863d5a5991889c0c8d8e0d4f63fdd095f3"
         },
         "windows-x64": {
-          "bytes": 109596981,
-          "name": "lightcraft-0.10.0-windows-x64-portable.zip",
-          "sha256": "c1bad3213b8cf027853b1b5bfb3c8ce2019449eba4ce04ef025eb9e40726cf0b"
+          "bytes": 110152323,
+          "name": "lightcraft-0.11.0-windows-x64-portable.zip",
+          "sha256": "3417542319d63cbfa772763a94128d7fef9a389f997bb4e78bfe6a192a17ffac"
         }
       },
-      "commit": "a2a41383c4fd62fa85a46ccd00998639221f2d3c",
+      "commit": "ec0cda9a6f320e3b32f659f16718f7bce6c3f12f",
       "smoke_tool": "doc_inspect",
-      "tag": "v0.10.0",
-      "version": "0.10.0"
+      "tag": "v0.11.0",
+      "version": "0.11.0"
     },
     "pdfcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 30787103,
-          "name": "pdfcraft-cli-0.10.1-linux-x86_64.tar.gz",
-          "sha256": "14e9531bffdd7fbf955360ff1db33c1c6565cf238b39d5d74b36a1e1673c8825"
+          "bytes": 30792400,
+          "name": "pdfcraft-cli-0.11.0-linux-x86_64.tar.gz",
+          "sha256": "efc71ede19559208c3b780da9e6b14831c1d7bca67f478916883f1307f016608"
         },
         "macos": {
-          "bytes": 61701382,
-          "name": "pdfcraft-cli-0.10.1-macos-universal.zip",
-          "sha256": "5fe59e1e60e244c89db79f2883b8e49b947a952c3f485651f55895f2e7c6b8df"
+          "bytes": 61714893,
+          "name": "pdfcraft-cli-0.11.0-macos-universal.zip",
+          "sha256": "54f84be7d4526d1da6e88bb453f261c9988b3ea052000eb28381e78ecaa55fb7"
         },
         "windows-x64": {
-          "bytes": 86441313,
-          "name": "pdfcraft-0.10.1-windows-x64-portable.zip",
-          "sha256": "60f47ed115b8d819f1391837881e96fac1bbf8629da61e21013c21862f424e00"
+          "bytes": 86449611,
+          "name": "pdfcraft-0.11.0-windows-x64-portable.zip",
+          "sha256": "1655b326dc3d34e7fe1a5c211d06a603b12661765291ea995da2b7d9bcf2ff3c"
         }
       },
-      "commit": "b77d57000c22c760f731206f6cf14486d149de72",
+      "commit": "3e3064532f04fd6ec769c6bd7b2c97464757970e",
       "smoke_tool": "doc_inspect",
-      "tag": "v0.10.1",
-      "version": "0.10.1"
+      "tag": "v0.11.0",
+      "version": "0.11.0"
     },
     "photocraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 83652079,
-          "name": "photocraft-0.11.1-linux-x86_64.tar.gz",
-          "sha256": "0e1499b499b8bd80a9638e315c0f1c927d0606ac5cd58bfbda434f5025c80a49"
+          "bytes": 84317736,
+          "name": "photocraft-0.12.0-linux-x86_64.tar.gz",
+          "sha256": "fb2b830230e3202a1ee18ec20e3f6d250d276b165d78811e83eb6a75725f9ce2"
         },
         "macos": {
-          "bytes": 69373690,
-          "name": "photocraft-cli-0.11.1-macos-universal.zip",
-          "sha256": "11f870cd6773092f446fc7ce58a366e54ac9190e91a3ad197deec49335b20b64"
+          "bytes": 70006157,
+          "name": "photocraft-cli-0.12.0-macos-universal.zip",
+          "sha256": "9aca69821c1f84a1ebab4b9ee4e86ceba3e995ef8a676b7b4394bfe67486fb0e"
         },
         "windows-x64": {
-          "bytes": 85508317,
-          "name": "photocraft-0.11.1-windows-x64-portable.zip",
-          "sha256": "00570cb1a2da18a5677b28296f6cefae46dfad3011f51b8369146dcc73a2777a"
+          "bytes": 86293584,
+          "name": "photocraft-0.12.0-windows-x64-portable.zip",
+          "sha256": "fdc8da51cba975e52ddc4dfb4833b4001c10ea7e067423b1304569a67a41aaff"
         }
       },
-      "commit": "46e538b3a2bacb533e89c7a30a99bbf2d91c3381",
+      "commit": "6a2d027ee2e7ca12afd248544ed2262b0fa078dd",
       "smoke_tool": "doc_inspect",
-      "tag": "v0.11.1",
-      "version": "0.11.1"
+      "tag": "v0.12.0",
+      "version": "0.12.0"
     },
     "soundcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 16466938,
-          "name": "soundcraft-0.10.0-linux-x86_64.tar.gz",
-          "sha256": "46418d56fefcdacd286e6a696fb523f57f545d5f141c46fc72ba73738b6b6c70"
+          "bytes": 16468344,
+          "name": "soundcraft-0.11.0-linux-x86_64.tar.gz",
+          "sha256": "3f4b0368310f10400439b4da304862a7d463231cfc51d6057e1146962a2ffa35"
         },
         "macos": {
-          "bytes": 6800280,
-          "name": "soundcraft-cli-0.10.0-macos-universal.zip",
-          "sha256": "1b82c7ec17677df33cef2df7f226321796b6def6c10d9ef8ffd953adf9ede5bf"
+          "bytes": 6799594,
+          "name": "soundcraft-cli-0.11.0-macos-universal.zip",
+          "sha256": "6868fec480ea7d10638f277ebc8eb2fd6097b12b064a127f493d0522140eea01"
         },
         "windows-x64": {
-          "bytes": 15073498,
-          "name": "soundcraft-0.10.0-windows-x64-portable.zip",
-          "sha256": "a4ff6b08c0a6821f4c027360adf4a3a524af40c654637d78090fdbb12d141857"
+          "bytes": 15071001,
+          "name": "soundcraft-0.11.0-windows-x64-portable.zip",
+          "sha256": "1c34c93c2648d86fb4ace1343af2b28f1d7cced0680ef48bbae145f63e1a9aa6"
         }
       },
-      "commit": "e8940766d77601942b31e62570a06c44db1ec68e",
+      "commit": "b74fca0fb0f8b4a8474c447c1b6043a5028a5de2",
       "smoke_tool": "inspect_session",
-      "tag": "v0.10.0",
-      "version": "0.10.0"
+      "tag": "v0.11.0",
+      "version": "0.11.0"
     },
     "vectorcraft": {
       "assets": {
@@ -301,7 +301,7 @@
     }
   },
   "basis": "Latest GitHub releases of storytold/<app> on the review date; archive hashes copied from each release's SHA256SUMS.txt; smoke tools verified in the tag's MCP source. Reviewed pins, not binary execution evidence. Sigstore bundles for the extracted CLIs live in config/signatures.json.",
-  "reviewed": "2026-10-21",
+  "reviewed": "2026-10-22",
   "schema_version": 2,
   "signers": {
     "apple_team_id": "DJ6XS33FX8",
