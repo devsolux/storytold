@@ -1,7 +1,16 @@
 # Changelog
 
-## Unreleased
+## 1.5.6 — 2026-10-23
 
+Automated release by the daily Craft release refresh (run 39937835313): 13
+pins moved on 2026-10-23. Each moved app needs its card and smoke tool
+rechecked at the new tag.
+
+- Pins moved: CADCraft 0.10.0 → 0.12.0, DeckCraft 0.9.0 → 0.10.0, DesignCraft
+  0.11.0 → 0.12.0, EffectCraft 0.14.0 → 0.16.0, FigCraft 0.9.0 → 0.10.0,
+  FilmCraft 0.10.0 → 0.12.0, GridCraft 0.10.0 → 0.11.1, LightCraft 0.11.0 →
+  0.13.0, PdfCraft 0.11.0 → 0.13.0, PhotoCraft 0.12.0 → 0.14.0, SoundCraft
+  0.11.0 → 0.12.1, VectorCraft 0.14.0 → 0.16.0, WordCraft 0.9.0 → 0.10.0.
 - Release workflow: a run that moves a pin now opens the next patch release in
   its pull request instead of leaving the version at the last hand-cut
   release. `scripts/bump_release.py` (new, with tests) bumps
