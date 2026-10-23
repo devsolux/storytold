@@ -1,17 +1,21 @@
 name: Offline integration kit checks
 on:
   push:
-  # A pull request that changes only the bot-owned release files is the release
-  # workflow's own: its refresh job already ran check and test on them and its
-  # verify jobs run the real setup on three OSes. GitHub never starts jobs for a
-  # pull_request run that github-actions[bot] opened, so without this filter each
-  # such pull request showed a job-less run that failed when the merge deleted
-  # bot/releases. Any pull request touching other files still runs in full.
+  # A pull request that changes only the bot-owned release files (the pins, the
+  # rebuilt plugin and the next release's version bump with its changelog
+  # section) is the release workflow's own: its refresh job already ran check
+  # and test on them and its verify jobs run the real setup on three OSes.
+  # GitHub never starts jobs for a pull_request run that github-actions[bot]
+  # opened, so without this filter each such pull request showed a job-less run
+  # that failed when the merge deleted bot/releases. Any pull request touching
+  # other files still runs in full; every push still runs it.
   pull_request:
     paths-ignore:
       - config/releases.json
       - config/signatures.json
       - plugins/storytold/**
+      - packaging/project.json
+      - CHANGELOG.md
   workflow_dispatch:
 permissions:
   contents: read

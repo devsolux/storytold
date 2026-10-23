@@ -26,6 +26,10 @@ at the new tag.
 A version change belongs in packaging/project.json. Update the changelog,
 verification report and source ledger; keep original source documents unchanged.
 Then run make release, make test-sdk and, with the Claude CLI installed, make host-validate.
+The daily release workflow is the exception: when it moves a pin, scripts/bump_release.py
+bumps the patch version and writes that release's changelog section in its pull
+request, and the merge job publishes the GitHub release; the moved cards still
+need their recheck afterwards.
 
 Builds and tests never commit, push or install. Publishing is explicit: the
 make github-* targets (make help lists them) commit and push only when invoked

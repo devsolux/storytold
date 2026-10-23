@@ -25,6 +25,16 @@ LightCraft 0.11.0, PdfCraft 0.11.0, PhotoCraft 0.12.0, SoundCraft 0.11.0; see
 the source ledger), the retry path against a real GitHub fault, and the earlier
 items listed for 1.5.4.
 
+## Automated patch release after a pin move — October 23, 2026
+
+| Gate | Result |
+|---|---|
+| `scripts/bump_release.py`, the refresh report's `moves`, the workflow's bump and release steps, `ci.yml` | Locally on Python 3.11.17: `make check` (the two new files registered in `packaging/files.json`), **281 tests** (11 new: patch bump and malformed versions; pin lines by display name with an accepted re-publication named; the changelog with, without and with an empty Unreleased section; singular wording; every refusal leaves both files unchanged; the workflow bumps after the refresh and before the build, hands `packaging/project.json` and `CHANGELOG.md` to publish, and only the merge job, without Python or a checkout, runs `gh release create` after `--match-head-commit`; `ci.yml` ignores the two files), build and verify-build passed. Both workflows parse (Ruby YAML). |
+| Repository side | `gh api` on 2026-10-23: no rulesets, no branch protection on `main`, no tag protection, Actions allowed to create pull requests; the merge job's `contents: write` token can create the tag and the release. |
+
+Not run: the new steps on a runner. The next pin move is the first, and 1.5.6
+is the release it publishes; its `verify` jobs run the rebuilt plugin as before.
+
 ## Executed for 1.5.4 — October 19, 2026
 
 macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`), plus GitHub:

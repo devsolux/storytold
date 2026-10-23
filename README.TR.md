@@ -222,7 +222,10 @@ yazar, yeni CLI'leri imzalar, eklentiyi yeniden derler, denetimleri ve gerçek
 `setup`'ı Linux, Windows ve macOS runner'larında çalıştırır ve inceleme için
 `bot/releases` üzerinde tek bir çekme isteği açar (yeşil çalıştırmaları otomatik
 birleştirmek için depo değişkeni `STORYTOLD_AUTO_MERGE=true` olarak ayarlanır).
-Kullanıcılar yeni sabitlemeleri bir sonraki eklenti güncellemesiyle alır.
+Bir sabitlemeyi taşıyan çalıştırma ayrıca Storytold'un yama sürümünü artırır ve
+o sürümün değişiklik günlüğü bölümünü yazar; birleştirme `v<version>` GitHub
+sürümünü yayımlar. Kullanıcılar yeni sabitlemeleri bir sonraki eklenti
+güncellemesiyle alır.
 
 ## Güncelleme ve kaldırma
 

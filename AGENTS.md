@@ -55,4 +55,9 @@ A release bumps packaging/project.json and updates CHANGELOG.md,
 docs/verification.md and docs/source-ledger.md together, then passes make
 release, make test-sdk and, with the Claude CLI installed, make host-validate.
 Pushing main, the lightweight `v<version>` tag and the GitHub release happen
-only when the operator asks, never as a side effect of a commit.
+only when the operator asks, never as a side effect of a commit. The one
+automated release is the workflow's own: a daily run that moves a pin bumps the
+patch version with scripts/bump_release.py in its pull request, and its merge
+job tags the squash commit `v<version>` and publishes that release from the
+changelog section the run wrote. The moved cards' recheck and its record in
+docs/source-ledger.md and docs/verification.md remain the operator's work.

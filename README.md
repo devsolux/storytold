@@ -206,7 +206,9 @@ The workflow checks every app's latest release each day, rewrites the manifest,
 signs new CLIs, rebuilds the plugin, runs the checks and the real `setup` on
 Linux, Windows and macOS runners, and opens one pull request on `bot/releases`
 for review (set the repository variable `STORYTOLD_AUTO_MERGE=true` to merge
-green runs automatically). Users receive the new pins with the next plugin
+green runs automatically). A run that moves a pin also bumps Storytold's patch
+version and writes that release's changelog section; merging publishes the
+GitHub release `v<version>`. Users receive the new pins with the next plugin
 update.
 
 ## Updating and removing

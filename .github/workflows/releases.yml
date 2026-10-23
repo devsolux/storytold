@@ -1,12 +1,15 @@
 name: Daily Craft release refresh
 # Refreshes config/releases.json from the latest upstream releases, signs each
-# pinned CLI keyless with this workflow's Sigstore identity and rebuilds the
-# plugin in a job that can read the repository and mint an OIDC token, nothing
-# more. A separate publish job, which runs no repository code, commits those
-# files to bot/releases and opens (or updates) one pull request. A verify matrix
-# then runs the real `setup` on Linux, Windows and macOS runners against exactly
-# that commit. Nothing reaches main without that pull request; set the
-# repository variable STORYTOLD_AUTO_MERGE=true to let a fully green run merge it.
+# pinned CLI keyless with this workflow's Sigstore identity, opens the next patch
+# release when a pin moved (version and changelog section) and rebuilds the
+# plugin, all in a job that can read the repository and mint an OIDC token,
+# nothing more. A separate publish job, which runs no repository code, commits
+# those files to bot/releases and opens (or updates) one pull request. A verify
+# matrix then runs the real `setup` on Linux, Windows and macOS runners against
+# exactly that commit. Nothing reaches main without that pull request; set the
+# repository variable STORYTOLD_AUTO_MERGE=true to let a fully green run merge it
+# and, when a pin moved, tag the merged commit v<version> and publish that GitHub
+# release from the changelog section the pull request added.
 on:
   schedule:
     - cron: '23 5 * * *'
@@ -26,6 +29,7 @@ jobs:
       id-token: write
     outputs:
       changed: ${{ steps.diff.outputs.changed }}
+      version: ${{ steps.bump.outputs.version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -49,6 +53,17 @@ jobs:
           python scripts/sign_releases.py > "$RUNNER_TEMP/sign.json"
           cat "$RUNNER_TEMP/sign.json"
           { echo '### Signatures'; echo '```json'; cat "$RUNNER_TEMP/sign.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: A moved pin opens the next patch release (version bump and changelog section; the plugin below is rebuilt with it)
+        id: bump
+        run: |
+          if ! jq -e '.moves | length > 0' "$RUNNER_TEMP/refresh.json" >/dev/null; then
+            echo "No pin moved; the version stays."
+            exit 0
+          fi
+          python scripts/bump_release.py --report "$RUNNER_TEMP/refresh.json" --run "$GITHUB_RUN_ID" > "$RUNNER_TEMP/bump.json"
+          cat "$RUNNER_TEMP/bump.json"
+          echo "version=$(jq -r .version "$RUNNER_TEMP/bump.json")" >> "$GITHUB_OUTPUT"
+          { echo '### Next release'; echo '```json'; cat "$RUNNER_TEMP/bump.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - run: python scripts/build.py build
       - run: python scripts/check.py
       - run: python scripts/test.py
@@ -56,7 +71,7 @@ jobs:
         id: diff
         # git status, not git diff: a file the rebuilt plugin adds is untracked, and publish must carry it too.
         run: |
-          status=$(git status --porcelain -- config/releases.json config/signatures.json plugins/storytold)
+          status=$(git status --porcelain -- config/releases.json config/signatures.json plugins/storytold packaging/project.json CHANGELOG.md)
           if [ -z "$status" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No release changes."
@@ -75,6 +90,8 @@ jobs:
             config/releases.json
             config/signatures.json
             plugins/storytold
+            packaging/project.json
+            CHANGELOG.md
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
@@ -103,23 +120,25 @@ jobs:
         id: commit
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.refresh.outputs.version }}
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git checkout -B bot/releases
-          git add -A config/releases.json config/signatures.json plugins/storytold
-          git commit -m "Refresh Craft release pins and Sigstore bundles ($(date -u +%F))"
+          git add -A config/releases.json config/signatures.json plugins/storytold packaging/project.json CHANGELOG.md
+          git commit -m "Refresh Craft release pins and Sigstore bundles ($(date -u +%F))${VERSION:+; release $VERSION}"
           # gh supplies the credentials to git, so the token never appears in a URL or argv.
           gh auth setup-git
           git push --force origin bot/releases
           # The verify jobs check out, and the merge job merges, exactly this commit.
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          body="Automated refresh of config/releases.json and config/signatures.json from the latest upstream releases on $(date -u +%F) (commit $(git rev-parse HEAD)). Review the diff: a changed app needs its card and smoke tool rechecked at the new tag. This run's verify jobs execute the real setup on Linux, Windows and macOS runners; auto-merge happens only when all three pass."
+          title="Refresh Craft release pins ($(date -u +%F))${VERSION:+: release $VERSION}"
+          body="Automated refresh of config/releases.json and config/signatures.json from the latest upstream releases on $(date -u +%F) (commit $(git rev-parse HEAD)).${VERSION:+ This commit also bumps packaging/project.json to $VERSION and adds that section to CHANGELOG.md; merging publishes the GitHub release v$VERSION from it.} Review the diff: a changed app needs its card and smoke tool rechecked at the new tag. This run's verify jobs execute the real setup on Linux, Windows and macOS runners; auto-merge happens only when all three pass."
           # Same-repository pull requests only: a fork can name its branch bot/releases too.
           open_pr=$(gh pr list --head bot/releases --state open --json number,isCrossRepository --jq '[.[] | select(.isCrossRepository | not)][0].number')
           if [ -n "$open_pr" ]; then
-            gh pr edit "$open_pr" --title "Refresh Craft release pins ($(date -u +%F))" --body "$body" || echo "::warning::Could not update the pull request title and body."
-          elif ! gh pr create --base main --head bot/releases --title "Refresh Craft release pins ($(date -u +%F))" --body "$body"; then
+            gh pr edit "$open_pr" --title "$title" --body "$body" || echo "::warning::Could not update the pull request title and body."
+          elif ! gh pr create --base main --head bot/releases --title "$title" --body "$body"; then
             echo "::warning::bot/releases was pushed but no pull request could be opened. Enable 'Allow GitHub Actions to create and approve pull requests' under Settings > Actions > General, or open it yourself: https://github.com/${GITHUB_REPOSITORY}/compare/main...bot/releases"
           fi
   verify:
@@ -156,11 +175,14 @@ jobs:
     if: needs.refresh.outputs.changed == 'true' && vars.STORYTOLD_AUTO_MERGE == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Holds the write token and runs only gh: no checkout, no repository code. It merges the verified
+    # commit and, when that commit opened a release, tags it and publishes the release from its changelog.
     permissions:
       contents: write
       pull-requests: write
     steps:
       - name: Merge the reviewed-by-CI pull request
+        id: merge
         env:
           GH_TOKEN: ${{ github.token }}
           VERIFIED_SHA: ${{ needs.publish.outputs.sha }}
@@ -172,3 +194,30 @@ jobs:
           fi
           # Refuses if bot/releases moved after the verify jobs checked it out.
           gh pr merge "$open_pr" --repo "$GITHUB_REPOSITORY" --squash --delete-branch --match-head-commit "$VERIFIED_SHA"
+          # The squash commit on main; the release below tags exactly this commit.
+          echo "sha=$(gh pr view "$open_pr" --repo "$GITHUB_REPOSITORY" --json mergeCommit --jq .mergeCommit.oid)" >> "$GITHUB_OUTPUT"
+      - name: Publish the next GitHub release from the merged changelog section
+        if: needs.refresh.outputs.version != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.refresh.outputs.version }}
+          MERGED_SHA: ${{ steps.merge.outputs.sha }}
+        run: |
+          if [ -z "$MERGED_SHA" ]; then
+            echo "::error::The merge commit is unknown; release v$VERSION was not published."
+            exit 1
+          fi
+          if gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::warning::Release v$VERSION already exists; nothing was published."
+            exit 0
+          fi
+          # The body is the section the merged commit holds in CHANGELOG.md, read from that commit on main, not from the artifact.
+          gh api -H 'Accept: application/vnd.github.raw+json' "repos/$GITHUB_REPOSITORY/contents/CHANGELOG.md?ref=$MERGED_SHA" > "$RUNNER_TEMP/CHANGELOG.md"
+          awk -v v="$VERSION" '/^## /{p=($2==v)} p' "$RUNNER_TEMP/CHANGELOG.md" > "$RUNNER_TEMP/notes.md"
+          if ! grep -q "^## $VERSION " "$RUNNER_TEMP/notes.md"; then
+            echo "::error::CHANGELOG.md at $MERGED_SHA has no $VERSION section; release v$VERSION was not published."
+            exit 1
+          fi
+          # Creates the lightweight tag v$VERSION at the merged commit along with the release.
+          gh release create "v$VERSION" --repo "$GITHUB_REPOSITORY" --target "$MERGED_SHA" --title "v$VERSION" --notes-file "$RUNNER_TEMP/notes.md" --latest
+          echo "Published release v$VERSION at $MERGED_SHA." >> "$GITHUB_STEP_SUMMARY"

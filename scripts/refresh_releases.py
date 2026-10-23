@@ -98,7 +98,9 @@ def refresh(token: str | None, accept: frozenset[str] = frozenset(), *, log: Log
     except BaseException:
         path.write_bytes(previous)
         raise
-    return {'reviewed': manifest['reviewed'], 'changed': changed,
+    # `moves` names each changed app's old and new version for scripts/bump_release.py's changelog section.
+    moves = {app: {'from': current['apps'][app]['version'], 'to': apps[app]['version']} for app in changed}
+    return {'reviewed': manifest['reviewed'], 'changed': changed, 'moves': moves,
             'note': 'Review the diff. A changed app needs its card and smoke tool rechecked at the new tag; run sign_releases.py next.'}
 
 

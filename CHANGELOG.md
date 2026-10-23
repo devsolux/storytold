@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- Release workflow: a run that moves a pin now opens the next patch release in
+  its pull request instead of leaving the version at the last hand-cut
+  release. `scripts/bump_release.py` (new, with tests) bumps
+  `packaging/project.json` and gives `CHANGELOG.md` that version's section,
+  headed by the moved pins from the refresh report, which now lists each
+  changed app's old and new version under `moves`; entries an Unreleased
+  section already held stay below the pins. The plugin is rebuilt with that
+  version before the checks run, so the manifests match. After the squash
+  merge the `merge` job, still running only `gh`, tags the merged commit
+  `v<version>` and publishes the GitHub release with that section as its body,
+  read from the merged commit; an existing release of that version is left
+  alone with a warning. The publish job still runs only `git` and `gh` and
+  now carries the two files as well; `ci.yml` ignores bot pull requests that
+  change only those files along with the pins and the plugin. A release cut
+  by hand is unchanged; the next pin move publishes 1.5.6.
+
 ## 1.5.5 — 2026-10-23
 
 Release-workflow resilience for the refresh step, a readable run summary, and
