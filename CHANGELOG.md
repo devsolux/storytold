@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 1.5.5 — 2026-10-23
+
+Release-workflow resilience for the refresh step, a readable run summary, and
+all thirteen pins moved to the 2026-10-21 releases and rechecked. Pull request
+#9 then moved eight pins again on 2026-10-22; those cards still need their
+recheck at the new tags.
 
 - Release workflow: the refresh step's 39 small GitHub requests (latest
   release, SHA256SUMS.txt and tag commit per app) had no retry, so one dropped
@@ -37,6 +42,12 @@
   limit and backup rule; VectorCraft's raster-only `scale`, `.ait` refusal,
   `SOURCE_DATE_EPOCH` and stored-link rule; WordCraft's password and save
   fallback.
+- Eight pins moved again (pull request #9 from the scheduled run 39762354104,
+  merged as `9e54271` on 2026-10-22): DesignCraft 0.11.0, EffectCraft 0.14.0,
+  FigCraft 0.9.0, GridCraft 0.10.0, LightCraft 0.11.0, PdfCraft 0.11.0,
+  PhotoCraft 0.12.0, SoundCraft 0.11.0. The run verified them on the three
+  runners; their cards have not been rechecked at the new tags yet, and the
+  source ledger records that recheck as pending.
 
 ## 1.5.4 — 2026-10-19
 

@@ -1,4 +1,4 @@
-# Verification status — 1.5.4
+# Verification status — 1.5.5
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All thirteen CLIs have
@@ -7,6 +7,23 @@ below), on GitHub runners and on a developer Mac (FigCraft there since
 October 18, 2026). That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## Executed for 1.5.5 — October 23, 2026
+
+macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`), plus GitHub:
+
+| Gate | Result |
+|---|---|
+| `make release` | 74 check entries, **270 tests** (the 4 refresh-retry tests added on October 21; none new since), build, verify-build and reproducible 1.5.5 plugin and source ZIPs. |
+| `make test-sdk` | The 7 synthetic-fixture checks passed with `mcp` 2.3.0 from the hash-locked `.venv`. |
+| `make host-validate` (Claude Code 2.1.282) | `claude plugin validate --strict` passed for the 1.5.5 manifests. |
+| Scheduled runs 39583945102 (October 21) and 39762354104 (October 22) | Both passed on `main`. The first found no upstream change (`publish` and `merge` skipped; the three `verify` jobs ran the real strict `setup --all`). The second found new releases of eight apps, signed their 24 archives, opened pull request #9, ran the three-OS verify with each app's smoke tool and squash-merged it as `9e54271`. |
+
+Still not run: the card recheck of the eight apps pull request #9 moved
+(DesignCraft 0.11.0, EffectCraft 0.14.0, FigCraft 0.9.0, GridCraft 0.10.0,
+LightCraft 0.11.0, PdfCraft 0.11.0, PhotoCraft 0.12.0, SoundCraft 0.11.0; see
+the source ledger), the retry path against a real GitHub fault, and the earlier
+items listed for 1.5.4.
 
 ## Executed for 1.5.4 — October 19, 2026
 

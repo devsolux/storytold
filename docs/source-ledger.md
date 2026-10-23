@@ -1,6 +1,6 @@
 # Source ledger and verification scope
 
-Review dates: **2026-10-12 to 2026-10-18** (each section names its own). The integration uses the attached project plan as its
+Review dates: **2026-10-12 to 2026-10-21** (each section names its own). The integration uses the attached project plan as its
 architecture authority. Fresh public-document checks supplement its implementation
 mechanics; they do not silently replace its decisions or prove native behavior.
 
@@ -700,6 +700,17 @@ FilmCraft, LightCraft, GridCraft and CADCraft still ship no root flag. Neither
 Release-note claims that were not confirmed in source stayed out of the
 cards. Source review only; the thirteen new binaries ran only in the
 workflow's verify jobs, not on a developer machine.
+
+## Pull request #9 moved eight apps — 2026-10-22, recheck pending
+
+The scheduled run 39762354104 pinned DesignCraft 0.11.0, EffectCraft 0.14.0,
+FigCraft 0.9.0, GridCraft 0.10.0, LightCraft 0.11.0, PdfCraft 0.11.0,
+PhotoCraft 0.12.0 and SoundCraft 0.11.0, verified them with each app's smoke
+tool on the three runners and merged them as `9e54271`. No card has been
+rechecked at those tags: the eight cards still carry their 2026-10-21 recheck
+dates, and 1.5.5 ships the pins as the workflow verified them. The recheck of
+the CLI's `mcp` parser, MCP docs, tool definitions, smoke tool, packaging and
+release assets at each new tag is still due.
 
 ## Build infrastructure
 
