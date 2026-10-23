@@ -28,12 +28,12 @@ Every file a tool reads must lie inside the read root and every file it writes (
 
 ## Durable verification
 
-Reopen the saved PDF and check page count, text and rendering. For redactions, use a genuine content-removal audit and inspect sanitized output; visual rectangles are not enough. redact_mark removes nothing until redact_apply, whose verification pass must succeed; it also removes the replies of the comments it removes and clears image pixels under the marks, and it refuses, leaving the document unchanged, a tagged PDF whose structure tree it cannot clean completely (0.10.1); then check doc_hidden_info and doc_revisions. The helper only checks PDF markers, not validity or confidentiality.
+Reopen the saved PDF and check page count, text and rendering. For redactions, use a genuine content-removal audit and inspect sanitized output; visual rectangles are not enough. redact_mark removes nothing until redact_apply, whose verification pass must succeed; it also removes the replies of the comments it removes and clears image pixels under the marks, and it refuses, leaving the document unchanged, a tagged PDF whose structure tree it cannot clean completely (0.10.1); then check doc_hidden_info and doc_revisions. Sanitizing the hidden-layers category (doc_remove_hidden, doc_optimize's discard) decides what an optional-content membership dictionary hides by evaluating its /P policy and /VE expression against the default configuration (0.11.0): content under an AllOff or Not rule is removed even when every layer is on, an expression it cannot evaluate (malformed, cyclic or too deep) counts as hidden unless it names only layers that are on, and an off layer that visible content still refers to stays in the configuration; doc_hidden_info counts that content and the image, form and undecodable or too deeply nested XObjects the pass would drop, so its hidden-layers count can be non-zero with no layer switched off. The helper only checks PDF markers, not validity or confidentiality.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-21 against the upstream
+Reference, app-specific section, rechecked on 2026-10-23 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [automation guide](https://github.com/storytold/pdfcraft/blob/main/crates/automation/README.md) and [MCP documentation](https://github.com/storytold/pdfcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

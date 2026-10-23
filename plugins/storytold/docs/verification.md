@@ -25,6 +25,19 @@ LightCraft 0.11.0, PdfCraft 0.11.0, PhotoCraft 0.12.0, SoundCraft 0.11.0; see
 the source ledger), the retry path against a real GitHub fault, and the earlier
 items listed for 1.5.4.
 
+## Card recheck at the pull request #9 pins — October 23, 2026
+
+| Gate | Result |
+|---|---|
+| Card recheck at the eight new tags | Source review of blob-less clones (see the [source ledger](source-ledger.md)): every catalog launch accepted unchanged, every smoke tool present without a required parameter, no tool removed or renamed, no root flag appeared for GridCraft or LightCraft, every release carries the three manifest assets at the manifest's byte sizes plus `SHA256SUMS.txt`. EffectCraft, GridCraft and SoundCraft changed only in version and CI (cards: date only); DesignCraft, FigCraft, LightCraft, PdfCraft and PhotoCraft cards gained the behaviour their new tags add. Locally on Python 3.11.17: `make check`, **281 tests**, build and verify-build passed on the updated cards, ledger and changelog. |
+
+None of the eight new binaries has run on a developer machine; the cards are
+source-grounded, and the runner-side evidence is the three `verify` jobs of run
+39762354104. The 1.5.5 item above, "the card recheck of the eight apps pull
+request #9 moved", is now covered. All eight repositories have already tagged
+newer versions (see the ledger), so the next daily run moves these pins again
+and the recheck repeats.
+
 ## Automated patch release after a pin move — October 23, 2026
 
 | Gate | Result |

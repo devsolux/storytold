@@ -1,6 +1,6 @@
 # Source ledger and verification scope
 
-Review dates: **2026-10-12 to 2026-10-21** (each section names its own). The integration uses the attached project plan as its
+Review dates: **2026-10-12 to 2026-10-23** (each section names its own). The integration uses the attached project plan as its
 architecture authority. Fresh public-document checks supplement its implementation
 mechanics; they do not silently replace its decisions or prove native behavior.
 
@@ -701,16 +701,223 @@ Release-note claims that were not confirmed in source stayed out of the
 cards. Source review only; the thirteen new binaries ran only in the
 workflow's verify jobs, not on a developer machine.
 
-## Pull request #9 moved eight apps — 2026-10-22, recheck pending
+## Release-tag recheck of the eight apps moved by pull request #9 — 2026-10-23
 
-The scheduled run 39762354104 pinned DesignCraft 0.11.0, EffectCraft 0.14.0,
-FigCraft 0.9.0, GridCraft 0.10.0, LightCraft 0.11.0, PdfCraft 0.11.0,
-PhotoCraft 0.12.0 and SoundCraft 0.11.0, verified them with each app's smoke
-tool on the three runners and merged them as `9e54271`. No card has been
-rechecked at those tags: the eight cards still carry their 2026-10-21 recheck
-dates, and 1.5.5 ships the pins as the workflow verified them. The recheck of
-the CLI's `mcp` parser, MCP docs, tool definitions, smoke tool, packaging and
-release assets at each new tag is still due.
+Upstream published new releases of eight apps between 2026-10-21 18:12 and
+19:57 UTC, after that day's scheduled run. The scheduled run 39762354104 on
+`44fea38` pinned, signed (24 archives, no retry) and verified them on the three
+runners and merged #9 as `9e54271`; 1.5.5 shipped them with this recheck still
+pending. Same recheck as above, between the old and the new tag of each
+repository, by `git diff` and `git show` on blob-less clones; nothing from
+upstream was built or run. Every catalog launch is still accepted with
+unchanged meaning, every smoke tool still exists without a required parameter,
+no tool was removed or renamed, no root flag appeared for GridCraft or
+LightCraft, no range spans an untagged version, and every release keeps the
+three asset names the manifest expects, at the manifest's byte sizes, plus
+`SHA256SUMS.txt`. EffectCraft, GridCraft and SoundCraft are version-only
+releases (the version bump, a `.coderabbit.yaml`, CI moved to shared
+`craft-common-actions` workflows); DesignCraft and PdfCraft carry one engine
+change each; FigCraft, LightCraft and PhotoCraft several. Several release
+notes record that `freebsd-aarch64.tar.gz` was dropped (the emulated build ran
+past the shared workflow's 5-hour limit, craft-common-actions#39); nothing
+here uses it. All eight repositories have since tagged newer versions
+(DesignCraft v0.12.0, EffectCraft v0.15.0 and v0.16.0, FigCraft v0.10.0,
+GridCraft v0.11.1, LightCraft v0.12.0 and v0.13.0, PdfCraft v0.12.0 and
+v0.13.0, PhotoCraft v0.13.0 and v0.14.0, SoundCraft v0.12.1), which the next
+daily run pins; each will need this recheck again.
+
+- DesignCraft v0.11.0 (`4d62a50`): the `mcp` branch of `main.rs`,
+  `automation_args.rs`, `crates/engine/src/file_access.rs`, `io.rs`,
+  `crates/mcp`, `docs/mcp.md`, `docs/agents.md`, `release.yml` and
+  `packaging/` byte-identical to v0.10.0 (`--connect PORT`, `--sample`, both
+  root flags; unknown options refused; the same 26 tools, `inspect_document`
+  without parameters). Twelve commits, almost all CI (SonarCloud, CodeRabbit,
+  `cargo xtask ci`, the shared nix workflow) and licence notices for the PDF
+  reader. The one engine change (#876) moves placed-PDF reading from the
+  pdfcraft-vendored hayro crates to craft-libs `craft-pdf`
+  (`89dcbb3`), with a 512 MiB input bound (`docs/pdf-backend.md`):
+  `file.place` (`cmd/file.rs`) and `links.relink`, `links.relinkFolder` and
+  `links.update` (`cmd/links.rs`, `reload`) refuse a larger PDF before
+  parsing it, as an ordinary error naming the command or the path.
+  `file.exportPdf` (`cmd/export.rs`, `rasterize_layered`) now fails, naming
+  the placed file and the reason (`PdfRasterError` in `crates/render`:
+  missing page, layers not hidden, image decode, unsupported font, truncated
+  content), when a placed PDF with hidden layers cannot be rasterized, where
+  0.10.0 skipped the item and exported the page as stored; the "exported as
+  images" warning is unchanged, and `book.exportPdf` and `file.print` do not
+  take that path. No new command (`pdf_page_box` is test-only). No untagged
+  version in the range; a v0.12.0 tag already exists upstream. The release
+  drops `freebsd-aarch64.tar.gz` (5-hour CI limit, craft-common-actions#39)
+  and keeps the three manifest assets plus `SHA256SUMS.txt`. Card adds the
+  512 MiB PDF bound on `file.place`/`links.*` and the `file.exportPdf`
+  failure on unrasterizable layered PDFs.
+- EffectCraft v0.14.0 (`26b4019`; no v0.13.x tag between): ten commits, six
+  files, none under `apps/`, `crates/`, `docs/` or `.github/` (all four
+  subtrees identical to v0.13.0). The `mcp` branch of
+  `apps/effectcraft-cli/src/main.rs` is byte-identical (`--autosave | --bridge
+  PORT`, both root flags repeatable, unknown options refused before anything
+  runs, `--autosave` with `--bridge` refused); `crates/automation` unchanged
+  (`tools.rs`, `confine.rs`, `backend.rs`): the same 36 tools, `doc_inspect`
+  with an empty schema, the same 382 engine command ids, scripts, `control`,
+  `ui_*` and `script_ui` still refused while confined; `docs/mcp.md` and
+  `docs/agents.md` byte-identical. The diff is the version bump (36 workspace
+  crates in `Cargo.lock`, no dependency moved), a README that drops its After
+  Effects/Adobe comparisons and trademark footnote (306 "built-in" effects;
+  parity figures now cite `docs/target-app-parity.md`), a `.coderabbit.yaml`
+  that skips Dependabot PRs, a `sonar-project.properties` (its projectKey
+  still names craft-launcher) and `packaging/freebsd/package.sh` building
+  aarch64 with 16 codegen units and no LTO after the emulated VM ran past its
+  5-hour limit; the release nevertheless carries `freebsd-x86_64.tar.gz`
+  only. `release.yml` still delegates to `craft-common-actions` at `@main`.
+  Card unchanged except its recheck date.
+- FigCraft v0.9.0 (`28de91d`): `apps/figcraft-cli` byte-identical (`args.rs`,
+  `main.rs`, `files.rs`); the `mcp` branch keeps `[--attach PORT]` and the two
+  repeatable root flags, refuses positionals, unknown options and `--attach`
+  with roots, and builds the same `file_access::Roots`;
+  `crates/engine/src/file_access.rs`, `crates/mcp` (the same 18 tools, the
+  32 MiB line limit, -32600, `$step`), `docs/mcp.md`, `docs/cli.md` and
+  `.github/workflows/release.yml` are identical too. No version in the range
+  went untagged (0.8.0 → 0.9.0 in the release commit). Engine changes behind
+  `run_command`: `component.combineVariants` dedupes its ids and refuses,
+  naming the reason, variants already in a set (it used to nest a set in a
+  set), library copies, components inside an instance and a component with
+  one inside it, names the set from the first variant's path before its last
+  `/` (else "Component N") and renames bare variants "Property 1=Default",
+  "Property 1=VariantN"; `component.addVariant` on a lone main component
+  makes it a set of itself and adds the variant in one undo step (#903).
+  `file.save`/`file.saveAs` to a new path give an untitled document, or one
+  still titled as its old file stem, the new file's stem before writing, and
+  `file.open` replaces a stored "Untitled" with the stem (#935).
+  `Color::parse_css` refuses `rgb()`/`hsl()` forms with a malformed alpha or
+  more than four arguments (#911); `trim_num` prints huge whole numbers
+  exactly; SVG export keeps Title Case across styled runs; `ellipse` rings
+  keep open subpaths open. Linux window decorations move to the shared
+  `craft-window` crate (desktop app only). The release drops
+  `freebsd-aarch64` and keeps the three catalog assets plus `SHA256SUMS.txt`.
+  Card adds the `combineVariants` refusals and naming, `addVariant` on a lone
+  component, the CSS-colour refusal and the save-adopts-filename rule.
+- GridCraft v0.10.0 (`2ebdf16`): a CI-only release. Between v0.9.0 and
+  v0.10.0 the diff is four files: `.coderabbit.yaml` (new; skips CodeRabbit
+  on Dependabot pull requests), `.github/workflows/nix.yml` (the flake check
+  now comes from `storytold/craft-common-actions/.github/workflows/nix.yml@main`)
+  and the 0.9.0 → 0.10.0 bump in `Cargo.toml` and `Cargo.lock`, made in the
+  release commit itself (no untagged version in the range). `apps/gridcraft-cli`,
+  `crates/*`, `docs/`, `packaging/` and `.github/workflows/release.yml` are
+  byte-identical: `mcp` still takes only `--connect`, `--in` and `--sample`,
+  each with a value, no switches, unknown options and extra positionals
+  refused (`main.rs:497-499`, `:126`); plain `mcp` opens a blank headless
+  session (`main.rs:516`); no root flag. The same 21 tools in the same
+  `tools/list` order, `inspect_workbook` with an empty schema
+  (`tools.rs:137-143`); nothing added, removed or renamed, no schema change,
+  no new command, no new disk write. `file.save`/`file.saveAs` with a `.pdf`
+  path is still a print of the active sheet (`cmd/file.rs:107-109`), the
+  unknown-extension error still names only .xlsx/.csv/.tsv/.json/.html
+  (`io.rs:199`), HTML export still stops at 100,001 rows (`io.rs:409`) and
+  CSV/TSV at 512 MiB. Release v0.10.0 (2026-10-21) carries
+  `gridcraft-0.10.0-linux-x86_64.tar.gz`, `gridcraft-cli-0.10.0-macos-universal.zip`,
+  `gridcraft-0.10.0-windows-x64-portable.zip` and `SHA256SUMS.txt`; its notes
+  drop the FreeBSD aarch64 build, which Storytold does not pin. Card
+  unchanged but for the date.
+- LightCraft v0.11.0 (`ec0cda9`): the `mcp` parser in `apps/lightcraft-cli/src/
+  main.rs` is outside every hunk (`mcp [--connect [ADDR]] [--demo] [--library
+  DIR] [--compact] [--headless] [FILES…]`, other options refused; no root
+  flag); the same 17 compact tools, `doc_inspect` still without a required
+  parameter, no property changes. `crates/mcp/src/tools.rs` marks `export`,
+  `render_photo` and the bridged `screenshot` `destructiveHint: true` and says
+  that `path` replaces an existing file while a catalogued original or its XMP
+  sidecar is refused with nothing written (#2152); `docs/mcp.md` calls the
+  annotations client hints, not a sandbox. Headless `export` still writes PNG
+  for a `path` naming no format, but `bitDepth` is checked against the format
+  written (#1966), and `app.export` refuses a depth its format lacks (#1952).
+  Engine: `photo.reload` is split into plan/probe/apply (`cmd/reload.rs`; in
+  the app `{background: true, count}` unless `wait: true`);
+  `metadata.reverseGeocode` takes `maxDistance` and reports `nearestCity`
+  (#2242); `crop.aspect` keeps the crop's orientation and takes `orientation`
+  (#2253); Constrain Crop tightens the stored crop (#1927); `index`,
+  `component` and mask `id`/`ids` must be non-negative integers, refused
+  before any change (#2100, #2101); a brush stroke lays at most 2,000,000 dabs
+  (#1520); Lightroom import reads `.lrcat` pages on demand up to 16 GiB and
+  skips images with missing records under `skipped` (#842, #2230); an
+  arriving JPEG/TIFF never reads its raw's shared stem sidecar (#1905);
+  downscaling at 2:1 or more uses Lanczos3 (#2012). No new disk write. The
+  macOS bundle drops the `.pcraft`/PSB/QOI types (#1951); the same 28 asset
+  names. Card adds the destructive annotations, the path replace/refusal,
+  the `bitDepth` refusal, `photo.reload`, the Lightroom limits, `maxDistance`,
+  the stem-sidecar rule, the index refusals, the dab cap, `crop.aspect`,
+  Constrain Crop and the Lanczos change.
+- PdfCraft v0.11.0 (`3e30645`; six commits, Cargo.toml 0.10.1 to 0.11.0 in
+  the release commit alone, no untagged version; v0.12.0 and v0.13.0 already
+  exist upstream): `apps/pdfcraft-cli` byte-identical (`main.rs`
+  `MCP_OPTIONS`, `mcp`, `automation_roots` and `validate_options`: both root
+  flags taken out first, `--root` once with a value, `--compact`, unknown
+  options refused, `--root` on top of both roots), as are `crates/automation`
+  (`mcp.rs` compact core of fifteen plus `tool_search` and `tool_call`,
+  `tools.rs` 171 tools, `doc_inspect` without a required parameter,
+  `file_access.rs`), `crates/platform/src/staging.rs`, `crates/engine`,
+  `docs/mcp.md`, `crates/automation/README.md`, `release.yml` and
+  `packaging/`; nothing added, removed or renamed, no schema, write or
+  confinement change. The one behaviour change is #3522 (fixes #3499) in
+  `crates/redact/src/{interp.rs,sanitize.rs}`: sanitizing `hidden-layers`
+  (`doc_remove_hidden`, `doc_optimize` `discard`) evaluates an OCMD's `/P`
+  policy (AnyOn, AllOn, AnyOff, AllOff, indirect names resolved, an invalid
+  one hidden when any group is off) and bounded `/VE` expression (depth 64,
+  4096 nodes) against the default configuration, so AllOff and Not content
+  goes with every group on, an unevaluable expression counts as hidden unless
+  it names only on groups, and off groups that surviving content refers to
+  stay in `/OCProperties`; the pass always runs and `doc_hidden_info` counts
+  hidden image and form XObjects, undecodable forms and forms at `MAX_DEPTH`
+  12. The rest is a raster watchdog test, `xtask` moving the workspace
+  crates' pins with the version, the shared nix workflow and
+  `.coderabbit.yaml`. Release 2026-10-21 19:57 UTC with the three assets and
+  `SHA256SUMS.txt`. Card adds the 0.11.0 sanitizing sentence to "Durable
+  verification" and moves the date.
+- PhotoCraft v0.12.0 (`6a2d027`; one version commit, "Release: version
+  0.12.0", no untagged version): `apps/photocraft-cli/src/lib.rs` changes
+  only `convert`, `run` and `batch` (DDS flags; `batch` drops recorded Save
+  and view steps from played action sets, #6860); the `mcp` entry is
+  identical (`--bridge`, `--control-token`, `--control-token-file` and the
+  two root flags, any other flag `unknown flag` with exit 2);
+  `workspace.rs`, `files.rs` and `docs/mcp.md` unchanged. `server.rs`: the
+  same 25 tools, `doc_inspect` still `{index?}`; `doc_save`/`doc_export`
+  take `ddsCompression` and `ddsMipmaps`, forwarded to `app.save` over the
+  bridge, and refuse a `quality` outside 1..100 instead of clamping it
+  (#7023); `headless.rs` `on_doc`: an `index` on `doc_place`,
+  `doc_export_layers`, `doc_export_data_sets` or `doc_import_data_sets`
+  leaves the active document alone, on error too (#7025). Engine, through
+  `command_run`: 668 to 674 ids, nothing removed or renamed; new
+  `history.stepForward`, `history.stepBackward`, `history.clear` (undoable,
+  refused while a job runs), `history.setSource` (`state` row or
+  `snapshot`), `brush.mixer.load` and `brush.mixer.clean`; `doc_inspect`
+  adds `historySource`; `edit.fill` contents=history takes a panel row or
+  `snapshot`, default the brush source; DDS is writable wherever a save
+  takes `dpxBits` (BC1–BC3 lossy); `image.trim` and `image.duplicate
+  {mergedOnly}` refuse over 2^30 px (#7223); batch Format "same" saves raws
+  and import-only inputs as PSD (#5799); a GIF opens in Indexed Color
+  (#7886). The three catalog assets and SHA256SUMS.txt are in the release.
+  Card adds the DDS options and quality refusal, the index rule,
+  `historySource`, the six commands, the `edit.fill` change, the flatten
+  limit, the batch "same" rule and the GIF mode.
+- SoundCraft v0.11.0 (`b74fca0`; two commits above v0.10.0, `7b339fe` "Skip
+  CodeRabbit reviews on Dependabot PRs (#821)" and the release bump, no
+  untagged version inside the range): the whole diff is a new six-line
+  `.coderabbit.yaml` (no reviews on `dependabot[bot]`), `Cargo.toml` and the
+  18 workspace-crate version lines of `Cargo.lock`; no dependency moved.
+  `apps/soundcraft-cli` (`main.rs` `parse_mcp_args`: `--connect`, `--demo`,
+  both roots once through `automation_args.rs`, a misspelled
+  `--automation-…` flag is `unknown mcp option`, any other unknown flag still
+  falls through `_ => {}` and is ignored, roots with `--connect` refused),
+  `crates/engine/src/file_access.rs`, `io.rs`, `crates/automation/src/mcp.rs`,
+  `docs/mcp.md`, the packaging scripts and `release.yml` (reusable
+  `craft-common-actions` workflow at `@main`) byte-identical. The same 17
+  tools (`tool_definitions`): `inspect_session` with optional `detail`
+  (`summary`|`full`) and no required parameter, `batch` `calls` `maxItems`
+  `MAX_BATCH_CALLS = 1000` refused before any call runs, seven APP_ONLY
+  tools; no new command, no new write, the 0.10.0 backup rule and the 0.8.0
+  stored-path rule unchanged, `bounce_mix` still without a replace guard.
+  The release (2026-10-21 18:12 UTC) carries the three expected assets at the
+  manifest's byte sizes plus `SHA256SUMS.txt`; its note drops
+  `freebsd-aarch64` (CI time limit, craft-common-actions#39), never used here.
+  Card unchanged but for the date.
 
 ## Build infrastructure
 

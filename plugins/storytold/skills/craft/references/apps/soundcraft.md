@@ -30,7 +30,7 @@ Check missing media before bouncing. Verify actual audio duration, sample rate, 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-21 against the upstream
+Reference, app-specific section, rechecked on 2026-10-23 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/soundcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

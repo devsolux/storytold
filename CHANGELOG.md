@@ -17,6 +17,23 @@
   now carries the two files as well; `ci.yml` ignores bot pull requests that
   change only those files along with the pins and the plugin. A release cut
   by hand is unchanged; the next pin move publishes 1.5.6.
+- The eight pins pull request #9 moved were rechecked at their new tags on
+  2026-10-23 (source review of blob-less clones, recorded in the ledger):
+  every catalog launch and smoke tool still works, no tool was removed or
+  renamed, no root flag appeared, and every release carries the manifest's
+  three assets plus `SHA256SUMS.txt`. Cards now cover DesignCraft's 512 MiB
+  bound on placed PDFs and the stricter `file.exportPdf`; FigCraft's
+  `component.combineVariants` refusals and naming, `addVariant` on a lone
+  component, the CSS-colour refusal and saves adopting the file name;
+  LightCraft's destructive annotations, path replacement and refusals, the
+  `bitDepth` check, `photo.reload`, the Lightroom import limits,
+  `maxDistance`, the stem-sidecar rule, the index refusals, the dab cap,
+  `crop.aspect`, Constrain Crop and Lanczos3 downscaling; PdfCraft's OCMD
+  policy evaluation when sanitizing hidden layers; PhotoCraft's DDS options,
+  `quality` refusal, index rule, `historySource`, six new history and mixer
+  commands, the `edit.fill` history source, the flatten limit, the batch
+  "same" rule and Indexed-Color GIFs. EffectCraft, GridCraft and SoundCraft
+  changed only in version and CI; their cards moved only their date.
 
 ## 1.5.5 — 2026-10-23
 
