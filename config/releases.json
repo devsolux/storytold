@@ -210,25 +210,25 @@
     "photocraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 85507497,
-          "name": "photocraft-0.14.0-linux-x86_64.tar.gz",
-          "sha256": "3d1f60a76c25aafbf53f23cfedd3687bd99eb6f5309920e140d588bd3212c936"
+          "bytes": 85757901,
+          "name": "photocraft-0.15.1-linux-x86_64.tar.gz",
+          "sha256": "b622be40355513056f8152afe895d0a05c1bc3c344a027f772a9a12fa3d1c223"
         },
         "macos": {
-          "bytes": 70709771,
-          "name": "photocraft-cli-0.14.0-macos-universal.zip",
-          "sha256": "2ed3632ca7769ac4002943d311dcee12963d655317e1bff36e50d9421c6ed0b7"
+          "bytes": 70959662,
+          "name": "photocraft-cli-0.15.1-macos-universal.zip",
+          "sha256": "fe86eb4fc52c926b1b33301705c496df1767580f2ac5d241992de14a6f437511"
         },
         "windows-x64": {
-          "bytes": 87615748,
-          "name": "photocraft-0.14.0-windows-x64-portable.zip",
-          "sha256": "5b814c15034ddc68d35da837aef0cec18c90e9325f7682f516dfc331d64e9ab0"
+          "bytes": 87862329,
+          "name": "photocraft-0.15.1-windows-x64-portable.zip",
+          "sha256": "f41bc0fc1c6d40377251bfc4a2ecd60014d1d9aca07e5101608e5e90f5ac1fd2"
         }
       },
-      "commit": "ff4738810134d7f7e68b49f2e4f231b686282ff3",
+      "commit": "60c87b9884fdae0e464614d482a3bc435cbbc578",
       "smoke_tool": "doc_inspect",
-      "tag": "v0.14.0",
-      "version": "0.14.0"
+      "tag": "v0.15.1",
+      "version": "0.15.1"
     },
     "soundcraft": {
       "assets": {
@@ -301,7 +301,7 @@
     }
   },
   "basis": "Latest GitHub releases of storytold/<app> on the review date; archive hashes copied from each release's SHA256SUMS.txt; smoke tools verified in the tag's MCP source. Reviewed pins, not binary execution evidence. Sigstore bundles for the extracted CLIs live in config/signatures.json.",
-  "reviewed": "2026-10-23",
+  "reviewed": "2026-10-24",
   "schema_version": 2,
   "signers": {
     "apple_team_id": "DJ6XS33FX8",
