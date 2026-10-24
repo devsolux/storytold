@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.7 — 2026-10-24
+
+Automated release by the daily Craft release refresh (run 40082757472): 1 pin
+moved on 2026-10-24. Each moved app needs its card and smoke tool rechecked at
+the new tag.
+
+- Pins moved: PhotoCraft 0.14.0 → 0.15.1.
+
 ## 1.5.6 — 2026-10-23
 
 Automated release by the daily Craft release refresh (run 39937835313): 13
