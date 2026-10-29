@@ -8,6 +8,22 @@ October 18, 2026). That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Pin move to the 1.5.8 releases and card recheck — October 29, 2026
+
+| Gate | Result |
+|---|---|
+| `workflow_dispatch` run 40945242370 on `6b61878` | All jobs passed: `refresh` found new releases of all thirteen apps and signed all 39 archives, the three with a completion named like the CLI included (one Rekor `409 createLogEntryConflict`, on the DesignCraft macOS CLI, cleared by the retry), `publish` opened pull request #12, the three `verify` jobs ran `scripts/build.py check`, `scripts/check_bundles.py` and the real strict `setup --all --acknowledge-unconfined` with each app's smoke tool on `ubuntu-latest`, `windows-latest` and `macos-latest`, and `merge` squash-merged #12 as `bb3fe62` and published release v1.5.8 from its changelog section. CI on the push of `6b61878` (run 40945219011) passed all seven jobs. |
+| Card recheck at the thirteen new tags | Source review of blob-less clones from each app's last rechecked tag, covering the moves of pull requests #10, #11 and #12 (see the [source ledger](source-ledger.md)): every catalog launch accepted unchanged, every smoke tool present without a required parameter, no tool removed or renamed, no root flag for CADCraft, FilmCraft, GridCraft or LightCraft. Every card gained what its new tag adds; DesignCraft and SoundCraft drop "each flag is given once", SoundCraft its ignored unknown flags, FilmCraft its "unauthenticated" control port, FigCraft "no rollback of the clipboard" (`session/exec.rs` restores it, although upstream `docs/mcp.md` still says otherwise), and PhotoCraft corrects a claim older than this range: `command_run` refuses `file.saveACopy`, `file.automate.batch` and every other `file.*` command outside a short in-document list. Locally on Python 3.11.18: `make check` (76 entries), **284 tests**, build and verify-build passed on the updated cards, ledger and changelog. |
+
+None of the thirteen new binaries has run on a developer machine; the cards
+are source-grounded, and the runner-side evidence is the three `verify` jobs
+of run 40945242370. That run covers the item "the fixed signing step … and the
+three-OS `verify` of the new pins" in the section below; the new failure
+annotation has not fired yet, because nothing failed. Since PhotoCraft 0.16.0
+a non-empty `PHOTOCRAFT_CONTROL_PORT` in the environment a host gives the
+server stops the confined launch (exit 2); the card says so, but `setup` and
+`doctor` do not check for it.
+
 ## Release workflow stopped in signing, October 26 to 29 — October 29, 2026
 
 | Run or gate | Result |

@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+- The thirteen Craft app cards were rechecked at the 1.5.8 pins on 2026-10-29,
+  covering the moves of pull requests #10, #11 and #12, none of which had been
+  rechecked (source review of blob-less clones, recorded in the ledger): every
+  catalog launch and smoke tool still works, no tool was removed or renamed,
+  and every release carries the manifest's assets. Each card gained what its
+  new tag adds and drops what it made wrong: repeatable root flags
+  (DesignCraft, SoundCraft, VectorCraft), usage errors for unknown options
+  (CADCraft, PhotoCraft, SoundCraft), FilmCraft's token-gated control port and
+  FigCraft's clipboard restore. PhotoCraft's card also corrects an older
+  claim: `command_run` refuses `file.saveACopy` and `file.automate.batch`, so
+  save and export go through `doc_save` and `doc_export`. Since PhotoCraft
+  0.16.0 a non-empty `PHOTOCRAFT_CONTROL_PORT` inherited by the server stops
+  its confined launch; the card says to unset it.
+
 ## 1.5.8 — 2026-10-29
 
 Automated release by the daily Craft release refresh (run 40945242370): 13
