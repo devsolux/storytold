@@ -65,6 +65,13 @@ class RotationTests(unittest.TestCase):
         current,stale=partition_signature_store(store,self.up.releases);self.assertEqual(list(stale),[name]);self.assertEqual(len(current),38)
         self.up.signed.clear();new,summary=self.up.rotate(store)
         self.assertEqual(summary['signed'],[name]);self.assertEqual(summary['dropped'],[name]);self.assertEqual(new['bundles'][name]['binary_sha256'],digest(b'rebuilt bytes'))
+    def test_a_completion_named_like_the_cli_is_not_signed(self):
+        # Release runs 40314102671 to 40866816860 stopped at CADCraft 0.14.0 and PhotoCraft 0.16.0, whose tarballs added this completion.
+        asset=self.up.releases['apps']['cadcraft']['assets']['linux-x86_64']
+        data=synthetic_tar('cadcraft-cli',b'cadcraft v0.14.0',extra=[('cadcraft-cli-0.0.1/share/bash-completion/completions/cadcraft-cli',0o644,b'complete')])
+        self.up.archives[asset['name']]=data;asset.update(sha256=digest(data),bytes=len(data))
+        store,summary=self.up.rotate(None)
+        self.assertEqual(len(summary['signed']),39);self.assertEqual(store['bundles'][asset['name']]['binary_sha256'],digest(b'cadcraft v0.14.0'))
     def test_malformed_cached_bundle_and_signer_drift_are_refused(self):
         store,_=self.up.rotate(None);name=next(iter(store['bundles']))
         broken=json.loads(json.dumps(store));broken['bundles'][name]['bundle']={'not':'a bundle'}

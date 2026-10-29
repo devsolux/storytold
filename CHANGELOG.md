@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+- Release workflow: the daily runs of October 26 to 29 (40314102671,
+  40490635202, 40680082986, 40866816860) stopped in the signing step, so no
+  pin moved and no release was published although all thirteen apps had new
+  releases. Newer Linux tarballs (CADCraft 0.14.0, PhotoCraft 0.16.0 and
+  0.17.0, SoundCraft 0.14.0) also ship the bash completion
+  `share/bash-completion/completions/<app>-cli`, so "the one member named
+  `<app>-cli`" matched two files. `extract_cli`, which both
+  `scripts/sign_releases.py` and `setup` use, now takes the CLI only at the
+  archive root, in its top-level folder or in that folder's `bin/`; two
+  candidates there are still refused, and the refusal names the archive and
+  each candidate. Under that rule all 39 latest upstream archives and all 39
+  pinned ones hold exactly one CLI, the pinned ones the same member as
+  before, so existing signatures and installs are unaffected.
+- A stopped `refresh` job now names its refusal (the last line the failing
+  script wrote) as an error annotation and on the run's summary page instead
+  of only "exit code 1".
+
 ## 1.5.7 — 2026-10-24
 
 Automated release by the daily Craft release refresh (run 40082757472): 1 pin

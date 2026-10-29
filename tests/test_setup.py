@@ -508,10 +508,25 @@ class ExtractTests(unittest.TestCase):
     def test_refuses_traversal_duplicates_and_links(self):
         with self.assertRaises(StorytoldError): self.extract(synthetic_zip('photocraft-cli',extra=[('../escape.txt',0o644,b'x')]))
         with self.assertRaises(StorytoldError): self.extract(synthetic_zip('photocraft-cli',extra=[('other/photocraft-cli',0o644,b'x')]))
+        with self.assertRaisesRegex(StorytoldError,'found photocraft-cli-0.0.1/bin/photocraft-cli, other/bin/photocraft-cli'):
+            self.extract(synthetic_tar('photocraft-cli',extra=[('other/bin/photocraft-cli',0o755,b'x')]),'.tar.gz')
         with self.assertRaises(StorytoldError): self.extract(synthetic_tar('photocraft-cli',extra=[('x/../../escape',0o644,b'x')]),'.tar.gz')
         out=io.BytesIO()
         with tarfile.open(fileobj=out,mode='w:gz') as t:
             info=tarfile.TarInfo('bin/photocraft-cli');info.type=tarfile.SYMTYPE;info.linkname='/bin/sh';t.addfile(info)
         with self.assertRaises(StorytoldError): self.extract(out.getvalue(),'.tar.gz')
+    def test_a_completion_named_like_the_cli_is_not_the_cli(self):
+        # Release runs 40314102671 to 40866816860 stopped here: CADCraft 0.14.0, PhotoCraft 0.16.0 and SoundCraft 0.14.0 tarballs add these.
+        completions=[('photocraft-cli-0.0.1/share/bash-completion/completions/photocraft-cli',0o644,b'complete -F _photocraft photocraft-cli'),
+                     ('photocraft-cli-0.0.1/share/zsh/site-functions/_photocraft-cli',0o644,b'#compdef photocraft-cli')]
+        for data,suffix in ((synthetic_tar('photocraft-cli',extra=completions),'.tar.gz'),(synthetic_zip('photocraft-cli',extra=completions),'.zip')):
+            self.assertEqual(self.extract(data,suffix).read_bytes(),b'SYNTHETIC CLI; MUST NOT EXECUTE')
+        with self.assertRaisesRegex(StorytoldError,'exactly one photocraft-cli .*; found none'):
+            self.extract(synthetic_tar('photocraft-gui',extra=completions[:1]),'.tar.gz')
+    def test_cli_locations(self):
+        for name in ('photocraft-cli','top/photocraft-cli','bin/photocraft-cli','top/bin/photocraft-cli'): self.assertTrue(s._cli_member(name,'photocraft-cli'),name)
+        for name in ('top/share/bash-completion/completions/photocraft-cli','top/lib/photocraft-cli','top/share/photocraft-cli','a/bin/b/photocraft-cli',
+                     'top/bin/photocraft-cli.1','top/_photocraft-cli','top/bin/'):
+            self.assertFalse(s._cli_member(name,'photocraft-cli'),name)
     def test_unknown_archive_type_is_refused(self):
         with self.assertRaises(StorytoldError): self.extract(b'x','.rar')

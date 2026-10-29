@@ -8,6 +8,19 @@ October 18, 2026). That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Release workflow stopped in signing, October 26 to 29 — October 29, 2026
+
+| Run or gate | Result |
+|---|---|
+| Scheduled runs 40314102671, 40490635202, 40680082986 (October 26 to 28) and 40866816860 (October 29) | Each failed in `refresh` at `scripts/sign_releases.py` with "archive must contain exactly one `<app>-cli`": PhotoCraft 0.16.0's Linux tarball on the first three, CADCraft 0.14.0's on the fourth, after the refresh had found new releases of all thirteen apps. The signature store was left unchanged; `publish`, `verify` and `merge` were skipped, so no pull request, pin move or release followed. |
+| Upstream archive layout | Read without executing anything (ZIP central directories over HTTP range requests, tarballs streamed) for the 39 latest archives and the 39 pinned ones. Every CLI sits at `<top>/<app>-cli` (macOS ZIP, PdfCraft's standalone tarball), `<top>/<app>-cli.exe` (Windows portable ZIP) or `<top>/bin/<app>-cli` (Linux tarball). The CADCraft 0.14.0, PhotoCraft 0.17.0 and SoundCraft 0.14.0 tarballs add `<top>/share/bash-completion/completions/<app>-cli` (0644, 14 to 18 KB). Under the new rule each of the 78 archives yields exactly one CLI, and each pinned one the member the old rule took; `extract_cli` took the 59 MB `bin/cadcraft-cli` out of the real CADCraft 0.14.0 tarball. |
+| Fix and gates | Locally on Python 3.11.18: `make check` (76 entries), **284 tests** (3 new: a completion named like the CLI is ignored in tarballs and ZIPs, the accepted CLI locations, and a signing rotation over such a tarball; the duplicate test adds a second `bin/` candidate; the new tests fail without the fix), build and verify-build passed. `.github/workflows/releases.yml` parses (Ruby YAML). |
+
+Not run: the fixed signing step and the new failure annotation on a runner,
+and the three-OS `verify` of the new pins with each app's smoke tool. Both
+come with the first workflow run after this change reaches `main`; each moved
+card then needs its recheck at the new tag.
+
 ## Executed for 1.5.5 — October 23, 2026
 
 macOS (Darwin 27, arm64) with Python **3.11.17** (`.venv`), plus GitHub:

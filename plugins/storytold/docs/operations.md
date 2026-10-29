@@ -30,9 +30,12 @@ at the first failure, and prints a JSON report:
    HTTPS to GitHub release hosts only (redirects elsewhere are refused, 512 MiB
    cap). The archive hash must match the manifest **and** the published sums; a
    disagreement stops with a message naming the source.
-3. Exactly one `<app>-cli` (`.exe` on Windows) is taken from the archive; the
-   desktop binary and everything else in a full-application archive are
-   ignored, links and traversal are refused. Provenance per platform:
+3. Exactly one `<app>-cli` (`.exe` on Windows) is taken from the archive, at
+   its root, in its top-level folder or in that folder's `bin/`; the desktop
+   binary, shell completions named like the CLI
+   (`share/bash-completion/completions/<app>-cli`) and everything else in a
+   full-application archive are ignored, links and traversal are refused.
+   Provenance per platform:
    - macOS: `spctl` must report *Notarized Developer ID* and `codesign` the
      manifest's Apple team, otherwise the file is discarded.
    - Linux and Windows: upstream publishes no code signature, so `setup`

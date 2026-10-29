@@ -40,17 +40,20 @@ jobs:
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
           cosign-release: 'v3.1.3'
-      # Each script's JSON report also goes to the run's summary page, so what the run did is readable without the logs.
+      # Each script's JSON report also goes to the run's summary page, so what the run did is readable without the logs;
+      # its stderr is kept too, so a refusal is named there and as an annotation by the last step of this job.
       - name: Refresh manifest from upstream releases (transient GitHub faults retried)
+        id: refresh
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          python scripts/refresh_releases.py > "$RUNNER_TEMP/refresh.json"
+          python scripts/refresh_releases.py > "$RUNNER_TEMP/refresh.json" 2> >(tee "$RUNNER_TEMP/refresh.log" >&2)
           cat "$RUNNER_TEMP/refresh.json"
           { echo '### Refresh'; echo '```json'; cat "$RUNNER_TEMP/refresh.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - name: Sign newly pinned CLI binaries (keyless; transient failures retried)
+        id: sign
         run: |
-          python scripts/sign_releases.py > "$RUNNER_TEMP/sign.json"
+          python scripts/sign_releases.py > "$RUNNER_TEMP/sign.json" 2> >(tee "$RUNNER_TEMP/sign.log" >&2)
           cat "$RUNNER_TEMP/sign.json"
           { echo '### Signatures'; echo '```json'; cat "$RUNNER_TEMP/sign.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - name: A moved pin opens the next patch release (version bump and changelog section; the plugin below is rebuilt with it)
@@ -60,7 +63,7 @@ jobs:
             echo "No pin moved; the version stays."
             exit 0
           fi
-          python scripts/bump_release.py --report "$RUNNER_TEMP/refresh.json" --run "$GITHUB_RUN_ID" > "$RUNNER_TEMP/bump.json"
+          python scripts/bump_release.py --report "$RUNNER_TEMP/refresh.json" --run "$GITHUB_RUN_ID" > "$RUNNER_TEMP/bump.json" 2> >(tee "$RUNNER_TEMP/bump.log" >&2)
           cat "$RUNNER_TEMP/bump.json"
           echo "version=$(jq -r .version "$RUNNER_TEMP/bump.json")" >> "$GITHUB_OUTPUT"
           { echo '### Next release'; echo '```json'; cat "$RUNNER_TEMP/bump.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
@@ -95,6 +98,16 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
+      # Runs 40314102671 to 40866816860 stopped in the signing step with only "exit code 1" on the run page.
+      - name: Name the refusal on the run page
+        if: failure()
+        env:
+          FAILED: ${{ steps.refresh.outcome == 'failure' && 'refresh' || steps.sign.outcome == 'failure' && 'sign' || steps.bump.outcome == 'failure' && 'bump' || '' }}
+        run: |
+          reason='A build, check or test step failed; its log names the cause.'
+          if [ -n "$FAILED" ] && [ -s "$RUNNER_TEMP/$FAILED.log" ]; then reason=$(tail -n 1 "$RUNNER_TEMP/$FAILED.log"); fi
+          echo "::error title=Daily Craft release refresh stopped::${reason//%/%25}"
+          { echo '### Stopped'; echo '```'; echo "$reason"; echo '```'; echo 'Nothing was handed to the publish job: no pull request, no merge and no release from this run.'; } >> "$GITHUB_STEP_SUMMARY"
   publish:
     needs: refresh
     if: needs.refresh.outputs.changed == 'true'

@@ -208,11 +208,26 @@ def _safe_member(name: str) -> None:
     require(name and not name.startswith('/') and '\\' not in name and '..' not in name.split('/') and ':' not in name.split('/')[0],
             f'unsafe archive path: {name}')
 
+def _cli_member(name: str, exe: str) -> bool:
+    """The CLI sits at the archive root or in its one top-level folder, directly or in that folder's bin/.
+
+    A file of the same name anywhere else is not the CLI: newer Linux tarballs
+    (CADCraft 0.14.0, PhotoCraft 0.16.0, SoundCraft 0.14.0) also ship the bash
+    completion share/bash-completion/completions/<app>-cli.
+    """
+    parts = name.split('/')
+    return parts[-1]==exe and (len(parts)<=2 or (len(parts)==3 and parts[1]=='bin'))
+
+def _one_cli(archive: str, found: list[str], exe: str) -> None:
+    require(len(found)==1, f'{archive} must contain exactly one {exe} at its root, in its top-level folder or in that folder\'s bin/; '
+                           f'found {", ".join(found) or "none"}')
+
 def extract_cli(archive: Path, dest_dir: Path, exe: str, out_name: str | None = None) -> Path:
-    """Take exactly the one regular `exe` member; ignore the rest, refuse anything unsafe.
+    """Take exactly the one regular `exe` member where a CLI sits; ignore the rest, refuse anything unsafe.
 
     Full-application archives (Linux tarballs, Windows portable zips) also carry
-    the desktop binary; only the CLI is copied out, as `out_name` (default `exe`).
+    the desktop binary and, on Linux, shell completions named like the CLI; only
+    the CLI is copied out, as `out_name` (default `exe`).
     """
     dest_dir.mkdir(mode=0o700)
     target = dest_dir/(out_name or exe)
@@ -225,9 +240,9 @@ def extract_cli(archive: Path, dest_dir: Path, exe: str, out_name: str | None = 
             for info in infos:
                 _safe_member(info.filename)
                 require((info.external_attr >> 16) & 0o170000 != stat.S_IFLNK, f'symlink in archive: {info.filename}')
-                if not info.is_dir() and info.filename.split('/')[-1]==exe:
+                if not info.is_dir() and _cli_member(info.filename, exe):
                     require(info.file_size <= MAX_DOWNLOAD, 'archive member too large'); found.append(info)
-            require(len(found)==1, f'archive must contain exactly one {exe}')
+            _one_cli(name, [i.filename for i in found], exe)
             with z.open(found[0]) as src, open(target, 'wb') as out:
                 shutil.copyfileobj(src, out, 1024*1024)
     elif name.endswith(('.tar.gz', '.tgz')):
@@ -238,9 +253,9 @@ def extract_cli(archive: Path, dest_dir: Path, exe: str, out_name: str | None = 
                 count += 1; require(count <= 4096, 'unexpected archive member count')
                 _safe_member(member.name)
                 require(not member.issym() and not member.islnk() and not member.isdev(), f'link/device in archive: {member.name}')
-                if member.isfile() and member.name.split('/')[-1]==exe:
+                if member.isfile() and _cli_member(member.name, exe):
                     require(member.size <= MAX_DOWNLOAD, 'archive member too large'); found.append(member)
-            require(len(found)==1, f'archive must contain exactly one {exe}')
+            _one_cli(name, [m.name for m in found], exe)
             src = t.extractfile(found[0]); require(src is not None, 'unreadable archive member')
             with src, open(target, 'wb') as out:
                 shutil.copyfileobj(src, out, 1024*1024)
