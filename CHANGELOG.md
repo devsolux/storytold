@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.11 — 2026-11-03
+
+Automated release by the daily Craft release refresh (run 41639628759): 13
+pins moved on 2026-11-03. Each moved app needs its card and smoke tool
+rechecked at the new tag.
+
+- Pins moved: CADCraft 0.16.0 → 0.17.0, DeckCraft 0.14.1 → 0.15.0, DesignCraft
+  0.16.0 → 0.17.0, EffectCraft 0.20.0 → 0.21.0, FigCraft 0.14.0 → 0.15.0,
+  FilmCraft 0.16.0 → 0.17.0, GridCraft 0.15.0 → 0.16.0, LightCraft 0.17.0 →
+  0.18.0, PdfCraft 0.17.0 → 0.18.0, PhotoCraft 0.19.0 → 0.20.1, SoundCraft
+  0.16.0 → 0.17.0, VectorCraft 0.20.0 → 0.21.0, WordCraft 0.14.0 → 0.15.0.
+
 ## 1.5.10 — 2026-11-02
 
 Automated release by the daily Craft release refresh (run 41455131496): 13
