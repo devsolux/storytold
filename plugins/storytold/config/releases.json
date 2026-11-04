@@ -187,25 +187,25 @@
     "pdfcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 42093922,
-          "name": "pdfcraft-cli-0.18.0-linux-x86_64.tar.gz",
-          "sha256": "4d581640d8dc34bdef56918569c2df797fb403828b623cb7b048a7cb624a9011"
+          "bytes": 42119871,
+          "name": "pdfcraft-cli-0.18.1-linux-x86_64.tar.gz",
+          "sha256": "dc9d2644975ef2efc94b855b0839d34fdcba299a944f7a392bda61a730dc0f5d"
         },
         "macos": {
-          "bytes": 84699673,
-          "name": "pdfcraft-cli-0.18.0-macos-universal.zip",
-          "sha256": "b5a9d4fc25116309de3613fdf39d26133b9a7cc75e35c1fa53db8308d3b3ff77"
+          "bytes": 84757072,
+          "name": "pdfcraft-cli-0.18.1-macos-universal.zip",
+          "sha256": "086b233ad7c2bdc172bf8c0e359855fde7c6bdd69a5bd19efb47f08920cfeb7d"
         },
         "windows-x64": {
-          "bytes": 112809410,
-          "name": "pdfcraft-0.18.0-windows-x64-portable.zip",
-          "sha256": "1def8bf7960016dab1499e629d5cf0907846c74d01f453aadb2f622690e6c750"
+          "bytes": 115114465,
+          "name": "pdfcraft-0.18.1-windows-x64-portable.zip",
+          "sha256": "d837a49ecb66ba0afc0b4937f919d74b36a9eff691c1c6167d7f52e1dd3f9ffd"
         }
       },
-      "commit": "3936f93a1479366a951206fc6d3094680fe2d3dc",
+      "commit": "8bb0528bed785283452263b0290321ccf95859be",
       "smoke_tool": "doc_inspect",
-      "tag": "v0.18.0",
-      "version": "0.18.0"
+      "tag": "v0.18.1",
+      "version": "0.18.1"
     },
     "photocraft": {
       "assets": {
@@ -279,29 +279,29 @@
     "wordcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 114272874,
-          "name": "wordcraft-0.15.0-linux-x86_64.tar.gz",
-          "sha256": "baacf18158124abc3d45dc4485bfc77a5d717f80ac50b80693b6501c26698e5d"
+          "bytes": 115265419,
+          "name": "wordcraft-0.15.1-linux-x86_64.tar.gz",
+          "sha256": "8c6fca3809ea1ac8168c4d7d9392cade84a50f54018be1f88121ba4ecc04a552"
         },
         "macos": {
-          "bytes": 99661028,
-          "name": "wordcraft-cli-0.15.0-macos-universal.zip",
-          "sha256": "92feb2a4e970b614bd8c70c2bbab02a1d621bcf4c72ea2ad8744f905fdf87ad8"
+          "bytes": 100320244,
+          "name": "wordcraft-cli-0.15.1-macos-universal.zip",
+          "sha256": "885749231387a8e8212b5c6747d432cf83c49b227d7021ff97f32b4740102174"
         },
         "windows-x64": {
-          "bytes": 113698134,
-          "name": "wordcraft-0.15.0-windows-x64-portable.zip",
-          "sha256": "2d16f589fe4f8448cd6a8124ef92cfa61e075b9c02c401e6c1f67172aa9495a8"
+          "bytes": 114684769,
+          "name": "wordcraft-0.15.1-windows-x64-portable.zip",
+          "sha256": "bac0813a7652526d0a17ff4fd1fcb88d4671277786ee6f27806baa329929f903"
         }
       },
-      "commit": "b47079fc791595fd84bb499d64dcd3f0624ef35a",
+      "commit": "08afab50b6a1ed19f9af55bb9f74d18f5e17bfa0",
       "smoke_tool": "inspect_document",
-      "tag": "v0.15.0",
-      "version": "0.15.0"
+      "tag": "v0.15.1",
+      "version": "0.15.1"
     }
   },
   "basis": "Latest GitHub releases of storytold/<app> on the review date; archive hashes copied from each release's SHA256SUMS.txt; smoke tools verified in the tag's MCP source. Reviewed pins, not binary execution evidence. Sigstore bundles for the extracted CLIs live in config/signatures.json.",
-  "reviewed": "2026-11-03",
+  "reviewed": "2026-11-04",
   "schema_version": 2,
   "signers": {
     "apple_team_id": "DJ6XS33FX8",

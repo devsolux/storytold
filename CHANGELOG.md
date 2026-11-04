@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.12 — 2026-11-04
+
+Automated release by the daily Craft release refresh (run 41835224513): 2 pins
+moved on 2026-11-04. Each moved app needs its card and smoke tool rechecked at
+the new tag.
+
+- Pins moved: PdfCraft 0.18.0 → 0.18.1, WordCraft 0.15.0 → 0.15.1.
+
 ## 1.5.11 — 2026-11-03
 
 Automated release by the daily Craft release refresh (run 41639628759): 13
