@@ -36,5 +36,14 @@ may then own pixel or path edits of that export, DesignCraft the page layout and
 PdfCraft the PDF audit; none of them reopens the `.figcraft` document, and an
 experimental `.fig` export is not proof of a Figma round trip.
 
+## Procedural material → painted textures
+
+MaterialCraft owns the node graph and saves a `.mcraft` package or exports maps with
+outputs_export. Verify graph, cook errors and each map on disk. TextureCraft owns the
+painted mesh: it imports maps with resource_import, or loads the `.mcraft` as a linked
+material with material_load, which runs `materialcraft-cli` outside TextureCraft's roots
+(see its card), so load only a package you just verified. Verify the layer,
+session_inspect and every exported texture; neither app reopens the other's file.
+
 If a stage fails, stop dependent work. Report the last verified file and the
 unverified/failed stage. No app can roll back another app's files automatically.

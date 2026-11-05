@@ -5,7 +5,7 @@ latest release, the tag's commit and the published SHA256SUMS.txt, keeps the
 reviewed smoke tools and signers, and rewrites the manifest in canonical JSON
 for all supported platforms. Review the diff and rerun make check before
 committing; nothing is downloaded or executed beyond those small metadata files.
-Each of the 39 requests is tried up to three times (15 s, then 45 s apart) on a
+Each of the 45 requests is tried up to three times (15 s, then 45 s apart) on a
 dropped connection, a 5xx or a 429, so one GitHub hiccup does not cost the daily
 run; any other HTTP error, such as a release without SHA256SUMS.txt, is final.
 """

@@ -2,8 +2,9 @@
 
 These are operator steps, not actions performed by installing the plugin. Use
 non-sensitive fixtures until [acceptance](acceptance.md) passes. `setup` has
-installed, probed and Sigstore-verified all thirteen CLIs on macOS, Linux and
-Windows runners, twelve of them on a developer Mac as well; that is M0-level
+installed, probed and Sigstore-verified thirteen of the CLIs on macOS, Linux and
+Windows runners, twelve of them on a developer Mac as well; MaterialCraft and
+TextureCraft wait for their first signed release-workflow run. That is M0-level
 evidence, not the M1–M3 gates. See [verification](verification.md).
 
 ## One-command setup (macOS, Linux x86_64, Windows x64)
@@ -213,7 +214,7 @@ runners, and opens one pull request on
 `bot/releases` (an open one is updated, title and body). The run's summary page
 shows the refresh and signing reports and the changed files, so a day's result
 is readable without the logs; a run takes about four minutes, most of it the
-three-OS verify downloading and probing all thirteen CLIs. Review the pull
+three-OS verify downloading and probing all fifteen CLIs. Review the pull
 request (a changed app needs its card and smoke tool rechecked
 at the new tag) or set the repository variable `STORYTOLD_AUTO_MERGE=true` to
 merge green runs. The verify jobs check out the exact commit the refresh job
@@ -343,7 +344,7 @@ python3 "$STORYTOLD/storytold.py" preflight \
 ```
 
 Preflight validates all supplied lock entries, selected binaries and exact output
-root. Select only available apps; omission of `--app` means all thirteen. Multiple
+root. Select only available apps; omission of `--app` means all fifteen. Multiple
 `--app` flags are allowed for preflight/configure, but a probe targets one app.
 
 FilmCraft, LightCraft, GridCraft and CADCraft

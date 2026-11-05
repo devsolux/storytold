@@ -65,6 +65,16 @@
       ],
       "command": "${CRAFT_BIN_DIR}/lightcraft-cli"
     },
+    "materialcraft": {
+      "args": [
+        "mcp",
+        "--read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--write-root",
+        "${CRAFT_OUTPUT_ROOT}"
+      ],
+      "command": "${CRAFT_BIN_DIR}/materialcraft-cli"
+    },
     "pdfcraft": {
       "args": [
         "mcp",
@@ -97,6 +107,16 @@
         "${CRAFT_OUTPUT_ROOT}"
       ],
       "command": "${CRAFT_BIN_DIR}/soundcraft-cli"
+    },
+    "texturecraft": {
+      "args": [
+        "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
+      ],
+      "command": "${CRAFT_BIN_DIR}/texturecraft-cli"
     },
     "vectorcraft": {
       "args": [

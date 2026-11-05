@@ -9,14 +9,17 @@ from storytold_tools.common import ROOT,encoded,StorytoldError
 from tests.support import WorkspaceCase
 
 class CatalogTests(WorkspaceCase):
-    def test_catalog_has_all_thirteen(self):
+    def test_catalog_has_every_app(self):
         self.assertEqual(set(self.catalog),set(APP_IDS))
     def test_native_root_flags_exact(self):
-        self.assertEqual(sum(a['confinement']=='read_write' for a in self.catalog.values()),9)
+        self.assertEqual(sum(a['confinement']=='read_write' for a in self.catalog.values()),len(APP_IDS)-4)
         self.assertEqual({a for a,r in self.catalog.items() if r['confinement']=='os_only'},{'filmcraft','lightcraft','gridcraft','cadcraft'})
         self.assertIn('--headless',self.catalog['vectorcraft']['args'])
         # Both PdfCraft roots apply: a path must be inside --root and inside the matching automation root.
         self.assertEqual(self.catalog['pdfcraft']['args'],['mcp','--automation-read-root','{work}','--automation-write-root','{outputs}','--root','{work}','--compact'])
+        # MaterialCraft refuses the --automation-* spelling every other rooted app takes.
+        self.assertEqual(self.catalog['materialcraft']['args'],['mcp','--read-root','{work}','--write-root','{outputs}'])
+        self.assertEqual(self.catalog['texturecraft']['args'],['mcp','--automation-read-root','{work}','--automation-write-root','{outputs}'])
     def test_newly_rooted_apps_need_the_release_that_added_the_flags(self):
         # These releases refuse unknown mcp flags, so an older pin would not start; preflight refuses it before any launch.
         for app,old,new in (('deckcraft','v0.7.0','0.8.0'),('designcraft','v0.8.0','0.9.0'),('figcraft','v0.6.0','0.7.0'),('pdfcraft','v0.8.0','0.9.0')):

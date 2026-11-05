@@ -12,7 +12,17 @@ not its gateway/session/HTTP design. Both originals are preserved unchanged in
 The plan enumerates the twelve apps that existed when it was written;
 FigCraft, released upstream afterwards, is integrated the same way as a
 thirteenth catalog entry with its own stdio server, not as an exception to
-the architecture.
+the architecture. MaterialCraft and TextureCraft are the fourteenth and fifteenth
+on the same terms.
+
+Not every Craft repository is a catalog candidate. An entry needs a released
+`<app>-cli` with a headless stdio `mcp` server and all three platform archives
+behind `SHA256SUMS.txt`, and it must fit this ADR. Craft Anything has the CLI and
+the server but is left out by decision: it is a reverse-engineering and rebuild
+engine of 314 tools rather than a document app, has no file roots, can run target
+code and drive a coding agent (the secondary agent AGENTS.md rules out), and
+registers itself with `craft-anything-cli setup`. The ArtCraft desktop app and the
+ArtCraft Launcher ship no MCP CLI; AniCraft, ArtCraft-X and CraftHub have no release.
 
 ## ADR-002 — marketplace distribution, not a new runtime layer
 

@@ -184,6 +184,29 @@
       "tag": "v0.18.0",
       "version": "0.18.0"
     },
+    "materialcraft": {
+      "assets": {
+        "linux-x86_64": {
+          "bytes": 16889133,
+          "name": "materialcraft-0.1.2-linux-x86_64.tar.gz",
+          "sha256": "22b782c3b4147893c3d9c5a7e6965778fc8d80b4ccfdd1abc2012a3ba206fe4d"
+        },
+        "macos": {
+          "bytes": 9394299,
+          "name": "materialcraft-cli-0.1.2-macos-universal.zip",
+          "sha256": "e734037da5dfd41a5ebf5324d2a09b7f945281e71c1097cea0277b5a0a06a011"
+        },
+        "windows-x64": {
+          "bytes": 16291786,
+          "name": "materialcraft-0.1.2-windows-x64-portable.zip",
+          "sha256": "f02cb203594420685b1dc81563b80277bc5b37ac2a0ac0017f79240de2593865"
+        }
+      },
+      "commit": "1639314ca53eefbf2482c20ebe04aa6400813bc2",
+      "smoke_tool": "session_inspect",
+      "tag": "v0.1.2",
+      "version": "0.1.2"
+    },
     "pdfcraft": {
       "assets": {
         "linux-x86_64": {
@@ -253,6 +276,29 @@
       "tag": "v0.17.0",
       "version": "0.17.0"
     },
+    "texturecraft": {
+      "assets": {
+        "linux-x86_64": {
+          "bytes": 40135170,
+          "name": "texturecraft-0.3.2-linux-x86_64.tar.gz",
+          "sha256": "4f8febc4af593dee1bacb51293aefcf102d7a898136d3cccc44f5ad4c19bc0d0"
+        },
+        "macos": {
+          "bytes": 16408990,
+          "name": "texturecraft-cli-0.3.2-macos-universal.zip",
+          "sha256": "9c7dd000cf01c2e1e685ed1e86eeb72e4035d367ee580f6c3c195c799dbaa99d"
+        },
+        "windows-x64": {
+          "bytes": 40196853,
+          "name": "texturecraft-0.3.2-windows-x64-portable.zip",
+          "sha256": "233c516f211401b7fc154aa67fcd13c36590c41333ed75db7cc3f1aef45c18f0"
+        }
+      },
+      "commit": "ef8dfba25786c872fda2d6a2f28a428451d1b6f8",
+      "smoke_tool": "session_inspect",
+      "tag": "v0.3.2",
+      "version": "0.3.2"
+    },
     "vectorcraft": {
       "assets": {
         "linux-x86_64": {
@@ -301,7 +347,7 @@
     }
   },
   "basis": "Latest GitHub releases of storytold/<app> on the review date; archive hashes copied from each release's SHA256SUMS.txt; smoke tools verified in the tag's MCP source. Reviewed pins, not binary execution evidence. Sigstore bundles for the extracted CLIs live in config/signatures.json.",
-  "reviewed": "2026-11-04",
+  "reviewed": "2026-11-05",
   "schema_version": 2,
   "signers": {
     "apple_team_id": "DJ6XS33FX8",

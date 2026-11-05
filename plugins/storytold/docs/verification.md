@@ -1,12 +1,25 @@
 # Verification status — 1.5.5
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
-repository neither ships nor executes Craft binaries. All thirteen CLIs have
-passed the native probe through operator- or runner-run `setup` (tables
-below), on GitHub runners and on a developer Mac (FigCraft there since
+repository neither ships nor executes Craft binaries. Thirteen of the fifteen
+CLIs have passed the native probe through operator- or runner-run `setup` (tables
+below; MaterialCraft and TextureCraft have not run yet), on GitHub runners and on a developer Mac (FigCraft there since
 October 18, 2026). That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## MaterialCraft and TextureCraft in the catalog — November 5, 2026
+
+| Gate | Result |
+|---|---|
+| Source review | MaterialCraft v0.1.2 and TextureCraft v0.3.2 on blob-less clones (see the [source ledger](source-ledger.md)); launches, confinement, smoke tools, the MaterialCraft child process and packaging scripts read, nothing built or run. |
+| `setup --app materialcraft --app texturecraft --dry-run` | Resolves both pinned macOS CLI zips, `~/.local/opt/craft/bin/`, a probe and a Claude Code registration, with `sigstore_bundle: false`. Nothing was downloaded or registered. |
+| Offline gates | Listed with the pin recheck of this date; the catalog tests assert both launches exactly. |
+
+**Not run:** neither binary has executed anywhere. The next release-workflow run
+signs their six archives and its three `verify` jobs make their first execution;
+the local `preflight` and `probe` AGENTS.md asks of a launch change, and the two
+native scenarios, remain the operator's.
 
 ## Pin move to the 1.5.8 releases and card recheck — October 29, 2026
 

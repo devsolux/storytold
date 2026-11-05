@@ -237,6 +237,42 @@
       "task": "Reopen the saved .figcraft and the exported PNG/SVG/PDF and compare frame count, absolute bounds, text, fonts and the colour profile (Display P3 converts to sRGB on SVG/PDF export). Verify numbers with inspect_document or get_node and pixels with a screenshot or the exported image. A .fig export is verified only through FigCraft's own importer, not by Figma, and a successful tool call is not a durable save."
     },
     {
+      "id": "materialcraft",
+      "app": "materialcraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Reopen the saved .mcraft or .sbs and compare graphs, nodes, parameters, exposed inputs and package.warnings with session_inspect, then check each map outputs_export wrote for size, format and bit depth, and look at view_render. An .sbs from another tool can open with placeholder nodes, so a clean reopen is not proof of fidelity to the source package."
+    },
+    {
+      "id": "texturecraft",
+      "app": "texturecraft",
+      "status": "not_run",
+      "required_evidence": [
+        "immutable_revision",
+        "binary_sha256",
+        "help_and_flags",
+        "initialize_and_tools_list",
+        "read_only_fixture_call",
+        "headless_no_gui",
+        "native_save_export_reopen",
+        "original_hashes_unchanged",
+        "warnings_reviewed",
+        "failure_and_boundary_test"
+      ],
+      "task": "Reopen the saved .tcraft and compare texture sets, resolution, layers, masks and baked maps with session_inspect, then check each texture textures_export wrote for size, format and channel packing against the chosen preset, and look at viewport_render. A mesh_export is verified by reimporting it, not by the returned path."
+    },
+    {
       "id": "cross-photo-layout-pdf",
       "apps": [
         "photocraft",

@@ -69,6 +69,16 @@
       "revision": null,
       "version": null,
       "sha256": null
+    },
+    "materialcraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
+    },
+    "texturecraft": {
+      "revision": null,
+      "version": null,
+      "sha256": null
     }
   }
 }

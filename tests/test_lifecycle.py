@@ -19,7 +19,7 @@ import time
 import unittest
 from unittest import mock
 from storytold_tools import setup as s
-from storytold_tools.catalog import preflight
+from storytold_tools.catalog import APP_IDS, preflight
 from storytold_tools.common import ROOT, StorytoldError, digest, encoded, load_json
 from storytold_tools.configuration import generate
 from storytold_tools.releases import load_releases, require_complete_bundles
@@ -555,7 +555,7 @@ class StrictProvenanceTests(unittest.TestCase):
     def test_require_complete_bundles(self):
         releases=load_releases();name=releases['apps']['cadcraft']['assets']['macos']['name']
         full={'bundles':{a['name']:{} for row in releases['apps'].values() for a in row['assets'].values()}}
-        self.assertEqual(len(require_complete_bundles(full,releases)),39)
+        self.assertEqual(len(require_complete_bundles(full,releases)),3*len(APP_IDS))
         partial={'bundles':{k:v for k,v in full['bundles'].items() if k!=name}}
         with self.assertRaises(StorytoldError) as cm: require_complete_bundles(partial,releases)
         self.assertIn(name,str(cm.exception))

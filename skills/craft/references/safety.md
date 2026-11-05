@@ -7,8 +7,10 @@ modes deter mistakes but are not immutable against the owning user. Windows
 requires a reviewed ACL. No script in this plugin claims to create an OS sandbox.
 
 PhotoCraft, VectorCraft, EffectCraft, WordCraft, SoundCraft, DeckCraft, DesignCraft,
-FigCraft and PdfCraft are launched with source-documented distinct read/write roots
-(PdfCraft also keeps its single --root on the workspace; both apply). FilmCraft,
+FigCraft, PdfCraft, MaterialCraft and TextureCraft are launched with source-documented
+distinct read/write roots (PdfCraft also keeps its single --root on the workspace; both
+apply). TextureCraft runs materialcraft-cli as an unconfined child process to load a
+`.mcraft` package or re-cook a linked material, so those two steps are outside its roots. FilmCraft,
 LightCraft, GridCraft and CADCraft are launched without roots and must be treated as
 OS-user-wide unless the pinned binary proves otherwise.
 External OS isolation is required when confidential data or strong confinement

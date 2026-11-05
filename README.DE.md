@@ -3,10 +3,10 @@
 **Lokale Kreativarbeit. Native App-Engines. Verifizierte Dateiübergaben.**
 
 Ein Plugin für Claude Code und Codex für die quelloffene ArtCraft **Craft App
-Suite**: Ein `craft`-Skill steuert dreizehn lokale, headless laufende
+Suite**: Ein `craft`-Skill steuert fünfzehn lokale, headless laufende
 Craft-MCP-Apps (Foto, Vektor, Video, RAW, PDF, Layout, Tabellen, Dokumente,
-Folien, CAD, Audio, Motion und Interface-Design) über bereitgestellte Kopien und
-verifizierte Exporte.
+Folien, CAD, Audio, Motion, Interface-Design, prozedurale Materialien und
+3D-Texturmalerei) über bereitgestellte Kopien und verifizierte Exporte.
 
 [![CI](https://github.com/devsolux/storytold/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/devsolux/storytold/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/devsolux/storytold)](https://github.com/devsolux/storytold/releases/latest)
@@ -17,7 +17,7 @@ verifizierte Exporte.
 
 > **Danke, ArtCraft-Team!** Storytold baut auf der Craft App Suite auf, die das
 > [ArtCraft](https://getartcraft.com/)-Team als freie, quelloffene Software
-> veröffentlicht hat: dreizehn Kreativ-Apps, jede von Grund auf neu geschrieben.
+> veröffentlicht hat: fünfzehn Kreativ-Apps, jede von Grund auf neu geschrieben.
 > Wir sind dankbar für diese Großzügigkeit. Ohne ihre Arbeit gäbe es diese
 > Integration nicht.
 >
@@ -39,7 +39,7 @@ verifizierte Exporte.
 
 ## Überblick
 
-Storytold ist das lokale Integrationskit von Devsolux für die dreizehn
+Storytold ist das lokale Integrationskit von Devsolux für die fünfzehn
 bestehenden Craft-CLI-MCP-Server. Ein kompakter `craft`-Skill leitet den Host
 an; jede App behält ihre eigenen Schemas, ihren Bearbeitungszustand, ihr
 Rendering und ihre Speichersemantik. Deterministische Helfer installieren und
@@ -53,16 +53,16 @@ Nutzer + Claude Code / lokaler Codex
            ├── stdio ── PhotoCraft, VectorCraft, FilmCraft, LightCraft
            ├── stdio ── PdfCraft, EffectCraft, DesignCraft, GridCraft
            ├── stdio ── WordCraft, DeckCraft, CADCraft, SoundCraft
-           └── stdio ── FigCraft
+           └── stdio ── FigCraft, MaterialCraft, TextureCraft
                                 │
                       native Engines → dauerhafte Dateien
 ```
 
 **Was es ist**
 
-- Ein anleitender Skill, dreizehn bei Bedarf geladene App-Karten und zwei
+- Ein anleitender Skill, fünfzehn bei Bedarf geladene App-Karten und zwei
   Workflow-Anleitungen.
-- Dreizehn direkte, native stdio-MCP-Registrierungen, eine pro App und Host.
+- Fünfzehn direkte, native stdio-MCP-Registrierungen, eine pro App und Host.
 - Eine Python-CLI nur mit der Standardbibliothek (`storytold.py`), die die
   Craft-CLIs installiert, verifiziert, pinnt, prüft und registriert, aber nur,
   wenn du sie ausführst.
@@ -94,7 +94,7 @@ codex plugin add storytold@devsolux-storytold
 
 **2. Native Apps installieren.** Aus einem Klon oder aus dem installierten
 Plugin-Verzeichnis (`<home>/plugins/cache/devsolux-storytold/storytold/<version>/`
-unter `~/.claude` bzw. `~/.codex`) eine App oder alle dreizehn einrichten:
+unter `~/.claude` bzw. `~/.codex`) eine App oder alle fünfzehn einrichten:
 
 ```bash
 python3 storytold.py setup --app photocraft
@@ -134,11 +134,14 @@ Grund auf in Rust geschrieben und jedes eigenständig nutzbar. Die Spalte
 | <img src="https://raw.githubusercontent.com/storytold/cadcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.cadcraft.png" alt="" width="32" height="32"> | **CADCraft** | Computergestütztes Konstruieren (CAD) | Benutzerweit | [GitHub](https://github.com/storytold/cadcraft) | [Website](https://getartcraft.com/apps/cadcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/soundcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.soundcraft.png" alt="" width="32" height="32"> | **SoundCraft** | Audioaufnahme und -bearbeitung | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/soundcraft) | [Website](https://getartcraft.com/apps/soundcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/figcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.figcraft.png" alt="" width="32" height="32"> | **FigCraft** | Interface-Design und Prototyping | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/figcraft) | [Website](https://getartcraft.com/apps/figcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/materialcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.materialcraft.png" alt="" width="32" height="32"> | **MaterialCraft** | Prozedurale PBR-Materialien als Node-Graphen | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/materialcraft) | [Website](https://getartcraft.com/apps/materialcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/texturecraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.texturecraft.png" alt="" width="32" height="32"> | **TextureCraft** | 3D-Texturmalerei, Baking und PBR-Export | Lese-/Schreibwurzeln | [GitHub](https://github.com/storytold/texturecraft) | [Website](https://getartcraft.com/apps/texturecraft) |
 
-- **Lese-/Schreibwurzeln** (neun Apps): mit nativen Wurzel-Flags gestartet, die
+- **Lese-/Schreibwurzeln** (elf Apps): mit nativen Wurzel-Flags gestartet, die
   ihnen erlauben, den Workspace zu lesen und nur in dessen Verzeichnis
   `outputs/` zu schreiben. PdfCraft behält zusätzlich seine einzelne
-  `--root` auf dem Workspace; beide gelten.
+  `--root` auf dem Workspace; beide gelten. Lädt TextureCraft ein
+  `.mcraft`-Paket, startet es `materialcraft-cli` außerhalb dieser Wurzeln.
 - **Benutzerweit** (vier Apps): ohne Wurzel-Flags gestartet, daher können
   sie alles lesen und schreiben, was dein OS-Benutzer darf. `setup`
   installiert und registriert sie nur mit `--acknowledge-unconfined`; nutze
@@ -184,7 +187,7 @@ Host-Sitzung.
 
 | Option | Wirkung |
 |---|---|
-| `--app <app>` / `--all` | Eine App auswählen (wiederholbar) oder alle dreizehn. |
+| `--app <app>` / `--all` | Eine App auswählen (wiederholbar) oder alle fünfzehn. |
 | `--acknowledge-unconfined` | Auch die vier benutzerweiten Apps installieren und registrieren. Kein Nachweis von Isolation. |
 | `--host {codex,claude}` | Nur beim genannten Host registrieren (Standard: jede Host-CLI im PATH); ein genannter Host, der nicht im PATH ist, lässt den Lauf fehlschlagen. |
 | `--dry-run` | Vorschau darauf, was ein echter Lauf je App täte (`keep`, `install`, `upgrade`, `skip` oder `refuse`, ein Download nur, wo einer nötig ist, jede Registrierung) und ob er durchliefe (sonst Exit-Status 1), oder, mit `--remove`, genau auf das, was entfernt würde. Ändert nichts. |
@@ -276,7 +279,7 @@ claude plugin uninstall storytold@devsolux-storytold
 codex plugin remove storytold@devsolux-storytold
 ```
 
-`setup --remove --all` hebt zuerst die Registrierung der dreizehn von Storytold
+`setup --remove --all` hebt zuerst die Registrierung der fünfzehn von Storytold
 verwalteten CLIs auf und löscht sie samt Pins. Workspace und Ausgaben bleiben,
 ebenso alles, was das Lock nicht als von Storytold installiert ausweist. Ein
 bloßes Deinstallieren des Plugins ließe die Server registriert und lauffähig
@@ -303,7 +306,7 @@ und eine installierte Kopie beiden Hosts dient. `python3 storytold.py setup
 | Wo (macOS/Linux) | Windows | Was | Geschrieben von |
 |---|---|---|---|
 | `~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/`, ebenso unter `~/.claude` | ebenso unter `%USERPROFILE%` | Das Plugin: `craft`-Skill, Doku, `storytold.py`, `config/releases.json`, `config/signatures.json`. Keine Binärdateien. | `codex plugin add` / `claude plugin install` |
-| `~/.local/opt/craft/bin/` | `%LOCALAPPDATA%\Storytold\craft\bin\` | Die dreizehn Craft-CLIs (`photocraft-cli` … `figcraft-cli`, je 16–192 MB). Beide Hosts starten diese, z. B. `…/cadcraft-cli mcp`. | `setup` |
+| `~/.local/opt/craft/bin/` | `%LOCALAPPDATA%\Storytold\craft\bin\` | Die fünfzehn Craft-CLIs (`photocraft-cli` … `texturecraft-cli`, je 16–192 MB). Beide Hosts starten diese, z. B. `…/cadcraft-cli mcp`. | `setup` |
 | `~/.local/state/storytold/` (`$XDG_STATE_HOME/storytold` unter Linux) | `%LOCALAPPDATA%\Storytold\state\` | Privater Zustand: `installations.lock.json` (gepinnte Hashes), `evidence/` (Prüfbelege je App), `venv/` (offizielles MCP-SDK für die Prüfung), `setup.json` (gemerkte Pfade). | `setup` |
 | `~/craft-work-storytold/` | `%USERPROFILE%\craft-work-storytold\` | Der Workspace: `inputs/`, `outputs/` (Exporte landen hier), `receipts/`. | `setup` legt ihn an; die Apps füllen `outputs/` |
 | `~/.codex/config.toml` und `~/.claude.json` | ebenso | Eine MCP-Registrierung im Benutzerbereich je App und Host, die auf den absoluten CLI-Pfad oben zeigt. | `codex mcp add`, `claude mcp add --scope user`, ausgeführt von `setup` |
@@ -321,7 +324,7 @@ Jede Aufgabe folgt derselben Schleife:
 **Prüfen → bereitgestellte Kopie → native Bearbeitung → Vorschau →
 speichern/exportieren → erneut öffnen/verifizieren.**
 
-- **App-Karten.** Die [dreizehn App-Karten](skills/craft/SKILL.md) beschreiben
+- **App-Karten.** Die [fünfzehn App-Karten](skills/craft/SKILL.md) beschreiben
   app-spezifische Fallstricke: headless Auswahl in VectorCraft,
   Bibliothekssperren in LightCraft, explizites Speichern in PdfCraft,
   UTF-8-Byte-Offsets in DesignCraft, typisierte Formeln in GridCraft,
@@ -365,7 +368,7 @@ make verify-build
 | `make setup` / `make setup-probe` | Eine lokale `.venv` anlegen; danach als ausdrückliches Netzwerk-Opt-in das hash-gesperrte offizielle MCP-SDK (`mcp==2.3.0`) installieren. |
 | `make test-sdk` | Das echte SDK gegen ein synthetisches stdio-Fixture prüfen, nicht gegen die Craft-Apps. |
 | `make refresh-releases` / `make sign-releases` | Die Netzwerkschritte des täglichen Workflows (Signieren braucht cosign). |
-| `make setup-confined` | Die neun wurzelbeschränkten Apps auf diesem Rechner installieren, pinnen, prüfen und registrieren. |
+| `make setup-confined` | Die elf wurzelbeschränkten Apps auf diesem Rechner installieren, pinnen, prüfen und registrieren. |
 | `make clean` | Nur markierte `.build/` und `dist/` entfernen; Workspaces und `.venv` bleiben. |
 
 Builds und Tests committen, pushen und installieren nie; nur die ausdrücklich
@@ -377,9 +380,10 @@ Beitragsregeln.
 
 Die Offline-Kerntests, der Vertragstest mit dem offiziellen MCP-SDK, die
 strikte Validierung der Claude-Manifeste und die Installation in Claude Code und
-Codex mit Skill-Erkennung wurden ausgeführt. `setup` hat alle dreizehn
+Codex mit Skill-Erkennung wurden ausgeführt. `setup` hat dreizehn der
 Craft-CLIs auf macOS-, Linux- und Windows-Runnern installiert, geprüft und per
-Sigstore verifiziert, zwölf davon auch auf einem Entwickler-Mac. Das ist ein
+Sigstore verifiziert, zwölf davon auch auf einem Entwickler-Mac; MaterialCraft
+und TextureCraft warten auf ihren ersten signierten Lauf des Release-Workflows. Das ist ein
 Nachweis auf Protokollebene, keine native Abnahme: Die Stufen in
 [Abnahme](docs/acceptance.md) führt der Betreiber selbst aus. Der
 [Verifikationsbericht](docs/verification.md) trennt, was für jedes Release
@@ -389,7 +393,7 @@ ausgeführt wurde, von dokumentarischen Belegen.
 
 | Pfad | Zuständigkeit |
 |---|---|
-| `skills/craft/` | Ein anleitender Skill, dreizehn App-Karten und zwei Workflows |
+| `skills/craft/` | Ein anleitender Skill, fünfzehn App-Karten und zwei Workflows |
 | `config/` | Geprüfter Startkatalog, Release-Manifest und Sigstore-Bundle-Speicher, inaktive Vorlagen, Beispiel-Lock und -Env |
 | `storytold_tools/`, `storytold.py` | Deterministische CLI und optionale kurzlebige SDK-Prüfung |
 | `scripts/`, `Makefile` | Offline-Checks, Tests, abgesicherte Builds und Paketierung |

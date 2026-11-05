@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Catalog: MaterialCraft 0.1.2 and TextureCraft 0.3.2 join as the fourteenth and
+  fifteenth native apps, both launched with read/write roots, with app cards,
+  acceptance scenarios and a material-to-texture handoff guide. Their manifest
+  rows are seeded from upstream metadata; the next release-workflow run signs
+  the six archives and runs them for the first time. Until then `setup` refuses
+  them on Linux and Windows without `--trust-upstream-sums`, and on macOS it
+  relies on notarization alone.
+- Craft Anything is left out of the catalog by decision (see ADR-001), and the
+  other Craft repositories that ship no MCP CLI or no release are recorded there.
+
 ## 1.5.12 — 2026-11-04
 
 Automated release by the daily Craft release refresh (run 41835224513): 2 pins

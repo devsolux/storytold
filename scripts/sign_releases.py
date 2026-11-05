@@ -9,7 +9,7 @@ archive without a current bundle is downloaded, checked against the manifest
 and the release's SHA256SUMS.txt, its one `<app>-cli` extracted and signed
 keyless with `cosign sign-blob --yes --bundle`. Each download and each signing
 is tried up to three times, so one transient Fulcio, Rekor or download failure
-among the 39 archives does not cost the whole run; an HTTP client error (the
+among the 45 archives does not cost the whole run; an HTTP client error (the
 asset is not there) and a size-limit or hash refusal are final. The complete result is
 strictly validated and then written over the old file in one atomic replace;
 any failure before that leaves the previous store exactly as it was. Nothing is

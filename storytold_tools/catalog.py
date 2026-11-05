@@ -7,8 +7,10 @@ import re
 from .common import ROOT, absolute, directory, encoded, digest, keys, load_json, require, sha, snapshot, text
 
 APP_IDS = ('photocraft','vectorcraft','filmcraft','lightcraft','pdfcraft','effectcraft',
-           'designcraft','gridcraft','wordcraft','deckcraft','cadcraft','soundcraft','figcraft')
-ROOTED = {'photocraft','vectorcraft','effectcraft','wordcraft','soundcraft','deckcraft','designcraft','figcraft','pdfcraft'}
+           'designcraft','gridcraft','wordcraft','deckcraft','cadcraft','soundcraft','figcraft',
+           'materialcraft','texturecraft')
+ROOTED = {'photocraft','vectorcraft','effectcraft','wordcraft','soundcraft','deckcraft','designcraft','figcraft','pdfcraft',
+          'materialcraft','texturecraft'}
 # Releases before these lack the root flags: SoundCraft's ignore unknown `mcp` flags and would run
 # unconfined, the others refuse them and would not start. Either way the pin must move first.
 ROOTS_SINCE = {'soundcraft': (0,7,0), 'deckcraft': (0,8,0), 'designcraft': (0,9,0), 'figcraft': (0,7,0), 'pdfcraft': (0,9,0)}
@@ -34,12 +36,14 @@ def load_catalog(root: Path = ROOT) -> dict[str, dict]:
         # Integration flags, not engine commands. Keep the authorized native mode exact.
         expected = ['mcp']
         if app=='vectorcraft': expected += ['--headless']
-        if app in ROOTED: expected += ['--automation-read-root','{work}','--automation-write-root','{outputs}']
+        # MaterialCraft has only the short spelling; TextureCraft takes both and uses the suite's.
+        if app=='materialcraft': expected += ['--read-root','{work}','--write-root','{outputs}']
+        elif app in ROOTED: expected += ['--automation-read-root','{work}','--automation-write-root','{outputs}']
         if app=='pdfcraft': expected += ['--root','{work}','--compact']  # both apply: inside --root and the matching automation root
         if app=='lightcraft': expected += ['--compact']
         require(row['args']==expected, f'{app}: launch flags need a reviewed code/catalog change')
         result[app]=row
-    require(set(result)==set(APP_IDS), 'catalog must contain all thirteen apps')
+    require(set(result)==set(APP_IDS), 'catalog must contain every app')
     return result
 
 def selected(apps: list[str] | None) -> list[str]:

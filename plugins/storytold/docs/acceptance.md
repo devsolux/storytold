@@ -2,7 +2,7 @@
 
 This repository implements the integration kit. **M0–M4 are not recorded as
 passed.** Shipping code/templates is different from a validated native deployment.
-The fifteen scenario definitions in the source `tests/native/acceptance.json`
+The seventeen scenario definitions in the source `tests/native/acceptance.json`
 start as `not_run`; they are a checklist, not fabricated run results. Retain real
 execution evidence privately, outside the native writable workspace.
 
@@ -24,7 +24,7 @@ purity under every operation, actual process exit code/EOF behavior, safe native
 root enforcement, no GUI attachment, output correctness, runtime version
 truthfulness or publisher authenticity. Test these separately on the installed
 build. For VectorCraft, an available GUI must not be contacted by the headless
-configuration. All thirteen pass before claiming the full-suite M0 gate.
+configuration. All fifteen pass before claiming the full-suite M0 gate.
 
 ## M1 — each local host and independent failures
 
@@ -42,7 +42,7 @@ without hidden native registration, duplicate servers or permission grants.
 
 ## M2 — editing, durable saves and cross-app handoffs
 
-For all thirteen app scenarios: inspect a non-sensitive staged input or new native
+For all fifteen app scenarios: inspect a non-sensitive staged input or new native
 document, make one bounded edit, preview, explicitly save/export, reopen, and
 check the actual result. Verify original and staged input hashes when the copy
 must remain unchanged. A useful unsupported-format result must state its limit;
@@ -77,7 +77,7 @@ weaker checks, not native reopening or visual approval. Record unresolved warnin
 ## M4 — distribution validation
 
 The reusable plugin is packaged and published through the marketplaces; its
-activation and full thirteen-app acceptance remain gated. Validate the generated
+activation and full fifteen-app acceptance remain gated. Validate the generated
 bundle with installed Claude and the actual supported local Codex workflow
 (release-time install results are in [verification](verification.md)). Check per-user
 trust, namespacing, install/reload/uninstall, and new clean machines without hidden

@@ -74,6 +74,17 @@
       "command": "${CRAFT_BIN_DIR}/lightcraft-cli",
       "type": "stdio"
     },
+    "materialcraft": {
+      "args": [
+        "mcp",
+        "--read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--write-root",
+        "${CRAFT_OUTPUT_ROOT}"
+      ],
+      "command": "${CRAFT_BIN_DIR}/materialcraft-cli",
+      "type": "stdio"
+    },
     "pdfcraft": {
       "args": [
         "mcp",
@@ -108,6 +119,17 @@
         "${CRAFT_OUTPUT_ROOT}"
       ],
       "command": "${CRAFT_BIN_DIR}/soundcraft-cli",
+      "type": "stdio"
+    },
+    "texturecraft": {
+      "args": [
+        "mcp",
+        "--automation-read-root",
+        "${CRAFT_WORK_ROOT}",
+        "--automation-write-root",
+        "${CRAFT_OUTPUT_ROOT}"
+      ],
+      "command": "${CRAFT_BIN_DIR}/texturecraft-cli",
       "type": "stdio"
     },
     "vectorcraft": {

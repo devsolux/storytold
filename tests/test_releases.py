@@ -32,7 +32,7 @@ class RefreshGuardTests(unittest.TestCase):
             guard('soundcraft',self.pinned,self.latest(tag='v99.0.0-rc1',version='99.0.0-rc1'))
 
 class RefreshRetryTests(unittest.TestCase):
-    """One GitHub hiccup among the 39 small metadata requests is retried; a client error is a finding about the release."""
+    """One GitHub hiccup among the small metadata requests is retried; a client error is a finding about the release."""
     URL='https://api.github.com/repos/storytold/cadcraft/releases/latest'
     def setUp(self): self.calls=[];self.sleeps=[];self.logged=[]
     def urlopen(self,*outcomes):
@@ -63,7 +63,7 @@ class RefreshRetryTests(unittest.TestCase):
         self.assertEqual((len(self.calls),self.sleeps),(1,[]))
 
 class ReleaseManifestTests(unittest.TestCase):
-    def test_manifest_covers_thirteen_apps_on_three_platforms(self):
+    def test_manifest_covers_every_app_on_three_platforms(self):
         m=load_releases();catalog=load_catalog();self.assertEqual(set(m['apps']),set(APP_IDS))
         for app,row in m['apps'].items():
             self.assertEqual(set(row['assets']),set(PLATFORMS))

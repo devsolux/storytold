@@ -4,10 +4,10 @@
 aktarımları.**
 
 Açık kaynaklı ArtCraft **Craft App Suite** için bir Claude Code ve Codex
-eklentisi: tek bir `craft` Skill'i, on üç yerel, başsız (headless) Craft MCP
+eklentisi: tek bir `craft` Skill'i, on beş yerel, başsız (headless) Craft MCP
 uygulamasını (fotoğraf, vektör, video, RAW, PDF, mizanpaj, hesap tablosu, belge,
-sunum, CAD, ses, hareketli grafik ve arayüz tasarımı) hazırlanmış kopyalar ve
-doğrulanmış dışa aktarımlar üzerinden yönetir.
+sunum, CAD, ses, hareketli grafik, arayüz tasarımı, prosedürel malzeme ve 3D doku
+boyama) hazırlanmış kopyalar ve doğrulanmış dışa aktarımlar üzerinden yönetir.
 
 [![CI](https://github.com/devsolux/storytold/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/devsolux/storytold/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/devsolux/storytold)](https://github.com/devsolux/storytold/releases/latest)
@@ -18,7 +18,7 @@ doğrulanmış dışa aktarımlar üzerinden yönetir.
 
 > **Teşekkürler, ArtCraft ekibi!** Storytold, [ArtCraft](https://getartcraft.com/)
 > ekibinin ücretsiz ve açık kaynaklı yazılım olarak yayımladığı Craft App Suite
-> üzerine kuruludur: her biri sıfırdan yazılmış on üç yaratıcı uygulama. Bu
+> üzerine kuruludur: her biri sıfırdan yazılmış on beş yaratıcı uygulama. Bu
 > cömertlik için minnettarız. Onların emeği olmasaydı bu entegrasyon var
 > olmazdı.
 >
@@ -40,7 +40,7 @@ doğrulanmış dışa aktarımlar üzerinden yönetir.
 
 ## Genel bakış
 
-Storytold, Devsolux'un on üç mevcut Craft CLI MCP sunucusu için yerel
+Storytold, Devsolux'un on beş mevcut Craft CLI MCP sunucusu için yerel
 entegrasyon kitidir. Küçük bir `craft` Skill'i host'u yönlendirir; her uygulama
 kendi şemalarını, düzenleme durumunu, render ve kaydetme davranışını korur.
 Deterministik yardımcılar CLI'leri yalnızca açık komutla kurar ve sabitler,
@@ -53,16 +53,16 @@ Kullanıcı + Claude Code / yerel Codex
            ├── stdio ── PhotoCraft, VectorCraft, FilmCraft, LightCraft
            ├── stdio ── PdfCraft, EffectCraft, DesignCraft, GridCraft
            ├── stdio ── WordCraft, DeckCraft, CADCraft, SoundCraft
-           └── stdio ── FigCraft
+           └── stdio ── FigCraft, MaterialCraft, TextureCraft
                                 │
                       yerel motorlar → kalıcı dosyalar
 ```
 
 **Ne olduğu**
 
-- Tek bir yönlendirici Skill, gerektiğinde yüklenen on üç uygulama kartı ve iki
+- Tek bir yönlendirici Skill, gerektiğinde yüklenen on beş uygulama kartı ve iki
   iş akışı rehberi.
-- Uygulama ve host başına bir tane olmak üzere on üç doğrudan, yerel stdio MCP
+- Uygulama ve host başına bir tane olmak üzere on beş doğrudan, yerel stdio MCP
   kaydı.
 - Craft CLI'lerini kuran, doğrulayan, sabitleyen, yoklayan ve kaydeden, yalnızca
   standart kütüphaneyle yazılmış bir Python CLI'si (`storytold.py`); ama yalnızca
@@ -97,7 +97,7 @@ codex plugin add storytold@devsolux-storytold
 **2. Yerel uygulamaları kurun.** Bir klondan ya da kurulu eklenti dizininden
 (`~/.claude` veya `~/.codex` altında
 `<home>/plugins/cache/devsolux-storytold/storytold/<version>/`) tek bir
-uygulamayı ya da on üçünü birden kurun:
+uygulamayı ya da on beşini birden kurun:
 
 ```bash
 python3 storytold.py setup --app photocraft
@@ -136,11 +136,14 @@ sütunu, Storytold'un her uygulamanın MCP sunucusunu nasıl başlattığını g
 | <img src="https://raw.githubusercontent.com/storytold/cadcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.cadcraft.png" alt="" width="32" height="32"> | **CADCraft** | Bilgisayar destekli tasarım (CAD) | Kullanıcı geneli | [GitHub](https://github.com/storytold/cadcraft) | [Web sitesi](https://getartcraft.com/apps/cadcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/soundcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.soundcraft.png" alt="" width="32" height="32"> | **SoundCraft** | Ses kaydı ve düzenleme | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/soundcraft) | [Web sitesi](https://getartcraft.com/apps/soundcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/figcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.figcraft.png" alt="" width="32" height="32"> | **FigCraft** | Arayüz tasarımı ve prototipleme | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/figcraft) | [Web sitesi](https://getartcraft.com/apps/figcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/materialcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.materialcraft.png" alt="" width="32" height="32"> | **MaterialCraft** | Düğüm grafikleriyle prosedürel PBR malzemeleri | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/materialcraft) | [Web sitesi](https://getartcraft.com/apps/materialcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/texturecraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.texturecraft.png" alt="" width="32" height="32"> | **TextureCraft** | 3D doku boyama, pişirme ve PBR dışa aktarımı | Okuma/yazma kökleri | [GitHub](https://github.com/storytold/texturecraft) | [Web sitesi](https://getartcraft.com/apps/texturecraft) |
 
-- **Okuma/yazma kökleri** (dokuz uygulama): çalışma alanını okumalarına ve
+- **Okuma/yazma kökleri** (on bir uygulama): çalışma alanını okumalarına ve
   yalnızca onun `outputs/` dizinine yazmalarına izin veren yerel kök
   bayraklarıyla başlatılır. PdfCraft ayrıca çalışma alanındaki tek `--root`
-  kökünü korur; ikisi birlikte geçerlidir.
+  kökünü korur; ikisi birlikte geçerlidir. TextureCraft bir `.mcraft` paketi
+  yüklerken bu köklerin dışında `materialcraft-cli` başlatır.
 - **Kullanıcı geneli** (dört uygulama): dosya kökü bayrağı olmadan başlatılır,
   bu yüzden işletim sistemi kullanıcınızın erişebildiği her şeyi okuyup
   yazabilir. `setup` bunları yalnızca `--acknowledge-unconfined` ile kurar ve
@@ -186,7 +189,7 @@ bir host oturumu başlatın.
 
 | Seçenek | Etkisi |
 |---|---|
-| `--app <app>` / `--all` | Tek bir uygulamayı (tekrarlanabilir) ya da on üçünün tamamını seçer. |
+| `--app <app>` / `--all` | Tek bir uygulamayı (tekrarlanabilir) ya da on beşinin tamamını seçer. |
 | `--acknowledge-unconfined` | Kullanıcı genelindeki dört uygulamayı da kurar ve kaydeder. Yalıtım kanıtı değildir. |
 | `--host {codex,claude}` | Yalnızca belirtilen host'a kaydeder (varsayılan: PATH'teki her host CLI'si); PATH'te olmayan belirtilmiş bir host çalıştırmayı başarısız kılar. |
 | `--dry-run` | Gerçek bir çalıştırmanın her uygulama için ne yapacağını (`keep`, `install`, `upgrade`, `skip` veya `refuse`, yalnızca gerektiğinde indirme, her kayıt) ve başarılı olup olmayacağını (olmayacaksa çıkış kodu 1) ya da `--remove` ile birlikte tam olarak neyin kaldırılacağını önizler. Hiçbir şeyi değiştirmez. |
@@ -278,7 +281,7 @@ claude plugin uninstall storytold@devsolux-storytold
 codex plugin remove storytold@devsolux-storytold
 ```
 
-`setup --remove --all` önce Storytold'un yönettiği on üç CLI'nin kaydını
+`setup --remove --all` önce Storytold'un yönettiği on beş CLI'nin kaydını
 kaldırır, ikili dosyaları ve sabitlemeleri siler. Çalışma alanı ve çıktılar
 kalır; kilidin Storytold tarafından kurulduğunu kanıtlayamadığı hiçbir şey de
 silinmez. Yalnızca eklentiyi kaldırmak sunucuları kayıtlı ve çalışır durumda
@@ -305,7 +308,7 @@ setup --list` kullanılan yolları yazdırır.
 | Nerede (macOS/Linux) | Windows | Ne | Kim yazar |
 |---|---|---|---|
 | `~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/`, `~/.claude` altında da aynı | `%USERPROFILE%` altında aynı | Eklenti: `craft` Skill'i, belgeler, `storytold.py`, `config/releases.json`, `config/signatures.json`. İkili dosya yok. | `codex plugin add` / `claude plugin install` |
-| `~/.local/opt/craft/bin/` | `%LOCALAPPDATA%\Storytold\craft\bin\` | On üç Craft CLI'si (`photocraft-cli` … `figcraft-cli`, her biri 16–192 MB). Her iki host da bunları başlatır, örn. `…/cadcraft-cli mcp`. | `setup` |
+| `~/.local/opt/craft/bin/` | `%LOCALAPPDATA%\Storytold\craft\bin\` | On beş Craft CLI'si (`photocraft-cli` … `texturecraft-cli`, her biri 16–192 MB). Her iki host da bunları başlatır, örn. `…/cadcraft-cli mcp`. | `setup` |
 | `~/.local/state/storytold/` (Linux'ta `$XDG_STATE_HOME/storytold`) | `%LOCALAPPDATA%\Storytold\state\` | Özel durum: `installations.lock.json` (sabitlenmiş özetler), `evidence/` (uygulama başına yoklama makbuzları), `venv/` (yoklama için resmi MCP SDK), `setup.json` (kaydedilen yollar). | `setup` |
 | `~/craft-work-storytold/` | `%USERPROFILE%\craft-work-storytold\` | Çalışma alanı: `inputs/`, `outputs/` (dışa aktarımlar buraya düşer), `receipts/`. | `setup` oluşturur; uygulamalar `outputs/` dizinini doldurur |
 | `~/.codex/config.toml` ve `~/.claude.json` | aynı | Uygulama ve host başına, yukarıdaki mutlak CLI yoluna işaret eden tek bir kullanıcı kapsamlı MCP kaydı. | `codex mcp add`, `claude mcp add --scope user`; `setup` çalıştırır |
@@ -323,7 +326,7 @@ Her görev aynı döngüyü izler:
 **İncele → hazırlanmış kopya → yerel düzenleme → önizleme → kaydet/dışa aktar
 → yeniden aç/doğrula.**
 
-- **Uygulama kartları.** [On üç uygulama kartı](skills/craft/SKILL.md)
+- **Uygulama kartları.** [On beş uygulama kartı](skills/craft/SKILL.md)
   uygulamaya özgü tuzakları anlatır: VectorCraft'ta başsız seçim, LightCraft
   kütüphane kilitleri, PdfCraft'ta açık kaydetme, DesignCraft UTF-8 bayt
   konumları, GridCraft'ta tipli formüller, FigCraft'ta sayfa birimleri, medya
@@ -365,7 +368,7 @@ make verify-build
 | `make setup` / `make setup-probe` | Yerel bir `.venv` oluşturur; ardından açık bir ağ tercihi olarak özet kilitli resmi MCP SDK'yı (`mcp==2.3.0`) kurar. |
 | `make test-sdk` | Gerçek SDK'yı Craft uygulamalarına değil, sentetik bir stdio fikstürüne karşı sınar. |
 | `make refresh-releases` / `make sign-releases` | Günlük iş akışının çalıştırdığı ağ adımları (imzalama cosign gerektirir). |
-| `make setup-confined` | Kök sınırlı dokuz uygulamayı bu makinede kurar, sabitler, yoklar ve kaydeder. |
+| `make setup-confined` | Kök sınırlı on bir uygulamayı bu makinede kurar, sabitler, yoklar ve kaydeder. |
 | `make clean` | Yalnızca işaretli `.build/` ve `dist/` dizinlerini kaldırır; çalışma alanları ve `.venv` kalır. |
 
 Derlemeler ve testler asla commit, push ya da kurulum yapmaz; yalnızca adıyla
@@ -377,9 +380,10 @@ açıklar.
 
 Çevrimdışı çekirdek testleri, resmi MCP SDK sözleşme testi, sıkı Claude
 manifest doğrulaması ve Skill keşfiyle Claude Code ve Codex kurulumu
-çalıştırıldı. `setup`, on üç Craft CLI'sinin tamamını macOS, Linux ve Windows
+çalıştırıldı. `setup`, Craft CLI'lerinden on üçünü macOS, Linux ve Windows
 runner'larında kurdu, yokladı ve Sigstore ile doğruladı; on ikisini ayrıca bir
-geliştirici Mac'inde. Bu, protokol düzeyinde bir kanıttır, yerel kabul değildir:
+geliştirici Mac'inde. MaterialCraft ve TextureCraft, sürüm iş akışının ilk imzalı
+çalıştırmasını bekliyor. Bu, protokol düzeyinde bir kanıttır, yerel kabul değildir:
 [kabul](docs/acceptance.md) belgesindeki aşamaları çalıştırmak işletmeciye
 kalır. [Doğrulama raporu](docs/verification.md), her sürüm için gerçekten
 çalıştırılanları belgesel kanıttan ayırır.
@@ -388,7 +392,7 @@ kalır. [Doğrulama raporu](docs/verification.md), her sürüm için gerçekten
 
 | Yol | Sorumluluk |
 |---|---|
-| `skills/craft/` | Tek yönlendirici Skill, on üç uygulama kartı ve iki iş akışı |
+| `skills/craft/` | Tek yönlendirici Skill, on beş uygulama kartı ve iki iş akışı |
 | `config/` | Gözden geçirilmiş başlatma kataloğu, sürüm manifesti ve Sigstore paket deposu, pasif şablonlar, örnek kilit ve ortam |
 | `storytold_tools/`, `storytold.py` | Deterministik CLI ve isteğe bağlı kısa ömürlü SDK yoklaması |
 | `scripts/`, `Makefile` | Çevrimdışı denetimler, testler, korumalı derlemeler ve paketleme |

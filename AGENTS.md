@@ -1,7 +1,7 @@
 # Storytold repository instructions
 
 The native-MCP project plan in docs/sources is the architecture authority. The
-older gateway reference supplies app facts only. Keep thirteen independent
+older gateway reference supplies app facts only. Keep fifteen independent
 native stdio servers (one per app in config/apps.json) and one instructional
 craft Skill. No gateway, daemon, router, secondary agent, live GUI control, or
 remote transport belongs in this project.

@@ -1,6 +1,6 @@
 # Source ledger and verification scope
 
-Review dates: **2026-10-12 to 2026-10-23** (each section names its own). The integration uses the attached project plan as its
+Review dates: **2026-10-12 to 2026-11-05** (each section names its own). The integration uses the attached project plan as its
 architecture authority. Fresh public-document checks supplement its implementation
 mechanics; they do not silently replace its decisions or prove native behavior.
 
@@ -1664,6 +1664,62 @@ none of those bridges. Every card's recheck date is now 2026-10-29.
   several-document rules, the `type_text` paragraph cap, the 1 MiB request
   line, the new read-root folders and the link-into-write-root refusal, the
   integrity-check refusal and the `.png`-only `file.exportPng`.
+
+## MaterialCraft and TextureCraft added to the catalog — 2026-11-05
+
+Every repository of the `storytold` organization was listed against what a
+catalog entry needs, then MaterialCraft v0.1.2 (`1639314`) and TextureCraft
+v0.3.2 (`ef8dfba`) were reviewed on blob-less clones. Nothing from upstream was
+built or run and no release asset was downloaded; the release metadata and
+`SHA256SUMS.txt` are the only files fetched from a release.
+
+- Both `mcp` parsers are hand-written tables that refuse an unknown option, take
+  a value flag repeatedly with the last use winning, and start a headless
+  in-process session. MaterialCraft (`apps/materialcraft-cli/src/main.rs`) takes
+  `--bridge`, `--token`, `--read-root` and `--write-root` only, so the catalog
+  gives it the short spelling; TextureCraft (`apps/texturecraft-cli/src/main.rs`)
+  takes those and `--automation-read-root`/`--automation-write-root` as aliases,
+  so it keeps the suite's spelling. Neither root flag has a minimum release
+  (`ROOTS_SINCE`), since both apps enter the catalog above their introduction.
+- Confinement (`crates/automation/src/workspace.rs`, near-identical in both):
+  `AuthorizedWorkspace` holds a `cap-std` directory handle per root; a request
+  path is forward-slash and relative, `..`, absolute paths, drive prefixes and
+  link escapes fail, and a missing root denies that authority. Reads take regular
+  files up to 256 MiB; writes go through a temporary file and a rename.
+  `authorize_command` keeps `command_run` off every `file.*` command (MaterialCraft
+  allows `file.new` and `file.newPackage`, TextureCraft `file.close`,
+  `file.removeUnused` and a path-less `file.reimportMesh`) and off any command
+  given `path` or `dir`.
+- One exception, recorded on the TextureCraft card and in the safety reference:
+  `crates/engine/src/link_cmds.rs` runs `materialcraft-cli run <temp>/source.mcraft
+  file.exportMaterial` for a `.mcraft` given to `material_load` and for each
+  `material.link.*` re-cook (`material.link.set` cooks by default). The binary
+  comes from `MATERIALCRAFT_CLI`, then beside the running program, then PATH, so
+  under `setup` the sibling install is what runs, with the user's full access and
+  outside TextureCraft's roots. A `.mcmat` needs no child process, but MaterialCraft
+  can write one only from its CLI and app, because its workspace sandbox refuses
+  `file.*` (upstream `docs/gaps.md`, gap 4).
+- Tools: `session_inspect` is each app's smoke tool, with no parameter, returning
+  the session as JSON; it is a plain `session.inspect` call. The bridged tools
+  (`view_screenshot`, `viewport_screenshot`, `ui_*`) stay out of the catalog launch.
+- Network: the only socket code in the CLI and automation crates is the loopback
+  bridge and `serve --port`, which the catalog launch does not use. The Linux
+  tarball and Windows portable zip stage the CLI beside the app and the macOS
+  `-cli-` zip holds it as the only binary beside its docs (`packaging/*/package.*`);
+  the archives themselves were not opened, so `sign_releases.py` is the first check
+  of the layout, on the same rule that accepts the other apps' archives.
+
+Left out, with the reason in [ADR-001](architecture.md): Craft Anything v0.3.0
+(`e6280b5`), whose `mcp` has `--all-tools` and `--inbox` but no file root, whose
+314 tools include running target code, Frida and adb, whose app drives a coding
+agent, and which registers itself with `craft-anything-cli setup`. The ArtCraft
+desktop app (release `artcraft-v0.41.0`, installers only) and the ArtCraft Launcher
+ship no MCP CLI; AniCraft is an empty repository, CraftHub holds a README, and
+ArtCraft-X has no release. MaterialCraft and TextureCraft are the apps the operator
+had installed locally that the catalog lacked; Craft Anything is the third.
+
+Still open: the local `preflight` and `probe` of both pinned binaries that AGENTS.md
+asks of a launch change, and every native acceptance scenario.
 
 ## Build infrastructure
 
