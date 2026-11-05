@@ -6,8 +6,12 @@ native stdio servers (one per app in config/apps.json) and one instructional
 craft Skill. No gateway, daemon, router, secondary agent, live GUI control, or
 remote transport belongs in this project.
 
-Work on the main branch only. There is no development, feature or release
-branch: commit directly to main, and push main only when the operator asks.
+Git workflow: `main` only, one commit per logical change. There is no
+development, feature or release branch and no worktree for repository changes:
+commit directly to main, and push main only when the operator asks. One commit
+holds one change that can be described in one subject line and reverted alone:
+it passes the gates by itself and carries the plugins/storytold it regenerates,
+and anything unrelated found along the way gets its own commit.
 The daily release workflow's bot/releases pull request is the one exception,
 and it is merged into main on its own, so start with `git pull --ff-only origin
 main` (or `make github-pull`) before reading or editing. Upstream references in

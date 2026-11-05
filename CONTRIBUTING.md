@@ -5,6 +5,12 @@ Do not add a gateway, secondary model, GUI automation, auto-grants or command
 registry. Changes to native flags require source review and new local binary
 acceptance, not just a matching unit test.
 
+Git workflow: `main` only, one commit per logical change. There are no feature
+branches or worktrees for repository changes. Each commit is one change that can
+be described in one subject line and reverted alone: it passes the gates below
+by itself and carries the plugins/storytold it regenerates, and anything
+unrelated found along the way gets its own commit.
+
 Run make check, make test, make build, make verify-build, make package and make
 source. Every core test is discovered automatically in an isolated source copy.
 No native app, host install, live model or network call belongs in the core suite.
