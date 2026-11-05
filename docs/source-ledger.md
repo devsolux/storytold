@@ -2194,6 +2194,15 @@ packaging](https://developers.openai.com/plugins/build/plugins); Claude Code its
 does not read `icon`, only Anthropic's directory does. The rendered Codex and directory
 listings were not seen.
 
+## No pin moved for 1.6.0 — 2026-11-05
+
+1.6.0 changes no pin: the thirteen existing rows are those of release 1.5.12
+(pull request #16), and the MaterialCraft and TextureCraft rows are the ones seeded
+in the catalog section above, with no Sigstore bundle yet. The cards were rechecked
+at the November 5 releases, so they describe tags slightly newer than those pins until
+the next release-workflow run. A tag that run pins and these sections did not
+review needs its own recheck.
+
 ## Build infrastructure
 
 The workflow uses reviewed full-commit action references:

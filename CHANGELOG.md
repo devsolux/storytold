@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 1.6.0 — 2026-11-05
+
+MaterialCraft and TextureCraft join the catalog, the probe applies the MCP
+2026-07-28 tool rules, Storytold gets its own icon, and all thirteen existing
+cards are rechecked. No new architecture, and no pin moves in this release.
+
+Neither new app has run anywhere yet, and no Craft binary has been probed under
+the new tool rules. Their six archives have no Sigstore bundle until the next
+release-workflow run, so until then a real `setup --all` on Linux or Windows
+installs the thirteen signed apps and stops at MaterialCraft without
+`--trust-upstream-sums`.
 
 - Plugin icon: an original Storytold mark (an open book with a bookmark) in
   `assets/`, set in the Claude manifest (`icon`) and the Codex extension

@@ -1,4 +1,4 @@
-# Verification status — 1.5.5
+# Verification status — 1.6.0
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. Thirteen of the fifteen
@@ -7,6 +7,22 @@ below; MaterialCraft and TextureCraft have not run yet), on GitHub runners and o
 October 18, 2026). That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## Executed for 1.6.0 — November 5, 2026
+
+macOS (Darwin 27, arm64) with Python **3.11.18**, plus GitHub:
+
+| Gate | Result |
+|---|---|
+| `make release` | `make check` passed, **287 tests** (none new since the entry below), build, verify-build and reproducible 1.6.0 plugin and source ZIPs. |
+| `make test-sdk` | The 8 synthetic-fixture checks passed with `mcp` 2.3.0 from the hash-locked `.venv`. |
+| `make host-validate` (Claude Code 2.1.282) | `claude plugin validate --strict` passed for the 1.6.0 manifests. |
+| CI run 42031487622 on `434a822` | All seven jobs passed: `core` on Linux, macOS and Windows with Python 3.11 and 3.13, and `sdk-contract`. |
+
+**Not run:** the release workflow has not run on these changes. Neither new app has
+executed, no Craft binary has been probed under the new tool rules, and the six new
+archives are unsigned, so a real `setup --all` on Linux or Windows stops at MaterialCraft
+without `--trust-upstream-sums` until that run. The earlier items below still stand.
 
 ## MCP 2026-07-28 tool schema rules — November 5, 2026
 
