@@ -17,7 +17,7 @@ Native source documents distinct read/write roots (since 0.7.0); still test the 
 
 ## Discover before execution
 
-Discover session inspection, audio import, native edit commands, save and bounce; these include inspect_session, open_session (which reports missing media), import_audio, execute, batch, save_session and bounce_mix. batch takes at most 1000 calls and refuses a longer list before any call runs (since 0.10.0; 0.8.0 ran the first 1000 and dropped the rest without a word). Since 0.12.1 mix.send refuses an unknown bus name instead of creating the bus. Since 0.13.1 edit.strip_silence takes mode strip, extract (removes the audio, keeps the silence) or separate (cuts without removing), and edit.strip_silence_preview returns the ranges Strip would keep without changing anything. Interpret samples, seconds and bars/beats using the actual session tempo/rate and tool schema.
+Discover session inspection, audio import, native edit commands, save and bounce; these include inspect_session, open_session (which reports missing media), import_audio, execute, batch, save_session and bounce_mix. batch takes at most 1000 calls and refuses a longer list before any call runs (since 0.10.0; 0.8.0 ran the first 1000 and dropped the rest without a word). Since 0.12.1 mix.send refuses an unknown bus name instead of creating the bus. Since 0.13.1 edit.strip_silence takes mode strip, extract (removes the audio, keeps the silence) or separate (cuts without removing), and edit.strip_silence_preview returns the ranges Strip would keep without changing anything. Interpret samples, seconds and bars/beats using the actual session tempo/rate and tool schema. Since 0.15.0 a MIDI import over 512 tracks or 10000 tempo changes, a .scraft bundle whose files share data, and a score (MusicXML/SVG) export over its size bound are refused as ordinary errors; setup.hardware and setup.playback_engine only store a device and buffer in headless (applied: false).
 
 ## Workflow and risky operations
 
@@ -25,12 +25,12 @@ Headless is an offline mix engine, not a live recording/playback device session.
 
 ## Durable verification
 
-Check missing media before bouncing. Verify actual audio duration, sample rate, channels and expected mix (bounce_mix renders WAV, AIFF or FLAC at the session rate and reports seconds, peak, LUFS and true peak, not rate or channels; since 0.13.1 32-bit float output keeps finite samples above full scale instead of clipping them; unlike session saves and, since 0.13.1, file.export_session_text, which need replace: true, it has no replace guard and overwrites an existing file); listen when the task requires audio-quality judgment. Save the editable session separately. PCM parsing alone is not a mix or loudness approval.
+Check missing media before bouncing. Verify actual audio duration, sample rate, channels and expected mix (bounce_mix renders WAV, AIFF or FLAC at the session rate and reports seconds, peak, LUFS and true peak, not rate or channels; since 0.13.1 32-bit float output keeps finite samples above full scale instead of clipping them; unlike session saves and, since 0.13.1, file.export_session_text, which need replace: true, it has no replace guard and overwrites an existing file); listen when the task requires audio-quality judgment. Save the editable session separately. Since 0.15.0 a WAV bounce carries a Broadcast Wave start time from the session's timecode start. PCM parsing alone is not a mix or loudness approval.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-29 against the upstream
+Reference, app-specific section, rechecked on 2026-11-05 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/soundcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current

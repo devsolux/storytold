@@ -8,6 +8,19 @@ October 18, 2026). That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Card recheck at the November 5 releases — November 5, 2026
+
+| Gate | Result |
+|---|---|
+| Card recheck at the thirteen latest tags | Source review of blob-less clones from each app's last rechecked tag, covering pull requests #13 to #16 and the November 5 releases (see the [source ledger](source-ledger.md)): every catalog launch accepted unchanged, every smoke tool present without a required parameter, no tool removed or renamed, no root flag for CADCraft, FilmCraft, GridCraft or LightCraft. |
+| Offline gates | Locally on Python 3.11.18: `make check` (76 entries), **284 tests**, build and verify-build passed on the updated cards, ledger and changelog. |
+
+**Not run:** the pins of these tags land through the release workflow, the only
+identity that can sign them, so until its next run the cards describe releases
+slightly newer than `config/releases.json`. None of the new binaries has run on a
+developer machine, and an upstream release published before that run needs its own
+recheck.
+
 ## MaterialCraft and TextureCraft in the catalog — November 5, 2026
 
 | Gate | Result |

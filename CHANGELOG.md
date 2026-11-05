@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Cards: all thirteen rechecked at their November 5 releases, covering the moves
+  of pull requests #13 to #16 as well, with the findings in the source ledger.
+  No launch or smoke tool changed. FigCraft gained `wait_for_changes` and PdfCraft
+  ten tools; EffectCraft confines footage more strictly, GridCraft stores macros
+  behind an approval, WordCraft adds language packs; PhotoCraft and DesignCraft
+  bundle their CLI in the macOS app.
 - Catalog: MaterialCraft 0.1.2 and TextureCraft 0.3.2 join as the fourteenth and
   fifteenth native apps, both launched with read/write roots, with app cards,
   acceptance scenarios and a material-to-texture handoff guide. Their manifest

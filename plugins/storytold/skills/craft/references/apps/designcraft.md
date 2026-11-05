@@ -7,9 +7,9 @@ host-specific namespacing may change the callable tool prefix; discover it.
 
 ## Launch and scope
 
-Native executable: `designcraft-cli` (`.exe` on native Windows). On macOS the `.app` (from
-the `.dmg` or the ArtCraft Launcher) holds only the desktop app: install the separate
-`designcraft-cli-<version>-macos-universal.zip` release asset. Windows MSI/portable ZIP and
+Native executable: `designcraft-cli` (`.exe` on native Windows). On macOS the `.dmg` app bundles the CLI
+since 0.17.1 (`DesignCraft.app/Contents/MacOS/designcraft-cli`, not on `PATH`); the separate
+`designcraft-cli-<version>-macos-universal.zip` asset is still published. Windows MSI/portable ZIP and
 Linux `.deb`/`.rpm` packages install the CLI next to the app (Linux: `/usr/bin/designcraft-cli`).
 The source-derived launch arguments live in the single reviewed
 [app catalog](../../../../config/apps.json), not in a copied engine registry.
@@ -17,7 +17,7 @@ Native source documents distinct read/write roots (since 0.9.0); still test the 
 
 ## Discover before execution
 
-Discover document structure, story reading/editing, image placement, page rendering, save and export. Tools include inspect_document, get_story, set_story_text, place_image, render_page, save_document and export_png; PDF, IDML, EPUB and PowerPoint (file.exportPptx, since 0.9.0) export run through execute (for example file.exportPdf; standard x1a, PDF/X-1a:2003, since 0.14.0). Inspect the running schema. A tool argument or an execute/batch params key the command does not take is refused (JSON-RPC -32602), and batch checks every step before the first runs.
+Discover document structure, story reading/editing, image placement, page rendering, save and export. Tools include inspect_document, get_story, set_story_text, place_image, render_page, save_document and export_png; PDF, IDML, EPUB and PowerPoint (file.exportPptx, since 0.9.0) export run through execute (for example file.exportPdf; standard x1a, PDF/X-1a:2003, since 0.14.0). Inspect the running schema. A tool argument or an execute/batch params key the command does not take is refused (JSON-RPC -32602), and batch checks every step before the first runs; since 0.17.1 the input schemas are closed and keys are checked at every listed level (a batch step, a pointer event), the error naming the path (`commands[0].parms`), and all four MCP hints are set (read-only: list_commands, inspect_document, get_story, menu_list, ui_inspect). A panic outside a command is a tool error and the server keeps running. render_page and export_png page 0 is the first page, position 1 in file.exportPdf's pages.
 
 ## Workflow and risky operations
 
@@ -25,12 +25,12 @@ Text positions are UTF-8 byte offsets, not character counts or JavaScript string
 
 ## Durable verification
 
-Inspect overset text, fonts, linked images, pages and exported layout. Since 0.9.0 a path stored in a document (links, data sources, book chapters, IDML package links) resolves beside it and is followed only on this computer or the document's own share; any other reads as missing, with the reason in links.list and Preflight. Since 0.10.0 file.package writes the packaged document's and IDML's links relative to the package (Links/<name>), which resolve beside the document when it is reopened; links.copyTo still relinks the open document by full path. Since 0.13.0 file.exportPdf keeps a placed PDF's Object Layer Options choice as vector optional content and fails, naming the placed file, when that choice cannot be preserved safely or names a layer the file no longer has (recoverable layer problems become warnings); file.exportIdml with embedImages false refuses a document holding such a choice. Only standard a2b still rasterizes those PDFs, failing since 0.11.0 with the placed file and the reason (a missing page, layers that could not be hidden, an undecodable image, an unsupported font, truncated content) and otherwise warning "N placed PDF(s) with hidden layers exported as images". Since 0.14.0 file.print spools exactly the PDF file.exportPdf writes with the same settings and returns its warnings, and ink.separations (a query) separates a page's spread as that PDF prints, with each ink's coverage, the maximum total ink and areas over inkLimit. Validate the actual saved/exported file and render relevant pages. CLI export options may apply only to following exports; do not use shell fallback without an explicit unique need.
+Inspect overset text, fonts, linked images, pages and exported layout. Since 0.9.0 a path stored in a document (links, data sources, book chapters, IDML package links) resolves beside it and is followed only on this computer or the document's own share; any other reads as missing, with the reason in links.list and Preflight. Since 0.10.0 file.package writes the packaged document's and IDML's links relative to the package (Links/<name>), which resolve beside the document when it is reopened; links.copyTo still relinks the open document by full path. Since 0.13.0 file.exportPdf keeps a placed PDF's Object Layer Options choice as vector optional content and fails, naming the placed file, when that choice cannot be preserved safely or names a layer the file no longer has (recoverable layer problems become warnings); file.exportIdml with embedImages false refuses a document holding such a choice. Only standard a2b still rasterizes those PDFs, failing since 0.11.0 with the placed file and the reason (a missing page, layers that could not be hidden, an undecodable image, an unsupported font, truncated content) and otherwise warning "N placed PDF(s) with hidden layers exported as images". Since 0.17.1 `script --export` on the CLI prints the export's warnings to stderr as `run` does, and an option missing its value is refused when the next token is another option. Since 0.14.0 file.print spools exactly the PDF file.exportPdf writes with the same settings and returns its warnings, and ink.separations (a query) separates a page's spread as that PDF prints, with each ink's coverage, the maximum total ink and areas over inkLimit. Validate the actual saved/exported file and render relevant pages. CLI export options may apply only to following exports; do not use shell fallback without an explicit unique need.
 
 ## Evidence and maintenance
 
 Basis: supplied Native MCP Project Plan, section 4, and CLI/MCP Integration
-Reference, app-specific section, rechecked on 2026-10-29 against the upstream
+Reference, app-specific section, rechecked on 2026-11-05 against the upstream
 source (CLI parser, MCP docs, packaging). This card is source-grounded guidance,
 not a runtime-tested capability contract. Upstream: [MCP documentation](https://github.com/storytold/designcraft/blob/main/docs/mcp.md).
 Pin the source revision and executable hash, verify help/flags and current
