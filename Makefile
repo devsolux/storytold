@@ -208,7 +208,7 @@ github-verify: ## Show git remotes and branches
 # - Diverged history or a dirty worktree during an update: stop without changing files.
 # The daily release workflow merges into main on its own, so local and remote
 # main diverge routinely; the fix is always a rebase of the local commits.
-REBASE_HELP := "error: rebase stopped on a conflict. If it is plugins/storytold/.storytold-build.json: run make build, git add plugins/storytold, git rebase --continue; otherwise resolve, git add, git rebase --continue. Then rerun this target. To abandon: git rebase --abort"
+REBASE_HELP := "error: rebase stopped on a conflict. Resolve and git add any source files; for plugins/storytold run git checkout HEAD -- plugins/storytold, make build, git add plugins/storytold; then git rebase --continue. Then rerun this target. To abandon: git rebase --abort"
 
 github-pull: git-check ## Bring main up to date with origin/main (fast-forward, or rebase local commits onto it)
 	@git rev-parse --git-dir >/dev/null 2>&1 || { echo "error: not a git repository"; exit 1; }

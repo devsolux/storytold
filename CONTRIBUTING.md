@@ -42,6 +42,8 @@ make github-* targets (make help lists them) commit and push only when invoked
 by name, after make publish-check confirms the committed plugin matches source.
 make github-push also pulls with rebase first, because the daily release
 workflow merges into main on its own; if that rebase stops on
-plugins/storytold/.storytold-build.json, run make build, stage it and continue.
+plugins/storytold/.storytold-build.json, make build alone refuses the conflicted
+file, so run git checkout HEAD -- plugins/storytold first, then make build, stage
+plugins/storytold and continue.
 Public installs read plugins/storytold from the default branch, so push the
 regenerated plugin together with the source change that produced it.
