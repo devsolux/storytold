@@ -1,6 +1,6 @@
 {
   "files": {
-    ".claude-plugin/plugin.json": "e4ff685b4f09f33405970bbacebd4ad820315319eb91813cf3926080ea1498d0",
+    ".claude-plugin/plugin.json": "8e404cd89d451f51794f33454fcfbc69ca542643d061c564011d6f1b9aaff3de",
     "LICENSE": "1b27293f1fa43edad3840ee0ac38ea8de030f04ac58760002efa8f8475d4ac15",
     "LICENSE-NOTICE.md": "ee5a41813106cbf8206d88cd2b32f23914ecf1a0afb5328d995db4af5d40aa18",
     "README.md": "30f761dfe35702004f7545317e2cf6554d27a95ac6455b62b11b633cac7891ec",
@@ -12,8 +12,8 @@
     "config/env.example": "0dffc0cbd4428ce0098cc5a4e6351dc5ed18ce7710a9a422460544d6707f4d8b",
     "config/installations.lock.example.json": "eea5416e299ca2c36cd654909cbb1aa4c3e35489468722033d9c315b986de227",
     "config/portable.mcp.example.json": "06b7a8d934d87a1663241b8f69a09228db0b3aa7a90fbb40b26adbd8eecc76c2",
-    "config/releases.json": "438c794cf0b3ba5fe3b60b0e7b36868fa5dff0388e72d2c51c69d5a988028152",
-    "config/signatures.json": "dc557b87ff70d9e920dc64715490e3331230e1745e28bcf5903da8ac171ae712",
+    "config/releases.json": "f0d88a1614abd9171ad404eb207da47c90e0e695386b31e6fcc7f338f65ba406",
+    "config/signatures.json": "c3d6e05fc417cece9a95ee1708191e1c0557df4c1e44010797f6c0ffa7ff44d3",
     "docs/acceptance.md": "f8e4288277ec3c1c0d5e5ab8e3a426c191464b4c87694b8dc4124f126282525e",
     "docs/architecture.md": "6d815b41c10885e68cefbc16e9ca7c518a13722f0b7b2f52b50a49f0f2c78664",
     "docs/operations.md": "1f58bf39ec026df0fce5cf918bcbfd555108ca253b056ebd1075261f508444a1",
@@ -22,7 +22,7 @@
     "docs/sources/Crafting_Apps_CLI_MCP_Integration_Reference.md": "3f0ec5724b801db503d10947c2e06c5a0c79e68f0996cb7684f10a77ef92f45c",
     "docs/sources/README.md": "b7bf7f4350bdb122dc05ec667293dc59618fdd063d59aa2ecb4a0b0d7fd843ce",
     "docs/verification.md": "3466b147ccb2232b8cf206c1ef8054a36b279d110458533f72af3c74da9981f5",
-    "plugin.json": "cea803bae2f13fe67091b0e8cdb2bae944c81ab904c2fb1814fd5bdd900a0dd4",
+    "plugin.json": "3085275047872c5473befd214401e318cbbd979fb1344816a0031c38b6c4fb7b",
     "requirements-probe.lock": "d6463eecc8150c4dcb9b1e7e98050018812595df7c05eb53b800c370c1d3aee2",
     "requirements-probe.txt": "efa7100ef384c89d26e95f45f02c376dde47dc790523f726e21acbcf37368726",
     "skills/craft/SKILL.md": "28ddabdeb022f338ab31199632daee4e60fb36f44943911778bfde7e589f9c48",
@@ -58,5 +58,5 @@
   },
   "generator": "storytold_tools.build",
   "schema_version": 1,
-  "version": "1.6.0"
+  "version": "1.6.1"
 }
