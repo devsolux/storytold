@@ -65,11 +65,13 @@ def render(root: Path=ROOT) -> dict[str,bytes]:
     interface={'displayName':'Storytold','shortDescription':'Local native Craft workflows and integration checks',
                'longDescription':'One craft Skill for fifteen local, headless Craft MCP servers: staged copies, '
                                  'native edits, deliberate exports and verified files. Craft apps are not bundled.',
-               'developerName':'devsolux','category':'Productivity','websiteURL':url}
+               'developerName':'devsolux','category':'Productivity','websiteURL':url,
+               'brandColor':'#12514F','composerIcon':'./assets/icon.png','logo':'./assets/logo.png'}
     # Portable root manifest; Codex reads extensions.com.openai, so no .codex-plugin overlay is emitted.
     result['plugin.json']=encoded({'$schema':'https://agent-plugins.org/schemas/1.0.0/plugin.schema.json',**common,
                                   'extensions':{'com.openai':{'interface':interface}}})
-    result['.claude-plugin/plugin.json']=encoded(common)
+    # Only Claude's manifest takes a top-level icon; the portable schema refuses unknown top-level keys.
+    result['.claude-plugin/plugin.json']=encoded({**common,'icon':'./assets/logo.png'})
     require('.mcp.json' not in result and 'mcp.json' not in result,'unverified native config cannot auto-activate in the distributed plugin')
     result[BUILD_MARKER]=encoded({'schema_version':1,'generator':'storytold_tools.build','version':p['version'],
                                  'files':{name:digest(body) for name,body in sorted(result.items())}})

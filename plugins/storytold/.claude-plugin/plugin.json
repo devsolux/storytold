@@ -4,6 +4,7 @@
   },
   "description": "Local native Craft MCP workflows, safe file staging, and deterministic integration checks.",
   "homepage": "https://github.com/devsolux/storytold",
+  "icon": "./assets/logo.png",
   "keywords": [
     "craft",
     "native-mcp",

@@ -37,6 +37,10 @@ The generated plugin carries two manifests built from `packaging/project.json`:
 whose `extensions.com.openai` object holds the Codex/OpenAI presentation. That
 extension replaces the older `.codex-plugin/plugin.json` overlay, so the overlay
 is not generated. Both marketplaces point at the same `./plugins/storytold`.
+The plugin's icon lives in these manifests: `icon` in the Claude manifest, for
+Anthropic's directory, and `composerIcon`, `logo` and `brandColor` in the extension.
+The root manifest has no top-level icon field, and MCP's own `icons` belong to a
+server's `Implementation`, which this project does not have.
 
 The default distributed plugin deliberately contains no active `.mcp.json` or
 `mcp.json`. Its source-derived examples remain `*.example.json`. Without the real

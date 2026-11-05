@@ -2178,6 +2178,22 @@ Five live `tools/list` schemas from older installed builds agreed: FilmCraft,
 PhotoCraft, DesignCraft, GridCraft and VectorCraft. The first complete proof is the
 next workflow run, whose `verify` jobs probe every tool of every app.
 
+## Plugin icon — 2026-11-05
+
+The ArtCraft Launcher icon (`assets/app-icon/artcraft-launcher-1024.png` in
+`storytold/craft-launcher`) was considered and not used. That repository's
+`assets/app-icon/LICENSE.txt` and `docs/brand/LICENSE-brand.txt` make it an ArtCraft
+trademark outside its MIT and Apache-2.0 licenses: usable only in ArtCraft Launcher,
+never in the logo or icon of anything else without the ArtCraft Team's written
+permission, and never so as to suggest endorsement. Storytold states no affiliation,
+so the operator chose an original mark instead. `assets/icon.svg` is the source;
+`assets/logo.png` (1024 px) and `assets/icon.png` (256 px) are ImageMagick renders of
+it. The icon fields come from the [Claude plugin
+reference](https://code.claude.com/docs/en/plugins-reference) and [OpenAI plugin
+packaging](https://developers.openai.com/plugins/build/plugins); Claude Code itself
+does not read `icon`, only Anthropic's directory does. The rendered Codex and directory
+listings were not seen.
+
 ## Build infrastructure
 
 The workflow uses reviewed full-commit action references:

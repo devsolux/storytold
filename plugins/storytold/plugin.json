@@ -7,9 +7,12 @@
   "extensions": {
     "com.openai": {
       "interface": {
+        "brandColor": "#12514F",
         "category": "Productivity",
+        "composerIcon": "./assets/icon.png",
         "developerName": "devsolux",
         "displayName": "Storytold",
+        "logo": "./assets/logo.png",
         "longDescription": "One craft Skill for fifteen local, headless Craft MCP servers: staged copies, native edits, deliberate exports and verified files. Craft apps are not bundled.",
         "shortDescription": "Local native Craft workflows and integration checks",
         "websiteURL": "https://github.com/devsolux/storytold"

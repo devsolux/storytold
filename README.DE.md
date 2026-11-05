@@ -1,3 +1,5 @@
+<img src="assets/icon.png" alt="Storytold-Symbol: ein aufgeschlagenes Buch mit Lesezeichen" width="96" height="96">
+
 # Storytold
 
 **Lokale Kreativarbeit. Native App-Engines. Verifizierte Dateiübergaben.**

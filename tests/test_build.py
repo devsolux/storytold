@@ -26,6 +26,13 @@ class BuildTests(WorkspaceCase):
         self.assertFalse((target/'.codex-plugin').exists())
         interface=json.loads((target/'plugin.json').read_text())['extensions']['com.openai']['interface']
         self.assertEqual((interface['displayName'],interface['developerName']),('Storytold','devsolux'))
+        self.assertEqual((interface['composerIcon'],interface['logo']),('./assets/icon.png','./assets/logo.png'))
+        self.assertEqual(json.loads((target/'.claude-plugin/plugin.json').read_text())['icon'],'./assets/logo.png')
+        # The portable manifest refuses unknown top-level keys, so the icon stays out of it.
+        self.assertNotIn('icon',json.loads((target/'plugin.json').read_text()))
+        for name in ('assets/icon.png','assets/logo.png'):
+            self.assertTrue((target/name).read_bytes().startswith(b'\x89PNG\r\n\x1a\n'))
+        self.assertFalse((target/'assets/icon.svg').exists())
         self.assertTrue((target/'skills/craft/SKILL.md').exists())
         self.assertFalse((target/'.mcp.json').exists());self.assertFalse((target/'mcp.json').exists())
     def test_generated_drift_is_detected(self):

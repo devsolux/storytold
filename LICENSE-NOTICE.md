@@ -4,6 +4,9 @@ Storytold is released under the [MIT License](LICENSE). It covers this
 repository's code and documentation, including the generated plugin. Both plugin
 manifests declare `"license": "MIT"`.
 
+The Storytold icon in `assets/` is original work under the same license. It contains
+no ArtCraft name or mark.
+
 Native Craft applications, the optional MCP SDK, assets, fonts and other upstream
 projects are not bundled. Their own licenses and distribution terms remain
 separate, and upstream licensing is not inferred from this project. The reference

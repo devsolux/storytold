@@ -1,3 +1,5 @@
+<img src="assets/icon.png" alt="Storytold icon: an open book with a bookmark" width="96" height="96">
+
 # Storytold
 
 **Local creative work. Native app engines. Verified file handoffs.**

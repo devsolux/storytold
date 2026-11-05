@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>Storytold: an open book with a bookmark</title>
+  <rect width="1024" height="1024" rx="224" fill="#12514f"/>
+  <g fill="#f6efe2" stroke="#f6efe2" stroke-width="28" stroke-linejoin="round">
+    <path d="M488 330C424 268 318 246 196 262V690C318 674 424 696 488 758Z"/>
+    <path d="M536 330C600 268 706 246 828 262V690C706 674 600 696 536 758Z"/>
+  </g>
+  <path fill="#f2a33a" d="M464 304H560V846L512 794L464 846Z"/>
+</svg>

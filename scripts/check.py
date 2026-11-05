@@ -198,6 +198,11 @@ def check() -> dict:
                 'manifest identity/version/license drift')
         require('mcpServers' not in value and 'mcp' not in value, 'no active native registration in default manifest')
         checks.append('generated-manifest:' + name)
+    interface = parse_json(generated['plugin.json'])['extensions']['com.openai']['interface']
+    for icon in (parse_json(generated['.claude-plugin/plugin.json'])['icon'], interface['composerIcon'], interface['logo']):
+        require(icon.startswith('./assets/') and generated.get(icon[2:], b'').startswith(b'\x89PNG\r\n\x1a\n'),
+                'manifest icon must be a PNG the plugin ships: ' + icon)
+    checks.append('manifest-icons-shipped')
     # Root plugin.json's com.openai extension replaces the .codex-plugin compatibility overlay.
     require(not any(n.startswith('.codex-plugin/') for n in generated), 'legacy .codex-plugin overlay must not ship')
     interface = parse_json(generated['plugin.json'])['extensions']['com.openai']['interface']

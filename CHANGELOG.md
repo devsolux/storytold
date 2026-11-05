@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Plugin icon: an original Storytold mark (an open book with a bookmark) in
+  `assets/`, set in the Claude manifest (`icon`) and the Codex extension
+  (`composerIcon`, `logo`, `brandColor`), with a check that each path is a PNG the
+  plugin ships.
 - Probe: discovery and stored evidence now apply the MCP 2026-07-28 `Tool` rules
   the SDK leaves to its client: `type: "object"` at the `inputSchema` root, and an
   `outputSchema` that is a JSON Schema object. A source audit found all fifteen

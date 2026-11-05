@@ -1,3 +1,5 @@
+<img src="assets/icon.png" alt="Storytold simgesi: yer imli açık bir kitap" width="96" height="96">
+
 # Storytold
 
 **Yerel yaratıcı çalışma. Yerel uygulama motorları. Doğrulanmış dosya
