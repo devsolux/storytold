@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Probe: discovery and stored evidence now apply the MCP 2026-07-28 `Tool` rules
+  the SDK leaves to its client: `type: "object"` at the `inputSchema` root, and an
+  `outputSchema` that is a JSON Schema object. A source audit found all fifteen
+  apps conform. The synthetic fixture's tools take the full 2026-07-28 shape, and
+  `make test-sdk` proves their metadata survives the SDK.
 - Cards: all thirteen rechecked at their November 5 releases, covering the moves
   of pull requests #13 to #16 as well, with the findings in the source ledger.
   No launch or smoke tool changed. FigCraft gained `wait_for_changes` and PdfCraft

@@ -19,6 +19,7 @@ patterns, not Engineer's domain commands, server code, license or agents.
 
 | Source | Checked topic | Important limit |
 |---|---|---|
+| [MCP schema 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28/schema), [tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools), [changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog) | `Tool`: `type: "object"` required at the `inputSchema` root, `outputSchema` any JSON Schema, optional `title`, `icons` and `annotations`; `ttlMs` and `cacheScope` on `tools/list`; `initialize` replaced by `server/discover`. | The probe stays on the SDK's `legacy` mode because the Craft apps answer `initialize`; 2026-07-28 itself is not negotiated. Storytold ships no server, so no tool of its own exists to define. |
 | [Claude plugin reference](https://code.claude.com/docs/en/plugins-reference), [marketplaces](https://code.claude.com/docs/en/plugins/create-marketplace) | Plugin metadata, skill layout, marketplace identity and plugin@marketplace installation. | Claude Code 2.1.282: strict validation, local-marketplace install and `plugin details` executed in an isolated config directory. |
 | [Claude MCP](https://code.claude.com/docs/en/mcp) | Direct stdio, project scope, environment expansion, approval boundaries. | Concrete paths avoid unresolved placeholders. No undocumented Claude `cwd` field is generated; test actual host working directory. |
 | [OpenAI plugin packaging](https://developers.openai.com/plugins/build/plugins) | Portable root `plugin.json` with OpenAI settings under `extensions.com.openai`; repo marketplace at `.agents/plugins/marketplace.json`. The `.codex-plugin/plugin.json` overlay is only a compatibility fallback, replaced by that extension, so it is not shipped. | This package distributes guidance and templates, not a remote MCP app. The ChatGPT desktop app was not tested. |
@@ -2159,6 +2160,23 @@ had installed locally that the catalog lacked; Craft Anything is the third.
 
 Still open: the local `preflight` and `probe` of both pinned binaries that AGENTS.md
 asks of a launch change, and every native acceptance scenario.
+
+## MCP 2026-07-28 tool schema audit — 2026-11-05
+
+The SDK 2.3.0 `Tool` model types `input_schema` as `dict[str, Any]`, so the probe
+accepted any object until `validate_tool` checked the rule itself. A hard check in
+`setup` can stop the release workflow, so all fifteen apps were audited first at
+the tags above, by source and without running anything. Six apps build tools with
+a `tool()` helper, and parsing every call site found only `obj`, `empty` (a closure
+over `obj`) and `with_doc`: DeckCraft 25, DesignCraft 26, FigCraft 19, GridCraft 22,
+VectorCraft 33 and WordCraft 17 tools. EffectCraft's `schema()` and PdfCraft's, with
+its 189 `.with()` calls and two compact helper tools, return `type: "object"`, as do
+CADCraft's, LightCraft's and SoundCraft's literals. FilmCraft, PhotoCraft, MaterialCraft
+and TextureCraft use rmcp, with only struct parameter types and, for tools with no
+parameter, `schema_for_empty_input`, read at rmcp 3.8.0 (PhotoCraft's lock has 3.6.0).
+Five live `tools/list` schemas from older installed builds agreed: FilmCraft,
+PhotoCraft, DesignCraft, GridCraft and VectorCraft. The first complete proof is the
+next workflow run, whose `verify` jobs probe every tool of every app.
 
 ## Build infrastructure
 

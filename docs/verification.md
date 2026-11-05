@@ -8,6 +8,17 @@ October 18, 2026). That is M0-level evidence, not
 acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## MCP 2026-07-28 tool schema rules — November 5, 2026
+
+| Gate | Result |
+|---|---|
+| `make test` | **287 tests** passed, the new ones covering rejected and accepted `inputSchema` roots, `outputSchema` forms and stored evidence. |
+| `make test-sdk` | Official SDK 2.3.0 against the synthetic fixture: 8 checks passed, including the new `tool-schema-2026-07-28-round-trip`. No Craft app ran. |
+| Source audit | All fifteen apps build `type: "object"` input schemas (see the [source ledger](source-ledger.md)). |
+
+**Not run:** no Craft binary was probed under the new rule. The next release-workflow
+run does that, and one nonconforming tool would stop it.
+
 ## Card recheck at the November 5 releases — November 5, 2026
 
 | Gate | Result |

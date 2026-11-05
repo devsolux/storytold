@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 from storytold_tools.probe import probe
 from storytold_tools.configuration import validate_evidence,generate,write_config
-from storytold_tools.common import encoded,StorytoldError
+from storytold_tools.common import digest,encoded,StorytoldError
 from tests.support import WorkspaceCase,FakeClient,Model,Page,successful_report
 
 class ProbeTests(WorkspaceCase):
@@ -31,21 +31,38 @@ class ProbeTests(WorkspaceCase):
         r,c=self.run_probe(FakeClient(delay=0.2),timeout=0.01)
         self.assertEqual(r['status'],'indeterminate');self.assertEqual(len(c.calls),1);self.assertTrue(c.closed)
     def test_pagination_followed(self):
-        pages=[Page([Model(name='other',inputSchema={})],'page2'),Page([Model(name='inspect_fixture',inputSchema={})])]
+        pages=[Page([Model(name='other',inputSchema={'type':'object'})],'page2'),Page([Model(name='inspect_fixture',inputSchema={'type':'object'})])]
         r,c=self.run_probe(FakeClient(pages=pages));self.assertEqual(c.cursors,[None,'page2'])
         self.assertEqual(len(r['tools']),2)
     def test_pagination_cycle_fails(self):
-        c=FakeClient(pages=[Page([Model(name='other',inputSchema={})],'same'),Page([],'same')])
+        c=FakeClient(pages=[Page([Model(name='other',inputSchema={'type':'object'})],'same'),Page([],'same')])
         r,_=self.run_probe(c,call=False);self.assertEqual(r['status'],'failed')
     def test_duplicate_tools_fail(self):
-        c=FakeClient(pages=[Page([Model(name='same',inputSchema={}),Model(name='same',inputSchema={})])])
+        c=FakeClient(pages=[Page([Model(name='same',inputSchema={'type':'object'}),Model(name='same',inputSchema={'type':'object'})])])
         r,_=self.run_probe(c,call=False);self.assertEqual(r['status'],'failed')
     def test_empty_discovery_fails(self):
         r,_=self.run_probe(FakeClient(pages=[Page([])]),call=False);self.assertEqual(r['status'],'failed')
     def test_missing_tool_schema_fails(self):
         r,_=self.run_probe(FakeClient(pages=[Page([Model(name='a')])]),call=False);self.assertEqual(r['status'],'failed')
+    def test_tool_schema_rules_of_the_2026_07_28_specification(self):
+        for bad in ({},{'type':'array'},{'type':['object','null']},{'properties':{}}):
+            with self.subTest(inputSchema=bad):
+                r,_=self.run_probe(FakeClient(pages=[Page([Model(name='a',inputSchema=bad)])]),call=False)
+                self.assertEqual(r['status'],'failed');self.assertIn('type "object"',r['error']['message'])
+        for good in ({'type':'object','additionalProperties':False},{'$schema':'http://json-schema.org/draft-07/schema#','type':'object'},
+                     {'type':'object','oneOf':[{'required':['a']},{'required':['b']}]}):
+            with self.subTest(inputSchema=good):
+                r,_=self.run_probe(FakeClient(pages=[Page([Model(name='a',inputSchema=good)])]),call=False)
+                self.assertEqual(r['status'],'discovery_passed')
+    def test_output_schema_is_any_json_schema_object(self):
+        tool=lambda output: Page([Model(name='a',inputSchema={'type':'object'},outputSchema=output)])
+        r,_=self.run_probe(FakeClient(pages=[tool({'type':'array','items':{'type':'string'}})]),call=False)
+        self.assertEqual(r['status'],'discovery_passed')
+        for bad in ('object',['object'],{'$schema':7}):
+            with self.subTest(outputSchema=bad):
+                r,_=self.run_probe(FakeClient(pages=[tool(bad)]),call=False);self.assertEqual(r['status'],'failed')
     def test_unknown_tool_not_called(self):
-        c=FakeClient(pages=[Page([Model(name='other',inputSchema={})])])
+        c=FakeClient(pages=[Page([Model(name='other',inputSchema={'type':'object'})])])
         r,_=self.run_probe(c);self.assertEqual(c.calls,[]);self.assertEqual(r['status'],'failed')
     def test_sdk_context_failure_not_success(self):
         r,_=self.run_probe(FakeClient(fail_exit=True));self.assertNotIn(r['status'],['discovery_passed','discovery_and_call_passed'])
@@ -83,6 +100,10 @@ class ConfigurationTests(WorkspaceCase):
         for days in (-31,1):
             r['captured_at']=(datetime.now(timezone.utc)+timedelta(days=days)).isoformat()
             with self.subTest(days=days),self.assertRaises(StorytoldError): validate_evidence(r,x)
+    def test_evidence_with_a_nonconforming_tool_schema_rejected(self):
+        x,r=self.report();r['tools'][0]['inputSchema']={'type':'array'}
+        r['tools_sha256']=digest(encoded(r['tools']))
+        with self.assertRaisesRegex(StorytoldError,'type "object"'): validate_evidence(r,x)
     def test_changed_tools_snapshot_rejected(self):
         x,r=self.report();r['tools'][0]['description']='modified'
         with self.assertRaises(StorytoldError): validate_evidence(r,x)

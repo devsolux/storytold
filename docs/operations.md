@@ -382,7 +382,8 @@ no successful stub result is substituted for it.
 
 This starts the pinned app in the dedicated workspace, negotiates the initialize
 handshake through the official SDK (its `legacy` mode), follows bounded tools/list
-pagination, and closes the SDK context. Review the discovered schemas. Create a
+pagination, refuses a tool whose `inputSchema` root is not `type: "object"` (MCP
+2026-07-28), and closes the SDK context. Review the discovered schemas. Create a
 private JSON file with exactly `name` and `arguments` for a representative
 **read-only, non-sensitive fixture inspection** supported by this actual binary.
 Do not copy invented tool names from an example. Then:

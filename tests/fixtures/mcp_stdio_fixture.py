@@ -7,6 +7,20 @@ from __future__ import annotations
 import json
 import sys
 
+# Tool definitions in the shape of the MCP 2026-07-28 `Tool` type. initialize stays below
+# because the probe drives the SDK's legacy mode: the Craft apps speak that handshake, which
+# 2026-07-28 replaced with server/discover, and 2025-11-25 is its last protocol version.
+NO_ARGUMENTS = {'type': 'object', 'additionalProperties': False}
+READ_ONLY = {'readOnlyHint': True, 'destructiveHint': False, 'idempotentHint': True, 'openWorldHint': False}
+INSPECT_TOOL = {'name': 'inspect_fixture', 'title': 'Inspect fixture', 'description': 'Return synthetic typed values.',
+                'inputSchema': NO_ARGUMENTS,
+                'outputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['count', 'ok', 'missing'],
+                                 'properties': {'count': {'type': 'integer'}, 'ok': {'type': 'boolean'}, 'missing': {'type': 'null'}}},
+                'annotations': READ_ONLY}
+FAIL_TOOL = {'name': 'fail_fixture', 'title': 'Fail fixture', 'description': 'Return a synthetic native tool error.',
+             'inputSchema': NO_ARGUMENTS, 'annotations': READ_ONLY}
+LIST_CACHE = {'ttlMs': 0, 'cacheScope': 'private'}  # CacheableResult, required on tools/list since 2026-07-28
+
 
 def main() -> int:
     if sys.argv[1:] != ['--synthetic-sdk-fixture']:
@@ -27,12 +41,9 @@ def main() -> int:
                                'serverInfo': {'name': 'storytold-synthetic-sdk-fixture', 'version': '0.0.0-test'}}
         elif method == 'tools/list':
             if params.get('cursor') is None:
-                reply['result'] = {'tools': [{'name': 'inspect_fixture', 'description': 'Return synthetic typed values.',
-                                              'inputSchema': {'type': 'object', 'properties': {}, 'additionalProperties': False}}],
-                                   'nextCursor': 'second-page'}
+                reply['result'] = {'tools': [INSPECT_TOOL], 'nextCursor': 'second-page', **LIST_CACHE}
             elif params['cursor'] == 'second-page':
-                reply['result'] = {'tools': [{'name': 'fail_fixture', 'description': 'Return a synthetic native tool error.',
-                                              'inputSchema': {'type': 'object', 'properties': {}, 'additionalProperties': False}}]}
+                reply['result'] = {'tools': [FAIL_TOOL], **LIST_CACHE}
             else:
                 reply['error'] = {'code': -32602, 'message': 'Unknown synthetic cursor'}
         elif method == 'tools/call':

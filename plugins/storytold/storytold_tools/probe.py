@@ -35,6 +35,25 @@ def serialized(value: Any) -> Any:
     require(len(encoded(result))<=MAX_JSON,'native message exceeds snapshot limit')
     return result
 
+def validate_tool(tool: Any) -> str:
+    """The MCP 2026-07-28 Tool rules the SDK leaves to its client; returns the tool's name.
+
+    The SDK types inputSchema and outputSchema as plain dictionaries, so nothing else
+    checks them. Tool arguments are always a JSON object, so type "object" is required at
+    the inputSchema root; an outputSchema may be any JSON Schema, an array root included.
+    The name limits are SHOULD rules in the specification and stay unenforced.
+    """
+    require(isinstance(tool,dict),'native tool is not an object')
+    name=text(tool.get('name'),'native tool name',256)
+    schema=tool.get('inputSchema')
+    require(isinstance(schema,dict),f'native tool {name} has no input schema')
+    require(schema.get('type')=='object',f'native tool {name}: inputSchema must have type "object" at its root')
+    output=tool.get('outputSchema')
+    require(output is None or isinstance(output,dict),f'native tool {name}: outputSchema must be a JSON Schema object')
+    for label,value in (('inputSchema',schema),('outputSchema',output or {})):
+        require(isinstance(value.get('$schema',''),str),f'native tool {name}: {label} $schema must be a string')
+    return name
+
 def validate_call(call: Any) -> dict:
     keys(call,{'name','arguments'},label='approved probe call')
     text(call['name'],'native tool name',256)
@@ -72,10 +91,8 @@ async def probe(launch: dict, *, timeout: float=20, call: dict | None=None,
                     page=await client.list_tools(cursor=cursor)
                     for tool in page.tools:
                         wire=serialized(tool)
-                        require(isinstance(wire,dict),'native tool is not an object')
-                        name=text(wire.get('name'),'native tool name',256)
+                        name=validate_tool(wire)
                         require(name not in names,'duplicate native tool name across pages')
-                        require(isinstance(wire.get('inputSchema'),dict),'native tool has no input schema')
                         names.add(name); result['tools'].append(wire)
                         byte_count+=len(encoded(wire))
                         require(len(names)<=MAX_TOOLS and byte_count<=MAX_JSON//2,'tool discovery limit exceeded')

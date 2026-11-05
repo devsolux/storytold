@@ -9,7 +9,7 @@ import json
 import os
 from pathlib import Path
 from .common import create_new,directory,digest,encoded,keys,load_json,require,text
-from .probe import SDK_VERSION
+from .probe import SDK_VERSION,validate_tool
 
 MAX_EVIDENCE_AGE_DAYS=30
 
@@ -32,9 +32,7 @@ def validate_evidence(report: dict, launch: dict) -> None:
     tools=report.get('tools');require(isinstance(tools,list) and bool(tools),'missing tools snapshot')
     require(digest(encoded(tools))==report.get('tools_sha256'),'modified tools snapshot')
     names=[]
-    for tool in tools:
-        require(isinstance(tool,dict),'invalid tool snapshot');names.append(text(tool.get('name'),'tool name',256))
-        require(isinstance(tool.get('inputSchema'),dict),'missing input schema')
+    for tool in tools: names.append(validate_tool(tool))
     require(len(names)==len(set(names)),'duplicate tool snapshot')
     call=keys(report.get('call'),{'request','result'},label='probe call evidence')
     require(digest(encoded(call))==report.get('call_sha256'),'modified call snapshot')

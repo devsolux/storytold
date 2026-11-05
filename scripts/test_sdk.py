@@ -30,7 +30,11 @@ async def exercise() -> list[str]:
         require(discovery['status'] == 'discovery_passed', 'SDK discovery failed: ' + str(discovery.get('error')))
         require(len(discovery['tools']) == 2, 'SDK pagination contract failed')
         require(discovery['server_info']['name'] == 'storytold-synthetic-sdk-fixture', 'SDK identity alias failed')
-        checks += ['official-sdk-initialize', 'two-page-tools-list', 'server-model-wire-aliases']
+        inspect = discovery['tools'][0]
+        require(inspect['inputSchema'] == {'type': 'object', 'additionalProperties': False}, 'SDK inputSchema changed on the wire')
+        require(inspect['title'] == 'Inspect fixture' and inspect['annotations']['readOnlyHint'] is True, 'SDK dropped Tool metadata')
+        require(inspect['outputSchema']['required'] == ['count', 'ok', 'missing'], 'SDK dropped the outputSchema')
+        checks += ['official-sdk-initialize', 'two-page-tools-list', 'server-model-wire-aliases', 'tool-schema-2026-07-28-round-trip']
         success = await probe(launch, timeout=15, call={'name': 'inspect_fixture', 'arguments': {}})
         success['probe_origin'] = 'synthetic_sdk_fixture'
         require(success['status'] == 'discovery_and_call_passed', 'SDK tool call failed: ' + str(success.get('error')))
