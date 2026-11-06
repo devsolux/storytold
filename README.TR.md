@@ -310,7 +310,7 @@ setup --list` kullanılan yolları yazdırır.
 | Nerede (macOS/Linux) | Windows | Ne | Kim yazar |
 |---|---|---|---|
 | `~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/`, `~/.claude` altında da aynı | `%USERPROFILE%` altında aynı | Eklenti: `craft` Skill'i, belgeler, `storytold.py`, `config/releases.json`, `config/signatures.json`. İkili dosya yok. | `codex plugin add` / `claude plugin install` |
-| `~/.local/opt/craft/bin/` | `%LOCALAPPDATA%\Storytold\craft\bin\` | On beş Craft CLI'si (`photocraft-cli` … `texturecraft-cli`, her biri 16–192 MB). Her iki host da bunları başlatır, örn. `…/cadcraft-cli mcp`. | `setup` |
+| `~/.local/opt/craft/bin/` | `%LOCALAPPDATA%\Storytold\craft\bin\` | On beş Craft CLI'si (`photocraft-cli` … `texturecraft-cli`, uygulamaya ve platforma göre her biri 9–263 MB). Her iki host da bunları başlatır, örn. `…/cadcraft-cli mcp`. | `setup` |
 | `~/.local/state/storytold/` (Linux'ta `$XDG_STATE_HOME/storytold`) | `%LOCALAPPDATA%\Storytold\state\` | Özel durum: `installations.lock.json` (sabitlenmiş özetler), `evidence/` (uygulama başına yoklama makbuzları), `venv/` (yoklama için resmi MCP SDK), `setup.json` (kaydedilen yollar). | `setup` |
 | `~/craft-work-storytold/` | `%USERPROFILE%\craft-work-storytold\` | Çalışma alanı: `inputs/`, `outputs/` (dışa aktarımlar buraya düşer), `receipts/`. | `setup` oluşturur; uygulamalar `outputs/` dizinini doldurur |
 | `~/.codex/config.toml` ve `~/.claude.json` | aynı | Uygulama ve host başına, yukarıdaki mutlak CLI yoluna işaret eden tek bir kullanıcı kapsamlı MCP kaydı. | `codex mcp add`, `claude mcp add --scope user`; `setup` çalıştırır |
@@ -382,10 +382,9 @@ açıklar.
 
 Çevrimdışı çekirdek testleri, resmi MCP SDK sözleşme testi, sıkı Claude
 manifest doğrulaması ve Skill keşfiyle Claude Code ve Codex kurulumu
-çalıştırıldı. `setup`, Craft CLI'lerinden on üçünü macOS, Linux ve Windows
-runner'larında kurdu, yokladı ve Sigstore ile doğruladı; on ikisini ayrıca bir
-geliştirici Mac'inde. MaterialCraft ve TextureCraft, sürüm iş akışının ilk imzalı
-çalıştırmasını bekliyor. Bu, protokol düzeyinde bir kanıttır, yerel kabul değildir:
+çalıştırıldı. `setup`, on beş Craft CLI'sinin tümünü macOS, Linux ve Windows
+runner'larında kurdu, yokladı ve Sigstore ile doğruladı; on üçünü ayrıca bir
+geliştirici Mac'inde. Bu, protokol düzeyinde bir kanıttır, yerel kabul değildir:
 [kabul](docs/acceptance.md) belgesindeki aşamaları çalıştırmak işletmeciye
 kalır. [Doğrulama raporu](docs/verification.md), her sürüm için gerçekten
 çalıştırılanları belgesel kanıttan ayırır.

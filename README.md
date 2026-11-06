@@ -290,7 +290,7 @@ never delete, downgrade or swap a CLI, and one installed copy serves both hosts.
 | Where (macOS/Linux) | Windows | What | Written by |
 |---|---|---|---|
 | `~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/`, same under `~/.claude` | same under `%USERPROFILE%` | The plugin: `craft` Skill, docs, `storytold.py`, `config/releases.json`, `config/signatures.json`. No binaries. | `codex plugin add` / `claude plugin install` |
-| `~/.local/opt/craft/bin/` | `%LOCALAPPDATA%\Storytold\craft\bin\` | The fifteen Craft CLIs (`photocraft-cli` … `texturecraft-cli`, 16–192 MB each). Both hosts launch these, e.g. `…/cadcraft-cli mcp`. | `setup` |
+| `~/.local/opt/craft/bin/` | `%LOCALAPPDATA%\Storytold\craft\bin\` | The fifteen Craft CLIs (`photocraft-cli` … `texturecraft-cli`, 9–263 MB each, depending on the app and platform). Both hosts launch these, e.g. `…/cadcraft-cli mcp`. | `setup` |
 | `~/.local/state/storytold/` (`$XDG_STATE_HOME/storytold` on Linux) | `%LOCALAPPDATA%\Storytold\state\` | Private state: `installations.lock.json` (pinned hashes), `evidence/` (probe receipts per app), `venv/` (official MCP SDK for the probe), `setup.json` (recorded paths). | `setup` |
 | `~/craft-work-storytold/` | `%USERPROFILE%\craft-work-storytold\` | The workspace: `inputs/`, `outputs/` (exports land here), `receipts/`. | `setup` creates it; the apps fill `outputs/` |
 | `~/.codex/config.toml` and `~/.claude.json` | same | One user-scope MCP registration per app and host, pointing at the absolute CLI path above. | `codex mcp add`, `claude mcp add --scope user`, run by `setup` |
@@ -358,9 +358,8 @@ target, and [CONTRIBUTING.md](CONTRIBUTING.md) describes the contribution rules.
 The offline core suite, the official MCP SDK contract test, strict Claude
 manifest validation, and Claude Code and Codex installation with Skill
 discovery have been run. `setup` has installed, probed and Sigstore-verified
-thirteen of the Craft CLIs on macOS, Linux and Windows runners, and twelve of them
-on a developer Mac as well; MaterialCraft and TextureCraft wait for their first
-signed release-workflow run. That is protocol-level evidence, not native acceptance:
+all fifteen Craft CLIs on macOS, Linux and Windows runners, and thirteen of them
+on a developer Mac as well. That is protocol-level evidence, not native acceptance:
 the gates in [acceptance](docs/acceptance.md) remain the operator's to run. The
 [verification report](docs/verification.md) separates what was executed for
 each release from documentary evidence.

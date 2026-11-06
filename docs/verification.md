@@ -1,12 +1,30 @@
-# Verification status — 1.6.0
+# Verification status — 1.6.1
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
-repository neither ships nor executes Craft binaries. Thirteen of the fifteen
-CLIs have passed the native probe through operator- or runner-run `setup` (tables
-below; MaterialCraft and TextureCraft have not run yet), on GitHub runners and on a developer Mac (FigCraft there since
-October 18, 2026). That is M0-level evidence, not
-acceptance. This report separates the checks actually executed for each
+repository neither ships nor executes Craft binaries. All fifteen CLIs have
+passed the native probe through runner-run `setup` on GitHub runners, and thirteen
+of them through operator-run `setup` on a developer Mac (FigCraft there since
+October 18, 2026; tables below). That is M0-level evidence, not acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## First runs of all fifteen apps — November 5 and 6, 2026
+
+Read from the logs of the daily release workflow. Both runs used the strict
+`setup --all --acknowledge-unconfined` of its `verify` jobs on `ubuntu-latest`,
+`windows-latest` and `macos-latest`.
+
+| Gate | Result |
+|---|---|
+| Scheduled run 42034977077 on `3ade728` (release 1.6.1) | All jobs passed. `refresh` moved thirteen pins and signed the six MaterialCraft and TextureCraft archives, so `config/signatures.json` went from 39 to 45 bundles. `verify` ran pull request #17 at `0148f21` and installed fifteen apps on each runner, the first execution of MaterialCraft and TextureCraft. Merged as `de5f89e`, published as v1.6.1. |
+| Scheduled run 42222471577 on `de5f89e` | `refresh` and all three `verify` jobs passed; `publish` and `merge` were skipped because no pin moved. On each runner, fifteen apps were installed with `sigstore` in their label and no checksum-only fallback, and each passed its probe twice, staged and installed. MaterialCraft and TextureCraft answered `session_inspect`. |
+
+CLI sizes in the second run: 21–263 MB on macOS, 9–116 MB on Linux and 10–127 MB
+on Windows.
+
+**Not run:** the runners have no host CLI, so every app ended
+`installed_no_host_cli` and nothing was registered. MaterialCraft and TextureCraft
+have not run on a developer machine, and a probe does not prove output correctness
+or root enforcement (see [acceptance](acceptance.md)).
 
 ## Executed for 1.6.0 — November 5, 2026
 
@@ -468,28 +486,30 @@ Host manifest schemas remain authoritative.
 
 ## Not verified
 
-- **Craft apps.** Twelve CLIs passed discovery and one read-only call on one
+- **Craft apps.** Thirteen CLIs passed discovery and one read-only call on one
   macOS machine; only PhotoCraft has produced a real export. Native edit,
   export, root-denial, isolation and fidelity tests (M1–M3) have not run for the
-  other eleven apps.
-- **FigCraft.** Executed only on the three GitHub runners (run 38583930461:
-  download, provenance, discovery and the `inspect_document` smoke call at
-  v0.6.0); its card and scenario rest on source review. No developer machine
-  has run it, no host has registered it, and every acceptance gate (M1–M3)
-  is still open.
+  other fourteen apps.
+- **MaterialCraft and TextureCraft.** Executed only on the three GitHub runners
+  (runs 42034977077 and 42222471577: download, provenance, discovery and the
+  `session_inspect` smoke call); their cards and scenarios rest on source
+  review. No developer machine has run them, no host has registered them, and
+  every acceptance gate (M1–M3) is still open.
 - **Linux and Windows.** Real runs exist only on GitHub-hosted runners: the
   release workflow's verify matrix (run 38278727530 on 2026-10-12 with twelve
   apps, runs 38583930461 and 38588658915 on 2026-10-14 with all thirteen, the
-  latter with WordCraft's confined launch, and runs 38717981671 on 2026-10-15
-  and 38883983466 on 2026-10-16) installed, probed and
+  latter with WordCraft's confined launch, runs 38717981671 on 2026-10-15
+  and 38883983466 on 2026-10-16, and runs 42034977077 on 2026-11-05 and
+  42222471577 on 2026-11-06 with all fifteen) installed, probed and
   Sigstore-verified every pinned app on `ubuntu-latest`,
   `windows-latest` and `macos-latest`. No host CLI was present there, so
   registration on Linux/Windows is covered by simulated tests only, and no
   Linux or Windows desktop machine has been used.
 - **Sigstore signing.** Keyless signing ran only in that workflow. Its first
   pull request merged on 2026-10-12, #2 and #3 (thirteen apps) on 2026-10-14,
-  #4 on 2026-10-15 and #5 on 2026-10-16, so `config/signatures.json` on `main`
-  holds 39 bundles, and `cosign verify-blob` (cosign v3.1.3 via Homebrew) has
+  #4 on 2026-10-15, #5 on 2026-10-16 and #17, with MaterialCraft and
+  TextureCraft, on 2026-11-05, so `config/signatures.json` on `main` holds 45
+  bundles, and `cosign verify-blob` (cosign v3.1.3 via Homebrew) has
   since verified five of them on this Mac during `setup --upgrade` of
   GridCraft 0.6.1, WordCraft 0.6.1 and 0.7.0, CADCraft 0.6.2 and SoundCraft
   0.7.0 (lock labels

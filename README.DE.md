@@ -308,7 +308,7 @@ und eine installierte Kopie beiden Hosts dient. `python3 storytold.py setup
 | Wo (macOS/Linux) | Windows | Was | Geschrieben von |
 |---|---|---|---|
 | `~/.codex/plugins/cache/devsolux-storytold/storytold/<version>/`, ebenso unter `~/.claude` | ebenso unter `%USERPROFILE%` | Das Plugin: `craft`-Skill, Doku, `storytold.py`, `config/releases.json`, `config/signatures.json`. Keine Binärdateien. | `codex plugin add` / `claude plugin install` |
-| `~/.local/opt/craft/bin/` | `%LOCALAPPDATA%\Storytold\craft\bin\` | Die fünfzehn Craft-CLIs (`photocraft-cli` … `texturecraft-cli`, je 16–192 MB). Beide Hosts starten diese, z. B. `…/cadcraft-cli mcp`. | `setup` |
+| `~/.local/opt/craft/bin/` | `%LOCALAPPDATA%\Storytold\craft\bin\` | Die fünfzehn Craft-CLIs (`photocraft-cli` … `texturecraft-cli`, je 9–263 MB, je nach App und Plattform). Beide Hosts starten diese, z. B. `…/cadcraft-cli mcp`. | `setup` |
 | `~/.local/state/storytold/` (`$XDG_STATE_HOME/storytold` unter Linux) | `%LOCALAPPDATA%\Storytold\state\` | Privater Zustand: `installations.lock.json` (gepinnte Hashes), `evidence/` (Prüfbelege je App), `venv/` (offizielles MCP-SDK für die Prüfung), `setup.json` (gemerkte Pfade). | `setup` |
 | `~/craft-work-storytold/` | `%USERPROFILE%\craft-work-storytold\` | Der Workspace: `inputs/`, `outputs/` (Exporte landen hier), `receipts/`. | `setup` legt ihn an; die Apps füllen `outputs/` |
 | `~/.codex/config.toml` und `~/.claude.json` | ebenso | Eine MCP-Registrierung im Benutzerbereich je App und Host, die auf den absoluten CLI-Pfad oben zeigt. | `codex mcp add`, `claude mcp add --scope user`, ausgeführt von `setup` |
@@ -382,10 +382,9 @@ Beitragsregeln.
 
 Die Offline-Kerntests, der Vertragstest mit dem offiziellen MCP-SDK, die
 strikte Validierung der Claude-Manifeste und die Installation in Claude Code und
-Codex mit Skill-Erkennung wurden ausgeführt. `setup` hat dreizehn der
+Codex mit Skill-Erkennung wurden ausgeführt. `setup` hat alle fünfzehn
 Craft-CLIs auf macOS-, Linux- und Windows-Runnern installiert, geprüft und per
-Sigstore verifiziert, zwölf davon auch auf einem Entwickler-Mac; MaterialCraft
-und TextureCraft warten auf ihren ersten signierten Lauf des Release-Workflows. Das ist ein
+Sigstore verifiziert, dreizehn davon auch auf einem Entwickler-Mac. Das ist ein
 Nachweis auf Protokollebene, keine native Abnahme: Die Stufen in
 [Abnahme](docs/acceptance.md) führt der Betreiber selbst aus. Der
 [Verifikationsbericht](docs/verification.md) trennt, was für jedes Release
