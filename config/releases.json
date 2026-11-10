@@ -72,25 +72,25 @@
     "effectcraft": {
       "assets": {
         "linux-x86_64": {
-          "bytes": 81121009,
-          "name": "effectcraft-0.23.0-linux-x86_64.tar.gz",
-          "sha256": "13d9ab23b75be7b8a71775cc9402e0f832280b166147467282557e9c6a21d3d2"
+          "bytes": 81374963,
+          "name": "effectcraft-0.23.1-linux-x86_64.tar.gz",
+          "sha256": "a330d1406fde71d07ac55ad37fe81f5de37ec7ea7ca7c3b9fa02aacd04502db1"
         },
         "macos": {
-          "bytes": 76592615,
-          "name": "effectcraft-cli-0.23.0-macos-universal.zip",
-          "sha256": "b0629bcf5cad8292af5c7358462991d9e97f38bf8cc2990c803243bfad4e7de2"
+          "bytes": 76858216,
+          "name": "effectcraft-cli-0.23.1-macos-universal.zip",
+          "sha256": "405ea3a2ead24ae4dabfda3bf383fc61baa6c2ad4414666eb419d9594df94721"
         },
         "windows-x64": {
-          "bytes": 84366292,
-          "name": "effectcraft-0.23.0-windows-x64-portable.zip",
-          "sha256": "421d0c1975488054de29f776bef1eb458a3359023f96f48110862833d6d05c3b"
+          "bytes": 84658279,
+          "name": "effectcraft-0.23.1-windows-x64-portable.zip",
+          "sha256": "9697f99ba8b8c2c36d791a19367ec39ffa0a6f71e849f716e07d1fc69b531310"
         }
       },
-      "commit": "921bc496cc839447f899a83652a38975007afc55",
+      "commit": "f5e5c8a4d8e0d5aa7e5493b527c0773969a4364a",
       "smoke_tool": "doc_inspect",
-      "tag": "v0.23.0",
-      "version": "0.23.0"
+      "tag": "v0.23.1",
+      "version": "0.23.1"
     },
     "figcraft": {
       "assets": {
@@ -347,7 +347,7 @@
     }
   },
   "basis": "Latest GitHub releases of storytold/<app> on the review date; archive hashes copied from each release's SHA256SUMS.txt; smoke tools verified in the tag's MCP source. Reviewed pins, not binary execution evidence. Sigstore bundles for the extracted CLIs live in config/signatures.json.",
-  "reviewed": "2026-11-09",
+  "reviewed": "2026-11-10",
   "schema_version": 2,
   "signers": {
     "apple_team_id": "DJ6XS33FX8",

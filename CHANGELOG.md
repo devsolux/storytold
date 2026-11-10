@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.4 — 2026-11-10
+
+Automated release by the daily Craft release refresh (run 42826322216): 1 pin
+moved on 2026-11-10. Each moved app needs its card and smoke tool rechecked at
+the new tag.
+
+- Pins moved: EffectCraft 0.23.0 → 0.23.1.
+
 ## 1.6.3 — 2026-11-09
 
 Automated release by the daily Craft release refresh (run 42631347896): 15
