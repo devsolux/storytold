@@ -57,6 +57,19 @@
   - **Card notes:** it also says that a save replaces an existing file without
     asking, and that `setup`'s shared folder puts `materialcraft-cli` beside
     TextureCraft.
+- Acceptance: PhotoCraft's app scenario ran against the pinned 0.23.1 on a
+  developer Mac:
+  - **Edit and round trip:** an invert and a new layer; a `.pcraft` that
+    reopens to the same layers with a byte-identical preview; a PNG export
+    whose decoded pixels are exactly inverted.
+  - **Boundaries:** root denial for absolute, traversal and symlink paths and
+    for ambient-path commands; the refusal to replace a non-image file.
+  - **Launch checks:** the exit-2 refusals the card describes
+    (`PHOTOCRAFT_GPU`, `PHOTOCRAFT_CONTROL_PORT`, a repeated write root, an
+    empty root).
+  - **Card notes:** marked as observed are the 0.23 save rule (no save path
+    after opening from the read root), absolute paths accepted only inside a
+    root, and an existing image replaced without asking.
 
 ## 1.6.5 — 2026-11-12
 

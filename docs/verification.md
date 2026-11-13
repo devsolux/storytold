@@ -5,9 +5,38 @@ repository neither ships nor executes Craft binaries. All fifteen CLIs have
 passed the native probe through runner-run `setup` on GitHub runners, and all fifteen
 through operator-run `setup` on a developer Mac (FigCraft there since October 18,
 MaterialCraft and TextureCraft since November 13, 2026; tables below). That is M0-level evidence, not acceptance.
-PdfCraft's, MaterialCraft's and TextureCraft's app scenarios are the acceptance runs so far
-(November 13, 2026, below); they do not make any M gate pass. This report separates the checks actually executed for each
+PdfCraft's, MaterialCraft's, TextureCraft's and PhotoCraft's app scenarios are the acceptance
+runs so far (November 13, 2026, below); they do not make any M gate pass. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## PhotoCraft acceptance scenario on the developer Mac — November 13, 2026
+
+Operator-run on macOS (Darwin 27, arm64) with Python **3.11.18** and the official
+MCP SDK **2.3.0**: the pinned `photocraft-cli` 0.23.1 launched directly with its
+registered arguments (`mcp --automation-read-root {work} --automation-write-root
+{outputs}`, working directory `{work}`, from `preflight`). The fixture was a
+generated 64×48 RGB PNG with three known colours, staged with `stage`. Logs,
+previews, launch checks and the summary are kept privately outside the
+workspace; nothing from them is committed.
+
+| Required evidence (`tests/native/acceptance.json`) | Result |
+|---|---|
+| immutable_revision, binary_sha256 | `45066c4` = manifest commit (`--version` 0.23.1); binary SHA-256 = installation lock = the Sigstore-signed CLI hash; `preflight` ready. |
+| help_and_flags | `mcp` takes `--bridge`, `--gpu`/`--no-gpu`, the control-token flags (bridge only), a repeatable ordered `--automation-read-root` and a single `--automation-write-root`. |
+| initialize_and_tools_list, read_only_fixture_call | photocraft 0.23.1, protocol 2025-11-25, 26 tools; doc_inspect of the staged fixture (64×48, RGB, 8-bit, one layer). |
+| headless_no_gui | No socket held at start or end of any session, no PhotoCraft entry in `lsappinfo list`. |
+| native_save_export_reopen | `image.adjustments.invert` and `layer.new.layer`, doc_save `.pcraft`, doc_export PNG (warning: layers flattened). The reopened `.pcraft` has the same two layers, size, mode and depth, and a byte-identical preview; the reopened PNG has one layer. A stdlib decode of the PNG shows exact inversion (red→cyan, green→magenta, blue→yellow). The `.pcraft` is an intact ZIP. `verify-artifact --format png` passed. |
+| original_hashes_unchanged | `verify-inputs`: all staged inputs unchanged; outside files unchanged. |
+| warnings_reviewed | Open: none. PNG export: the flattening warning. A truncated PNG was a typed codec error. |
+| failure_and_boundary_test | Refused with a clear error: absolute paths outside the roots (inside a root they are accepted), `../`, a symlink in inputs pointing outside, doc_place from outside, `file.open` and `style.presets.importAsl` ("uses ambient filesystem paths"), doc_save to /tmp and `../`, a save over a non-image file in outputs, and a path-less doc_save after doc_open from the read root ("document has no path; pass `path`"). Typed errors for a missing file, an unknown command and a wrong parameter type; the server answered afterwards. Launch checks with no client: `PHOTOCRAFT_GPU=bogus`, `PHOTOCRAFT_CONTROL_PORT` with roots, a repeated write root, an empty read root and an unknown flag each exit 2 before starting; the registered launch, `PHOTOCRAFT_GPU=1` or empty, `--gpu` and two read roots start. |
+
+Observed beyond the checklist, now in the PhotoCraft card: doc_save and doc_export
+over an existing image in outputs replaced it without asking, and over a
+hard-linked name the save wrote a new file and left the other link unchanged.
+Documents opened from the read root report `path: null`.
+
+**Not run:** the host-level M1 test, OS isolation, GPU rendering output, PSD and
+other interchange formats, colour profiles, large documents and bridge mode.
 
 ## TextureCraft acceptance scenario on the developer Mac — November 13, 2026
 
@@ -673,11 +702,11 @@ Host manifest schemas remain authoritative.
 ## Not verified
 
 - **Craft apps.** All fifteen CLIs passed discovery and one read-only call on one
-  macOS machine; PhotoCraft, PdfCraft, MaterialCraft and TextureCraft have
-  produced real exports, and the last three have run their acceptance scenarios
-  (edit, save, reopen and root denial, November 13, 2026). Native edit, export,
-  root-denial, isolation and fidelity tests (M1–M3) have not run for the other
-  twelve apps, and the host-level M1 test has not run for any.
+  macOS machine; PhotoCraft, PdfCraft, MaterialCraft and TextureCraft have run
+  their acceptance scenarios (edit, save, export, reopen and root denial,
+  November 13, 2026). Native edit, export, root-denial, isolation and fidelity
+  tests (M1–M3) have not run for the other eleven apps, and the host-level M1
+  test has not run for any.
 - **MaterialCraft and TextureCraft.** Executed on the three GitHub runners
   (runs 42034977077 and 42222471577: download, provenance, discovery and the
   `session_inspect` smoke call) and, since November 13, 2026, through
