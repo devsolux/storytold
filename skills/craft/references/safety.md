@@ -10,7 +10,10 @@ PhotoCraft, VectorCraft, EffectCraft, WordCraft, SoundCraft, DeckCraft, DesignCr
 FigCraft, PdfCraft, MaterialCraft and TextureCraft are launched with source-documented
 distinct read/write roots (PdfCraft also keeps its single --root on the workspace; both
 apply). TextureCraft runs materialcraft-cli as an unconfined child process to load a
-`.mcraft` package or re-cook a linked material, so those two steps are outside its roots. FilmCraft,
+`.mcraft` package or re-cook a linked material, so those two steps are outside its roots.
+MaterialCraft's package_open also reads every `.sbs` file a package instances wherever its
+path points, outside the read root, so open only packages whose dependencies you have
+checked. FilmCraft,
 LightCraft, GridCraft and CADCraft are launched without roots and must be treated as
 OS-user-wide unless the pinned binary proves otherwise.
 External OS isolation is required when confidential data or strong confinement

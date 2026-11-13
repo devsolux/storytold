@@ -36,7 +36,8 @@ def load_catalog(root: Path = ROOT) -> dict[str, dict]:
         # Integration flags, not engine commands. Keep the authorized native mode exact.
         expected = ['mcp']
         if app=='vectorcraft': expected += ['--headless']
-        # MaterialCraft has only the short spelling; TextureCraft takes both and uses the suite's.
+        # MaterialCraft keeps the short spelling it was reviewed with (the --automation-* aliases exist since 0.2.0);
+        # TextureCraft takes both and uses the suite's. Switching spelling is a reviewed catalog change.
         if app=='materialcraft': expected += ['--read-root','{work}','--write-root','{outputs}']
         elif app in ROOTED: expected += ['--automation-read-root','{work}','--automation-write-root','{outputs}']
         if app=='pdfcraft': expected += ['--root','{work}','--compact']  # both apply: inside --root and the matching automation root

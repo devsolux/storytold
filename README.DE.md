@@ -144,7 +144,9 @@ Grund auf in Rust geschrieben und jedes eigenständig nutzbar. Die Spalte
   ihnen erlauben, den Workspace zu lesen und nur in dessen Verzeichnis
   `outputs/` zu schreiben. PdfCraft behält zusätzlich seine einzelne
   `--root` auf dem Workspace; beide gelten. Lädt TextureCraft ein
-  `.mcraft`-Paket, startet es `materialcraft-cli` außerhalb dieser Wurzeln.
+  `.mcraft`-Paket, startet es `materialcraft-cli` außerhalb dieser Wurzeln,
+  und öffnet MaterialCraft ein Paket, liest es die `.sbs`-Dateien, die es
+  instanziiert, wo immer sie liegen.
 - **Benutzerweit** (vier Apps): ohne Wurzel-Flags gestartet, daher können
   sie alles lesen und schreiben, was dein OS-Benutzer darf. `setup`
   installiert und registriert sie nur mit `--acknowledge-unconfined`; nutze

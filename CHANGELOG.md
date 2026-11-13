@@ -15,6 +15,16 @@
   identity names the workflow file, not its name, so signing is unchanged;
   `make github-run-workflow` still starts a check at once. The pin releases it
   opens say "Automated release by the Craft release refresh".
+- Cards: all fifteen rechecked at their November 12 releases, covering the pin
+  moves of pull requests #17 to #21, with the findings in the source ledger. No
+  launch or smoke tool changed. WordCraft gained `insert_table` and PdfCraft
+  nineteen tools. PhotoCraft refuses a path-less save of a document opened from
+  the read root; PdfCraft runs a document's own JavaScript on open, save and
+  print by default; VectorCraft no longer installs heavy plug-ins under the root
+  flags; FilmCraft carries voice and Whisper downloads. MaterialCraft reads the
+  `.sbs` packages it instances outside its read root (now in `safety.md` and the
+  README), and TextureCraft cannot load what MaterialCraft 0.4 writes, so the
+  material-to-texture handoff hands over exported maps only.
 
 ## 1.6.5 — 2026-11-12
 

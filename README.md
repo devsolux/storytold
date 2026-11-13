@@ -136,7 +136,9 @@ shows how Storytold launches each app's MCP server.
 - **Read/write roots** (eleven apps): launched with native root flags that let
   them read the workspace and write only its `outputs/` directory. PdfCraft
   also keeps its single `--root` on the workspace; both apply. TextureCraft
-  loading a `.mcraft` package starts `materialcraft-cli` outside those roots.
+  loading a `.mcraft` package starts `materialcraft-cli` outside those roots,
+  and MaterialCraft opening a package reads the `.sbs` files it instances
+  wherever they are.
 - **User-wide** (four apps): launched without file-root flags, so they can
   read and write anything your OS user can. `setup` installs and registers
   them only with `--acknowledge-unconfined`; keep them for non-sensitive work

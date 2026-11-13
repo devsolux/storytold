@@ -2203,6 +2203,755 @@ at the November 5 releases, so they describe tags slightly newer than those pins
 the next release-workflow run. A tag that run pins and these sections did not
 review needs its own recheck.
 
+## Release-tag recheck of all fifteen apps at their November 12 releases — 2026-11-13
+
+Pull requests #17 to #21 (releases 1.6.1 to 1.6.5) moved every pin after the
+November 5 recheck without a card review; the 2026-11-12 releases they pinned are
+still each app's latest on 2026-11-13. Each repository is reviewed here from the
+tag last rechecked (the section above, and the catalog section for MaterialCraft
+and TextureCraft) to that pin, by `git log`, `git diff`, `git show` and `gh release
+view` on blob-less clones; nothing from upstream was built or run and no asset was
+downloaded, so archive layouts rest on the packaging scripts and release asset
+lists. Nine reviewers covered the fifteen apps. PhotoCraft, VectorCraft, PdfCraft,
+LightCraft and FilmCraft rebuilt their release branches, so some old tags are not
+ancestors of the pin; those reviews compare trees, and their commit counts are the
+commits reachable from the pin but not from the old tag. For the thirteen apps
+installed on the developer Mac, the tool lists were also compared with today's
+probe evidence of the pinned binaries (`setup --upgrade`, `tools/list` and the
+smoke call, all `discovery_and_call_passed`).
+
+Every catalog launch is still accepted with unchanged meaning, every smoke tool
+still exists with no required parameter and read-only, and no tool was removed or
+renamed. WordCraft added `insert_table` and PdfCraft nineteen tools (208 in all;
+`object_move` no longer requires `objects`); others gained optional parameters
+only. No root flag appeared for CADCraft, FilmCraft, GridCraft or LightCraft
+(GridCraft's new sandbox confines helper processes, not `mcp`), and no
+`config/apps.json` change is needed. Each release carries its three pinned archives
+and `SHA256SUMS.txt` at the pinned sizes. Findings that change how an agent works:
+
+- PhotoCraft 0.23: a path-less `doc_save` after `doc_open` is refused under the
+  catalog's distinct `{work}` and `{outputs}` roots (it used to write the same
+  relative name below the write root); the read root may repeat.
+- PdfCraft 0.21: `doc_open`, `doc_save` and `doc_print` run the document's own
+  JavaScript (document-level, /OpenAction, Will Save, Will Print) by default;
+  Office inputs start an installed LibreOffice and OCR may start Tesseract, both
+  outside the roots.
+- VectorCraft 0.23: a heavy or permission-listing plug-in no longer installs under
+  the root flags (`allowHeavy` and `grant` need `--allow-plugin-grants`, which the
+  root flags refuse); the card's `allowHeavy` advice was wrong and is replaced.
+- MaterialCraft 0.3: `package_open` reads every `.sbs` package an opened one
+  instances with plain file reads, outside the read root; `safety.md` and the
+  README now say so.
+- MaterialCraft 0.4 writes `.mcmat` version 2 and `package.sbs` `.mcraft`
+  packages, while TextureCraft 0.6.1 reads `.mcmat` version 1 and `.mcraft` by
+  `package.json`: a linked material from MaterialCraft no longer loads, so the
+  cross-app handoff guide now hands over exported maps only.
+- FilmCraft 0.20 and LightCraft carry network download commands (voices and
+  Whisper models; place names, lens database, models) that need approval; both
+  FilmCraft ids are in the pinned macOS binary (string search, not run).
+- DeckCraft 0.18.1 checks `review.addToDictionary` against the write roots, which
+  corrects the card.
+
+Two counts in the November 5 section were wrong: PhotoCraft has 26 tools at
+v0.20.2 (not 25) and DesignCraft 26 (not 22); both are unchanged at the new pins.
+MaterialCraft has taken the `--automation-*` root aliases since 0.2.0, so the
+comments in `storytold_tools/catalog.py` and `tests/test_catalog.py` that said it
+refuses them are corrected; the catalog keeps the reviewed short spelling. Every
+card's recheck date is now 2026-11-13.
+
+- CADCraft v0.20.1 (`7526dc6`; 437 commits over tags
+  v0.17.1..v0.18.0..v0.19.0..v0.20.0..v0.20.1): launch `cadcraft-cli mcp` is
+  accepted with unchanged meaning. `apps/cadcraft-cli/src/args.rs` (`McpArgs`:
+  `--connect`, `--lazy`, `--launch` and the shared `--config-dir`,
+  `--fontalt`, `--fontfallback`), `apps/cadcraft-cli/src/main.rs` and
+  `crates/mcp/src/args.rs` have no diff; plain `mcp` stays headless with no
+  root or confinement flag, and `SECURITY.md` is unchanged (agents reach any
+  path the user can, no workspace roots yet). The only new environment
+  variable is `CADCRAFT_OPTIONS_SHOTS` (desktop Options dialog captures).
+  Several v0.18.0 release-note PRs (#2672, #2673, #2717, raster images, SHX
+  fonts) were already in the v0.17.1 tree, so findings go by tag diffs. Tools:
+  `crates/mcp/src/tools.rs` still defines 15 (12 headless, matching the
+  probe's `tools/list`); none added, removed or renamed, no required parameter
+  changed; `render` gains optional `background` and `plot_style` (#803, PR
+  #2818, v0.18.0; `crates/engine/src/render_look.rs`, the `docs/mcp.md` render
+  row, `docs/control-protocol.md`). Smoke tool `inspect_drawing` exists, has
+  no required parameter (optional `entities`, `limit`) and maps to the
+  read-only `drawing.inspect`; the probe call passed. Packaging: every release
+  lists `SHA256SUMS.txt` (and `.asc`),
+  `cadcraft-cli-0.20.1-macos-universal.zip`,
+  `cadcraft-0.20.1-linux-x86_64.tar.gz` and
+  `cadcraft-0.20.1-windows-x64-portable.zip` at the pinned sizes; v0.19.0
+  drops the Windows x86 builds; `packaging/macos/package.sh` is unchanged (the
+  CLI stays in its own zip) and packaging diffs only add the Flatpak
+  `--talk-name=org.freedesktop.Flatpak` (PRs #3075, #3078) and
+  `packaging/web/README.md`; archive contents were not opened. Behaviour:
+  v0.18.0 opens a drawing on its saved view (`open` reports `saved_view`, PR
+  #1626), PLOT takes PNG/SVG/PDF from the path's extension and refuses a
+  formatless or contradicting path (PR #2585), and properties.set/CHPROP leave
+  objects on locked layers out with a `locked` count (PR #2612); v0.19.0 keeps
+  ALIASEDIT aliases in the desktop profile only, the headless CLI none (PR
+  #1908); v0.20.0 reads RECOVER, INSERT, IMPORT, COMPARE, NEW templates,
+  DATALINK (8 MiB) and STYLESMANAGER (4 MiB) through the capped reader (PR
+  #2687), charges more LISP work to one budget (PR #2741), and the `--connect`
+  client sends its token only to 127.0.0.1:PORT and reads it only from an
+  owner-only file (PR #2718). No new network use in the CLI or MCP crates.
+  Card: render background/plot_style, saved view, plot format and locked-layer
+  notes, the v0.20.0 capped reads, the parser line and the date.
+
+- DeckCraft v0.18.1 (`7cc73ab`; 232 commits over tags
+  v0.15.1..v0.16.0..v0.17.0..v0.18.0..v0.18.1): launch unchanged.
+  `apps/deckcraft-cli` (`main.rs`, `automation_args.rs`) is identical to
+  v0.15.1, so `mcp --automation-read-root {work} --automation-write-root
+  {outputs}` keeps its meaning (repeatable roots, `--connect` conflict, a
+  missing root stops the server); no new flag or environment variable.
+  `docs/mcp.md` unchanged; the repository has no SECURITY.md. Tools
+  (`crates/mcp/src/tools.rs`): definitions unchanged and the probe lists the
+  same 25 tools, none added, removed or renamed, no required parameter
+  changed. PR #1759 (v0.18.1) bounds the `batch` tool at 1000 commands and
+  64 MiB of gathered results (failures and the escaped reply counted) and a
+  JSON-RPC batch at 1000 messages and 64 MiB of replies
+  (`crates/mcp/src/server.rs`, `crates/mcp/tests/it/batch_budget.rs`). Smoke
+  tool `list_commands` exists, only optional `filter`, readOnlyHint true; the
+  probe call succeeded. Packaging: release v0.18.1 lists `SHA256SUMS.txt`,
+  `deckcraft-cli-0.18.1-macos-universal.zip`,
+  `deckcraft-0.18.1-linux-x86_64.tar.gz` and
+  `deckcraft-0.18.1-windows-x64-portable.zip` (sizes and digests match
+  config/releases.json); packaging diffs only add a nightly dry run and a
+  credits job to `release.yml`, the Flatpak updater permission (#2045) and web
+  notes; the archives were not opened. Confinement
+  (`crates/engine/src/file_access.rs`, `spell.rs`): PR #1754 (v0.18.1) checks
+  the user-dictionary append of `review.addToDictionary` against the write
+  roots (refused outside them; reading the dictionary stays unchecked), and
+  root checks now take non-UTF-8 paths as opened. Commands that now refuse bad
+  input instead of guessing: table `cells` lists (#1875) and SmartArt flip
+  (#1881) in v0.16.0, `format.paragraph` align (#1950) and `shape.adjust` /
+  `shape.quickStyle` index (#1934) in v0.17.0, re-editing a photo album past
+  its limits (#1755). Several v0.16.0 release-note PRs (#1680, #1686, #1792)
+  were already in the v0.15.1 tree; media demuxers moved to craft-libs
+  (#2047), updater changes are desktop-only, and the engine diff shows no new
+  network use or script execution in the MCP path. Card: user-dictionary note
+  corrected, batch limits, the new refusals, date.
+
+- DesignCraft v0.20.1 (`33a4678`; 120 commits over tags
+  v0.17.2..v0.18.0..v0.19.0..v0.20.0..v0.20.1): launch accepted unchanged.
+  `apps/designcraft-cli/src` (`main.rs`, `automation_args.rs`) and all of
+  `crates/mcp` have no diff (only an example and a test under
+  apps/designcraft-cli changed), so `mcp --automation-read-root {work}
+  --automation-write-root {outputs}` keeps its parser, repeatable flags and
+  `--connect` conflict; no new flag or launch environment variable.
+  Confinement: `crates/engine/src/file_access.rs` now compares the canonical
+  path with each root component by component exactly instead of lower-casing
+  on Windows (#2205, shipped in v0.20.1 although its release notes list only
+  #2627): a case variant still reaches the same folder on an ordinary Windows
+  volume, a case-distinct sibling in a case-sensitive folder stays outside;
+  docs/mcp.md still says "On Windows case is ignored". The same PR makes
+  recovery read only regular entry files. Whole-file reads in
+  `crates/engine/src/io.rs` refuse devices and pipes, open non-blocking and
+  stop at 4 GiB (#2227); the new `io::create_dir_all` checks the write root
+  (#1342); `file.package` checks Document Fonts against the read roots at
+  package time and copies a font from its loaded bytes (#2208). Tools:
+  `crates/mcp/src/tools.rs` unchanged, 26 tools as at v0.17.2 (the Nov 5
+  bullet's "22" was a miscount), matching the probe; none added, removed or
+  renamed, no required parameter changed. Smoke tool `inspect_document`:
+  `empty()` schema, readOnly hint, `document.inspect`; the probe call passed.
+  Engine: `file.exportBatch`, `file.exportPresets`, `file.saveExportPreset`
+  and `file.deleteExportPreset` (0.18.0, #1342, `cmd/export_batch.rs`) write
+  layouts by versions under `dir` through `io::create_dir_all`/`write_file`
+  (write root), or return base64 up to 512 MiB, at most 5000 files and 24
+  versions; presets live in `Prefs`, which only the desktop app saves to
+  prefs.json. #1342 also adds `layout.parents.duplicate`, `layout.alternate.*`
+  and `file.print` layouts/separateJobs. `layout.pages.delete` and
+  `layout.pages.applyParent` refuse an index past the end or a non-integer
+  entry and return counts (0.19.0, #2460). GREP refuses subroutine calls and
+  bounds empty-match scans (0.20.0, #2179); nested `script.run` is capped at
+  depth 8 and 100,000 steps, interpolated text at 16 MiB (#2233); table
+  commands take a `table` id with nothing selected (#2607, docs/mcp.md "Tables
+  without a selection"). Packaging: release v0.20.1 lists SHA256SUMS.txt,
+  designcraft-cli-0.20.1-macos-universal.zip,
+  designcraft-0.20.1-linux-x86_64.tar.gz and
+  designcraft-0.20.1-windows-x64-portable.zip with the pinned sizes and
+  digests; `packaging/macos/package.sh` and `nfpm.yaml` have no diff (the
+  `.app` still bundles `Contents/MacOS/designcraft-cli`; Linux
+  `/usr/bin/designcraft-cli`); Flatpak gains
+  `--talk-name=org.freedesktop.Flatpak` for the updater (#2626, #2627),
+  release.yml a nightly dry run and a credits job. No new network use, macro
+  or script feature in the MCP/CLI path (the diff's URLs are tests;
+  craft-update links only into the desktop app and ui-egui); SECURITY.md
+  unchanged. Card: file.exportBatch, the GREP and table-id notes, the
+  page-index refusals, the 4 GiB whole-file bound, and the date.
+
+- EffectCraft v0.24.1 (`582344d`; 453 commits over tags
+  v0.21.1..v0.22.0..v0.23.0..v0.23.1..v0.24.0..v0.24.1): launch unchanged. The
+  `mcp` arm of `apps/effectcraft-cli/src/main.rs` and
+  `crates/automation/src/{lib,server,backend,bridge}.rs` are identical to
+  v0.21.1 (repeatable `--automation-read-root` / `--automation-write-root`,
+  `--autosave`, `--bridge PORT`), so the catalog launch keeps its meaning; the
+  CLI only gains `replay SCRIPT.jsonl [--keep-going]` (#1224) and render
+  `--exr-compression` / `--exr-depth` (#2915). New environment variables
+  (`EFFECTCRAFT_GPU_INFLIGHT`, `EFFECTCRAFT_RQ_RENDERER`,
+  `EFFECTCRAFT_HELPER_PATH`; `EFFECTCRAFT_HELPERS` is read by the desktop app
+  only) do not touch the launch. Tools: `crates/automation/src/tools.rs` and
+  `docs/mcp.md` are unchanged and the probe lists the same 27 headless tools
+  (36 defined, nine bridge-only): none added, removed or renamed, no required
+  parameter changed. Smoke tool `doc_inspect` exists, empty closed schema,
+  readOnlyHint true; the probe call succeeded. Packaging: release v0.24.1
+  lists `SHA256SUMS.txt`, `effectcraft-cli-0.24.1-macos-universal.zip`,
+  `effectcraft-0.24.1-linux-x86_64.tar.gz` and
+  `effectcraft-0.24.1-windows-x64-portable.zip` (sizes and digests match
+  config/releases.json); `release.yml` only adds a nightly dry run and a
+  credits job, the Flatpak manifests add `--talk-name=org.freedesktop.Flatpak`
+  for the updater; the archive layout is built in craft-common-actions and the
+  archives were not opened. Confinement (`crates/automation/src/confine.rs`):
+  refused while confined are now `effect.plugins.install` (#2749), external
+  effect helpers `effect.helpers.scan` / `load` (native child processes, #889)
+  and the Plug-in Library `library.*` (downloads code, #2524), all v0.22.0;
+  the headless session (`crates/host/src/lib.rs`) now wires helper hooks and a
+  `Plug-ins` folder, but only the desktop app loads installed plug-ins or
+  starts helpers by itself. `file.exportAep` (#2594), `journal.export` and
+  `help.exportRepro` follow the write roots, the last needs an explicit path
+  (#1224). v0.24.1 (#2930) refuses a confined batch step whose `params` is a
+  `$N` reference and a render whose output folder or existing numbered folders
+  (at most 4096 checked) hold a symlink leading outside the write roots; a
+  refused footage read keeps that render out of the disk cache (#3191). Other:
+  text layer names follow their text (#3248), descriptive effect and renderer
+  labels with ids and old names kept (#3327), sequence gaps hold the previous
+  frame (#3137), `file.import` takes `.aep` (#3392), many parser and effect
+  bounds in v0.24.1; the only new network code (Plug-in Library) is refused
+  while confined, and crash repros need a settings store the headless session
+  lacks. Card: restricted-mode list extended (plug-ins, library, helpers),
+  text-name and label note, v0.24.1 symlink and batch-reference refusals,
+  repro path, `.aep` export and import, sequence gap, date.
+
+- FigCraft v0.18.1 (`4acc293`; 728 commits over tags
+  v0.15.1..v0.16.0..v0.17.0..v0.18.0..v0.18.1): launch unchanged. In
+  `apps/figcraft-cli/` only `src/files.rs` (control characters in `info` and
+  `run` output escaped, PRs 1952/2061) and a doc comment in `src/args.rs`
+  changed, and `main.rs` is untouched; `McpArgs` still takes repeatable
+  `--automation-read-root`/`--automation-write-root`, `--attach` conflicting
+  with them and `--timeout` requiring `--attach`, so the catalog launch is
+  accepted with the same meaning. No new `mcp` flag; the new
+  FIGCRAFT_EMBED_SCRIPTS and FIGCRAFT_WEB_FONTS are web-build inputs of
+  `crates/text/build.rs`. `crates/engine/src/automation/file_access.rs` only
+  adds a check on the opened handle in `read_capped` (a path swapped for a
+  device or a larger file is refused, PR 1930) and a `link_metadata` helper;
+  `network_refused` still guards every live-session start, so the new
+  view-only local share (`collab.share {via: "local", access: "view"}`, PR
+  2052) and `collab.reconnect` are refused under the roots like the other
+  collab commands. Tools: `crates/mcp/src/tools.rs` keeps the same 19 (as
+  today's probe of the pinned binary lists them), none added, removed or
+  renamed, no required parameter changed; `export` gains optional
+  `colorProfile` (sameAsFile, srgb or displayP3 for png/jpg/webp, PR 1759) and
+  `quality` (jpg 1-100, default 90, PR 2006); `server.rs` only rewords the
+  instructions. Smoke tool `inspect_document` exists, requires nothing and is
+  readOnlyHint true; the probe's call returned no error. Assets at v0.18.1:
+  `SHA256SUMS.txt`, `figcraft-cli-0.18.1-macos-universal.zip`,
+  `figcraft-0.18.1-linux-x86_64.tar.gz` and
+  `figcraft-0.18.1-windows-x64-portable.zip` present with the sizes and
+  digests in config/releases.json; packaging diffs only add the Flatpak
+  updater talk-name, a Caddy config for figcraft-server, a web README and a 25
+  MiB wasm gate, and release.yml a nightly dry run and a contributors job, so
+  the CLI archive layout is unchanged (contents not opened;
+  `packaging/linux/AppRun` still runs `cli <args>`). Behaviour: `batch`
+  references may copy at most about 8 MiB of earlier results into one step (PR
+  2257); docs/mcp.md adds paragraph settings in text styles, board mind maps
+  (`board.mindMap`, `board.mindMapAdd`, PR 2228), region fills in vector
+  editing, `proto.settings` refusing an unknown device and answering its
+  settings (PR 2049) and renames Dev Mode to Developer Mode (PR 2135; command
+  ids kept). Plugin hardening (text.preview held to the command's permissions
+  PR 1959, directory installs only with the shown permissions PR 1946, plugins
+  kept out of branches and versions PR 1920, linked files refused on plugin
+  publish PRs 1939/2066) and document URLs with shell syntax refused (PR
+  1936). No SECURITY.md; no network use reachable with roots added. Card:
+  added the export `colorProfile`/`quality` options to the colour-profile note
+  and the batch reference bound; date set to 2026-11-13.
+
+- FilmCraft v0.20.1 (`cedf0c9`; 345 commits over tags
+  v0.17.1..v0.18.0..v0.19.0..v0.20.0..v0.20.1): launch unchanged. Every tag
+  resolves to its pin; v0.17.1 and v0.18.0 are release-branch commits that are
+  not ancestors of v0.20.1, so the 345 are counted from the v0.17.0 merge
+  base, several v0.18.0 notes (#4115, #4018, #4116) were already in the
+  v0.17.1 tree, and the review reads tree diffs.
+  `apps/filmcraft-cli/src/args.rs`, `project_lock.rs` and `cli_mcp` in main.rs
+  have no diff: bare `filmcraft-cli mcp` still takes only --bridge, --project,
+  --demo and --data-dir and refuses any other option (--automation-read-root
+  included); no root or confinement flag, os_only stands. main.rs only adds
+  mp3 to `export` and GPU caps; probe.rs reads regular files only (#4243). The
+  one new variable, FILMCRAFT_GRAPHICS_RELAUNCHED, belongs to the desktop
+  app's graphics start (#4617). Tools: `crates/automation` (server.rs,
+  bridge.rs, long_job.rs), `docs/agents.md` and SECURITY.md have no diff, and
+  today's probe returns the same 17 tools as on Nov 5. Engine registry ids
+  (`crates/engine/src`, 573 to 575): adds lumetri.exportCube (#4309, #4541)
+  and presets.scan (#2719); none removed or renamed (the Color Grading rename
+  #1880 keeps `lumetri` ids, `docs/feature-naming.md`); new optional
+  parameters: file.exportMedia `mp3` (#993) and `h264Profile:
+  high10`/`h264IntraOnly` (#1580), speed `maintainPitch` (#1684), sequence
+  `videoDisplay`, `bin` on file.new* items. Smoke tool doc_inspect unchanged:
+  no parameter, readOnlyHint true, today's probe call passed. Packaging: every
+  release lists SHA256SUMS.txt, `filmcraft-cli-0.20.1-macos-universal.zip`,
+  `filmcraft-0.20.1-linux-x86_64.tar.gz` and
+  `filmcraft-0.20.1-windows-x64-portable.zip`; the Linux, macOS, Windows and
+  FreeBSD package scripts change only the cargo build line, adding `--features
+  filmcraft/neural-voices` (#4632) to the run that also builds filmcraft-cli,
+  which by Cargo feature unification gives the CLI's engine `neural-voices`
+  and `speech-download` (tts.downloadVoices, transcript.downloadModel); a
+  string search of the installed pinned macOS binary (not run) finds both
+  command ids. Flatpak gains `--talk-name=org.freedesktop.Flatpak` for the
+  updater (#4678); release.yml adds a credits job and a nightly dry run; Ogg
+  and audio codecs now come from craft-libs `craft-media` (#4676); archives
+  not opened. Behaviour: narration, voice-over and pasted-image fallbacks use
+  a private 0700 temp folder instead of temp/FilmCraft (#4264); media, engine
+  and export read only regular files (#4243); Project Manager walks no longer
+  follow folder links (#4240); Render Audio previews stream to disk (#4233);
+  file.import loads `.prfpset`/`.json` effect presets (in memory in the CLI,
+  which sets no preset folder). No MCP-side network use besides the two
+  download commands. Card: added mp3/High 10 export, lumetri.exportCube, the
+  narration/voice-over/pasted-image folder and the natural-voice and Whisper
+  download note (confirmed in the binary); date 2026-11-13.
+
+- GridCraft v0.19.1 (`476448d`; 414 commits over tags
+  v0.16.1..v0.17.0..v0.18.0..v0.19.0..v0.19.1): launch unchanged. `mcp` in
+  `apps/gridcraft-cli/src/main.rs` still parses only `--connect`, `--in` and
+  `--sample` with no extra arguments, so `gridcraft-cli mcp` runs headless
+  over a blank workbook and the catalog's `os_only` stands. New in v0.19.0 (PR
+  #3476; `crates/sandbox`, `apps/gridcraft-cli/src/sandbox_check.rs`,
+  `docs/sandbox.md`): a `sandbox-check` subcommand and
+  `gridcraft_sandbox::handle_args`, which runs before the parser but acts only
+  on a first argument `--sandbox-launch`, `--sandbox-confined`,
+  `--sandbox-probe-child` or `--sandbox-report`; it confines helper processes
+  (Landlock and seccomp, `sandbox-exec`), never the MCP server, and only
+  `sandbox-check` starts it yet. No root flag and no new runtime environment
+  variable (`GRIDCRAFT_ADJUST_CORPUS` is a test oracle's). Tools:
+  `crates/mcp/src/tools.rs` and `docs/mcp.md` have no diff and the 22 names
+  match the probe's `tools/list`: none added, removed or renamed, required
+  parameters unchanged. `crates/mcp/src/server.rs` keeps at most 16 MB of one
+  stdio message (#2164, PR #2326, v0.19.0). Smoke tool `inspect_workbook`
+  exists, has no required parameter (optional `window`, `doc`) and maps to the
+  query command `document.inspect` (`readOnlyHint` true); the probe call
+  passed. Packaging: `gh release view` lists `SHA256SUMS.txt`,
+  `gridcraft-cli-0.19.1-macos-universal.zip`,
+  `gridcraft-0.19.1-linux-x86_64.tar.gz` and
+  `gridcraft-0.19.1-windows-x64-portable.zip` at the pinned sizes; v0.18.0
+  drops the Windows x86 builds; `packaging/macos/package.sh` and
+  `.github/workflows/release.yml` are unchanged (the CLI stays in its own zip)
+  and packaging diffs only add the Flatpak update permission (PR #3804) and
+  `packaging/web/README.md`; archive contents were not opened. Behaviour:
+  v0.17.0 adds form controls (PR #481; `crates/engine/src/cmd/controls.rs`,
+  `docs/macros.md`): `control.press` runs a button's macro or command under
+  the macro policy and needs `approve: true` for a workbook from a file or a
+  file command, and `macro.run`/`macro.check` take `output`; Set precision as
+  displayed is applied in calculation (PR #1366; turning it on rounds every
+  constant). v0.19.0 opens legacy XLSX and XLS formulas with Excel's implicit
+  `@` (PRs #417, #1367), refuses a FIFO before opening and keeps a replaced
+  file's group on save (PR #3313). Python cells still run no code; macro
+  approval and `automate.runScript` trust are unchanged; no new network use
+  (the only socket code is the sandbox probe's). Card: 16 MB message cap,
+  sandbox note, form buttons and `output`, implicit `@`, precision as
+  displayed; date moved.
+
+- LightCraft v0.21.1 (`361e3bc`; 361 commits over tags
+  v0.18.1..v0.19.0..v0.20.0..v0.21.0..v0.21.1): launch unchanged. Every tag
+  resolves to its pin; v0.19.0 is not an ancestor of v0.20.0 (release branch
+  rebuilt from main), so the count is commits reachable from v0.21.1 but not
+  v0.18.1 and the review reads tree diffs. The `mcp` parser in
+  `apps/lightcraft-cli/src/main.rs` has no diff (`--connect`, `--headless`,
+  `--demo`, `--compact`, `--library`, FILES; no root or confinement flag), so
+  `lightcraft-cli mcp --compact` keeps its meaning; the one CLI change is a
+  new `bench-cull` subcommand (`bench_cull.rs`; timing libraries in a new temp
+  folder, not reachable from mcp). New variables: LIGHTCRAFT_GPU_WINDOW
+  (desktop loupe) and the test-only LIGHTCRAFT_DCP_DUMP. Tools:
+  `crates/mcp/src` (tools.rs, headless.rs, server.rs) and `docs/mcp.md` have
+  no diff (only an e2e test for import recipes), and today's probe lists the
+  same 17 compact tools; the engine's cmd! registry (`crates/engine/src`, 382
+  to 391 ids) adds lensBlur.brushReset/brushStroke/findSubject (#2661),
+  prefs.backgroundPrep/setBackgroundPrep, preset.saveRecipe (#2940),
+  profiles.camera and profile.deleteCamera (#1063) and app.hotPixelLimit
+  (#1350), removes or renames none; compact mode reaches them only through
+  command_run. Smoke tool `doc_inspect` (library.state plus catalog.stats)
+  takes no parameter, is read-only, and today's probe call passed. Packaging:
+  every release lists SHA256SUMS.txt,
+  `lightcraft-cli-0.21.1-macos-universal.zip`,
+  `lightcraft-0.21.1-linux-x86_64.tar.gz` and
+  `lightcraft-0.21.1-windows-x64-portable.zip` (windows-x86 assets end after
+  v0.19.0); packaging diffs add only Flatpak
+  `--talk-name=org.freedesktop.Flatpak` for the updater (#4151), and
+  release.yml scopes write permissions to the release job (#4048) and adds a
+  credits job and a nightly dry run; archive contents not unpacked.
+  SECURITY.md unchanged. Behaviour: library.import takes a batch-edit `recipe`
+  (#2940); export `subfolder` cannot leave the destination (#2600);
+  metadata.downloadPlaceNames refuses `dataset`/`base` and writes atomically
+  into the settings folder (#2659); a built-in BM3D denoiser runs with no
+  model or download (#2982); Lightroom backup `.zip` import unpacks into a
+  private Interop/ or temp folder (#2599) and unnestable collections join the
+  nearest set (#3145); mask.exportEffects refuses originals and sidecars, and
+  a write path with an unresolvable `..` is refused (#4125); user-named files
+  are read as regular files under a byte cap, media 8 GiB (#3703); an Object
+  selection takes at most 64 clicks (#3717); rendering process V2 to V8,
+  Remove Hot Pixels on new raws, 8-bit ordered dither (#3509); the lens
+  database folder takes an OS lock and downloads only on request (#3073; the
+  headless session never sets lens_auto_download). No new MCP-side network
+  use; craft-update stays desktop-only. Card: added the import recipe,
+  subfolder, unresolvable-path and mask.exportEffects refusals, the Lightroom
+  backup zip, the network download commands (place names, lens database,
+  acknowledged model downloads), the built-in denoiser, the 64-click and
+  regular-file limits and the process V8/dither note; date 2026-11-13.
+
+- MaterialCraft v0.4.1 (`65f7bfd`; 335 commits over tags
+  v0.1.2..v0.2.0..v0.3.0..v0.4.0..v0.4.1): launch `materialcraft-cli mcp` with
+  `--read-root`/`--write-root` is accepted with unchanged meaning.
+  `apps/materialcraft-cli/src/main.rs` only adds
+  `--automation-read-root`/`--automation-write-root` to `mcp` and `serve` as
+  aliases stored under the short names, the last root winning (#61, v0.2.0),
+  so the "refuses the --automation-* spelling" comments in
+  `storytold_tools/catalog.py` and `tests/test_catalog.py` are stale; no flag
+  removed, and the only new environment variable is `MATERIALCRAFT_SBS_DIR`
+  (below). `crates/automation/src/workspace.rs` keeps the cap-std roots and
+  path rules; the 256 MiB read cap is gone (54ab0fc in #175, v0.3.0),
+  `file.newAtomicSample` joins the allowed `file.*` commands, and package
+  resources are written create-new with a collision check (`write_resource`).
+  Tools (`crates/automation/src/server/material_craft_mcp.rs`, formerly
+  `server.rs`): `material_export` added (#45, v0.2.0), none removed or
+  renamed, no required parameter changed; graph_new templates are now empty,
+  pbr and atomics, and outputs_export gains `size`, `outputs` and
+  `colorSpaces` (TIFF export dropped). Smoke tool `session_inspect` exists,
+  takes no parameter and only cooks the in-memory session. Packaging: the
+  release lists `SHA256SUMS.txt`, `materialcraft-0.4.1-linux-x86_64.tar.gz`,
+  `materialcraft-cli-0.4.1-macos-universal.zip` and
+  `materialcraft-0.4.1-windows-x64-portable.zip` at the sizes in
+  `config/releases.json`; packaging diffs are `[[` tests (#193), HTTPS-only
+  appimagetool (#188) and Flatpak network for the app's updater (#205, #208);
+  archive contents were not opened. Behaviour: the primitive rewrite (d318484,
+  #125, v0.2.0) removed the Rust noise, pattern and filter library and moved
+  `.mcmat` to manifest version 2 with `source.sbs`; `.mcraft` came back in
+  #175 as a ZIP holding `package.sbs` and `resources/`, so a 0.1.x `.mcraft`
+  no longer opens, and `.sbs` saves write an adjacent `resources/` folder.
+  package_open keeps up to 64 packages open and, since graph instancing
+  (570bc52 in #156, v0.3.0), reads every SBS dependency a package instances
+  with plain `std::fs::read`, absolute or resolved against the working
+  directory, outside the read root (`crates/engine/src/linked_files.rs`,
+  `document_path.rs`); `sbs://` library reads take a new
+  `MATERIALCRAFT_SBS_DIR` or `assets/sbs` beside the binary
+  (`crates/formats/src/sbs/library.rs`). Headless 3D renders displace by the
+  height output without hq (#128). The update checker (#174, #202, #203) is
+  desktop UI only; the CLI and automation crates gained no network code. No
+  `SECURITY.md`. Card: corrected the alias, read-cap, template and `.mcmat`
+  statements and the library description, added material_export, the package
+  formats, multi-package open, the unconfined dependency reads, the `.mcmat`
+  version mismatch with TextureCraft and the date; the known-gaps link now
+  points at `docs/atomic-workflow.md`.
+
+- PdfCraft v0.21.1 (`b503b2e`; 2188 commits over tags
+  v0.18.2..v0.19.0..v0.20.0..v0.21.0..v0.21.1; v0.18.2 and v0.19.0 sit on
+  release-branch commits off main, from v0.20.0 on the tags are on main):
+  launch unchanged. `apps/pdfcraft-cli/src` (`main.rs`, `automation_args.rs`,
+  `options.rs`, `run.rs`), `crates/automation/src/mcp.rs`, `docs/mcp.md` and
+  `SECURITY.md` have no diff since v0.18.2, so the catalog `mcp
+  --automation-read-root {work} --automation-write-root {outputs} --root
+  {work} --compact` is accepted with the same meaning; no new flag or default.
+  Confinement is stricter, not different: since 0.20.0 a path is followed one
+  name at a time and refused alike before anything outside the root or its
+  parent folders is looked up, with canonical components compared exactly
+  (`file_access.rs`, `paths.rs`; #6455, #4569), and a pathless doc_save
+  re-resolves its remembered path through `--root` (#1879). New environment
+  variables are optional program locations, not launch settings:
+  `PDFCRAFT_SOFFICE` and `PDFCRAFT_TESSERACT`. Tools: 189 to 208 in
+  `crates/automation/src/tools.rs`, nineteen added (0.19.0: `ocr_words`,
+  `ocr_review_apply`, `ocr_dictionary`, `page_enhance_scan`, `comments_copy`,
+  `comments_paste`; 0.20.0: `object_copy`, `object_paste`, `text_prepare`,
+  `doc_fix_hairlines`, `accessibility_layout_table_to_blocks`; 0.21.0:
+  `text_replace`, `js_event`, `form_focus`, `attachment_edit`,
+  `comment_popup`, `doc_convert_colours`, `doc_printer_marks`,
+  `printer_papers`; #977, #3484, #6639, #2467, #6969, #1906, #1918, #1998),
+  none removed or renamed; one required parameter relaxed (`object_move` no
+  longer requires `objects`, `all` instead), others gained optional values
+  only (`text_extract` `format`, `text_find` `stop_at_limit`, `redact_mark`
+  `regex`/`validate` #1977, `ocr_recognize` `engine`/`output_mode`/`out`,
+  `doc_optimize` `target_bytes`, `sign_document` `run_form_scripts`). The
+  compact core list (`COMPACT_CORE_TOOLS`) is unchanged; today's probe of the
+  pinned binary lists the card's fifteen core tools plus tool_search and
+  tool_call, their required parameters and read-only/destructive hints
+  matching `tools.rs` and their descriptions the source (doc_open open
+  parameters #5049, Office in doc_combine). Smoke tool `doc_inspect` still
+  exists, `doc` optional, no required parameter, read-only (`.ro()`); the
+  probe call returned `{"documents": []}` without error. Packaging: the
+  v0.21.1 release lists `SHA256SUMS.txt`,
+  `pdfcraft-cli-0.21.1-macos-universal.zip`,
+  `pdfcraft-cli-0.21.1-linux-x86_64.tar.gz` and
+  `pdfcraft-0.21.1-windows-x64-portable.zip` with the pinned sizes; the
+  Windows x86 MSI and portable ZIP are gone since 0.20.0, `pdfcraft.wxs` still
+  installs `pdfcraft-cli.exe`, and `release.yml` only adds a nightly dry run
+  and a contributors job, so no CLI move; archive contents were not
+  downloaded. Behaviour: Office inputs to doc_combine, doc_create_multiple and
+  doc_batch convert start an installed LibreOffice in a private temporary
+  folder with macros off, 120 s and 512 MB (`crates/create/src/office.rs`,
+  #3059, 0.21.0); OCR engine tesseract/auto and ocr_status start an installed
+  Tesseract with a minimal environment (`crates/ocr/src/tesseract.rs`, #977,
+  0.19.0); since 0.21.0 doc_open runs document-level and /OpenAction
+  JavaScript and doc_save/doc_print their Will Save/Will Print actions,
+  JavaScript being on by default (`crates/engine/src/js.rs`, #6969);
+  ocr_dictionary and the editable OCR `out` resolve through the roots
+  (`a11y/ocr.rs`); redact_apply drops repeating metadata and reports
+  still_holding. No new network code in the MCP path (only the `ui` control
+  client's 127.0.0.1 connection, unchanged). Card: tool count 208 with the
+  0.19.0–0.21.0 additions in place of the 0.18.2 list, the OCR file roots and
+  editable out, the 0.20.0 path walk, the unasked document scripts and
+  js_enabled, LibreOffice and Tesseract outside the roots, the redaction
+  metadata note, older version markers trimmed, recheck date.
+
+- PhotoCraft v0.23.1 (`45066c4`; 3961 commits over tags
+  v0.20.2..v0.21.0..v0.22.0..v0.23.0..v0.23.1): launch unchanged. The tag
+  resolves to the pinned `45066c48292e`; v0.20.2 and v0.21.0 sit on a
+  superseded release line (not ancestors of v0.22.0), so the count is
+  `rev-list v0.20.2..v0.23.1`. Parser: `apps/photocraft-cli/src/args.rs`
+  flattens `GpuArgs` (`--gpu`/`--no-gpu`, new `src/gpu.rs`, #10912, 0.21.0)
+  into `mcp` and checks `PHOTOCRAFT_GPU` (1 GPU, empty or 0 CPU, any other
+  value exit 2; ignored with `--bridge`, which refuses the flags);
+  `crates/automation/src/args.rs` makes `--automation-read-root` an ordered,
+  repeatable list and refuses an empty root value at parse time (#3023,
+  0.23.0). The write root stays single (a repeat is exit 2) and
+  `PHOTOCRAFT_CONTROL_PORT` still switches to the bridge and refuses root
+  flags, so the catalog launch (`mcp --automation-read-root {work}
+  --automation-write-root {outputs}`) is accepted with the same meaning.
+  Roots: `crates/automation/src/workspace.rs` tries read roots in order (only
+  NotFound falls through) and gives an opened document an implicit save target
+  only when its read root shares the write root's held capability
+  (`read_with_save_path`), so with the catalog's distinct `{work}` and
+  `{outputs}` a path-less `doc_save` after `doc_open` now refuses where 0.20.2
+  wrote the same relative name below the write root; Windows UNC write roots
+  finish renames and mkdirs through pinned handles (#10323);
+  `shape.presets.importCsh` joins the ambient-path deny list;
+  `authorize_engine_command` and `authorize_engine_step` are unchanged. Tools:
+  the 26 `#[tool]` functions in `crates/automation/src/server.rs` are
+  identical at both tags (the Nov 5 entry's 25 was a miscount) and match the
+  probe's 26 names; none added, removed or renamed, no new required parameter.
+  New optional parameters: `maximizeCompatibility` on `doc_save`, `doc_export`
+  and `doc_export_layers` (#8064, 0.22.0) and `pdfSpotPlates` on
+  `doc_save`/`doc_export` (0.23.0); waited `command_run` and `command_batch`
+  steps run as jobs with MCP progress and request cancellation (#8132, #8134,
+  0.21.0); a hard memory refusal may add `available`. Smoke tool
+  `doc_inspect`: present, unchanged code, no required parameter,
+  `readOnlyHint` true; today's call returned `document:null` without error.
+  Packaging: the release lists `SHA256SUMS.txt`,
+  `photocraft-cli-0.23.1-macos-universal.zip`,
+  `photocraft-0.23.1-linux-x86_64.tar.gz` and
+  `photocraft-0.23.1-windows-x64-portable.zip` at the pinned byte sizes;
+  Windows x86 assets are gone since 0.22.0; builds still come from
+  craft-common-actions `release.yml@main` (now also a nightly dry run); the
+  source Flatpak builds and ships `photocraft-cli` (#7239) and the Linux
+  packages install `docs/mcp.md`; `main.rs` and the malloc re-exec are
+  unchanged and the AppImage `--cli` test only changes shell syntax.
+  Per-archive layout was not unpacked. Behaviour: the bridge handshake becomes
+  an HMAC challenge so the token never crosses the wire (`security.rs`, #9778,
+  bridge only); engine bound and nested-session authorization fixes (#11181,
+  #11188, #10969) and `save_bytes` never reading linked files (#11233) land in
+  0.23.1. No new network use, scripts or plugins in the headless CLI/MCP path
+  found (only the bridge's loopback TCP; the Flatpak
+  `--talk-name=org.freedesktop.Flatpak` is the desktop updater). `SECURITY.md`
+  unchanged; `docs/mcp.md` documents ordered roots and job progress but still
+  says launch options cannot be repeated, which the parser now contradicts for
+  read roots. Card: repeatable read root and `PHOTOCRAFT_GPU`/`--gpu` under
+  launch, the 0.23 implicit-save rule, `maximizeCompatibility` and
+  `pdfSpotPlates`, job progress and cancellation; trimmed 0.12 version
+  markers; date set to 2026-11-13.
+
+- SoundCraft v0.20.1 (`a52bbdc`; 155 commits over tags
+  v0.17.1..v0.18.0..v0.19.0..v0.20.0..v0.20.1): launch unchanged.
+  `apps/soundcraft-cli/src/mcp.rs` and `crates/automation/src/args.rs`
+  (AutomationArgs, the root flags) are untouched, and
+  `apps/soundcraft-cli/src/args.rs` only adds `commands --json [--compact]`
+  (PR 1372) and takes its format help from craft-audio, so the catalog launch
+  with `--automation-read-root`/`--automation-write-root` is accepted with the
+  same meaning; no new flag or SOUNDCRAFT_ variable,
+  `crates/engine/src/file_access.rs` and `docs/mcp.md` unchanged, no
+  SECURITY.md. Tools: the same 17 in `crates/automation/src/mcp.rs` (as
+  today's probe of the pinned binary lists them), none added, removed or
+  renamed, no required parameter changed; `bounce_mix`'s `format` enum now
+  comes from craft-audio's ENCODE_EXTENSIONS and gains `aifc`. Smoke tool
+  `inspect_session` exists, `detail` optional, maps to the query command
+  `session.inspect` (read-only); the probe's call returned no error. Assets at
+  v0.20.1: `SHA256SUMS.txt`, `soundcraft-cli-0.20.1-macos-universal.zip`,
+  `soundcraft-0.20.1-linux-x86_64.tar.gz` and
+  `soundcraft-0.20.1-windows-x64-portable.zip` present with the sizes and
+  digests in config/releases.json; packaging diffs only add the Flatpak
+  updater talk-name and `[[` tests, and release.yml a nightly dry run and a
+  contributors job, no layout change (archives not unpacked). Behaviour: PR
+  1506 replaces `crates/audio-io` with craft-audio from craft-libs (rev
+  `75895c0`, read there: Float32 still keeps finite samples above full scale,
+  FLAC still refuses Float32) and makes .opus, .ac3, .eac3, .ec3, .mov, .mka
+  and .mpa importable; sessions over 256 MiB are refused on open, save,
+  autosave and template, and a duplicated session field is refused (#892, PR
+  1370); an import needing more than 128-fold rate growth is refused (PR
+  1327); `file.bounce_stems` refuses a format it cannot write instead of
+  writing WAV (PR 1364); output files are created exclusively and `write_file`
+  (MIDI, session text, score and preset exports) refuses hard-linked,
+  read-only, non-regular and dangling-link destinations (#1359, PRs 1328,
+  1360); `mix.record_arm` and `mix.input_monitor` no longer enter undo or mark
+  the session changed (PR 782); menu labels such as Sibelius became MusicXML
+  with ids kept (PR 1457). `bounce_mix` still replaces an existing file by
+  renaming its part file over it. No new network use, scripts or macros found.
+  Card: added the session cap, the rate-growth and stem-format refusals, the
+  craft-audio formats and the export link refusals; date set to 2026-11-13.
+
+- TextureCraft v0.6.1 (`34a1961`; 238 commits over tags
+  v0.3.2..v0.4.0..v0.5.0..v0.6.0..v0.6.1): launch `texturecraft-cli mcp` with
+  `--automation-read-root`/`--automation-write-root` is accepted with
+  unchanged meaning: `apps/texturecraft-cli` and the tool definitions in
+  `crates/automation/src/server.rs` are byte-identical to v0.3.2 (no flag,
+  alias or environment variable added or removed; no tool added, removed or
+  renamed; no required parameter changed; `docs/control-protocol.md` adds
+  bake, camera and nested-path notes). `crates/automation/src/workspace.rs`
+  keeps the cap-std roots and the 2 GiB read cap; `authorize_command` now also
+  refuses a `path` or `dir` inside a `files` entry, for the new host-path
+  command `textureSet.meshMap.import` (#328, v0.5.0). Smoke tool
+  `session_inspect` exists, takes no parameter and is a read-only `&self`
+  call. Packaging: the release lists `SHA256SUMS.txt`,
+  `texturecraft-0.6.1-linux-x86_64.tar.gz`,
+  `texturecraft-cli-0.6.1-macos-universal.zip` and
+  `texturecraft-0.6.1-windows-x64-portable.zip` at the sizes in
+  `config/releases.json`; packaging diffs are `[[` tests (#403), HTTPS-only
+  appimagetool (#378) and Flatpak network for the updater (#426); archive
+  contents were not opened. Behaviour: the MaterialCraft link
+  (`crates/engine/src/link_cmds.rs`, `crates/formats/src/mcmat.rs`) is
+  functionally unchanged and still runs `materialcraft-cli run
+  <temp>/source.mcraft file.exportMaterial` from `MATERIALCRAFT_CLI`, beside
+  the binary or PATH, but it reads `.mcmat` only up to version 1 and
+  recognises `.mcraft` by `package.json`, while MaterialCraft v0.4.1 writes
+  version 2 `.mcmat` and `package.sbs` `.mcraft` files and cannot read the old
+  package a re-cook passes it: material_load of anything MaterialCraft v0.4.1
+  writes and every `material.link.*` re-cook fail at the pinned pair
+  (TextureCraft main at `386630e` still reads version 1). Bakes use a uniform
+  UV tile atlas (747068d in #293, v0.4.0; older projects load their baked
+  pixels unconverted), opening a project is bounded at 8 GiB decompressed by
+  default (`crates/formats/src/project_file/project_open_limit.rs`), and the
+  live bake preview and update checker (#270, #367) are app-only; the CLI and
+  automation crates gained no network code. No `SECURITY.md`. Card: added the
+  nested `files` refusal with the resource_import route for baked maps, the
+  broken MaterialCraft link, the tile-atlas rebake note and the date.
+
+- VectorCraft v0.24.1 (`f4922aa`; 3,613 commits over tags
+  v0.21.1..v0.22.0..v0.23.0..v0.24.0..v0.24.1): launch unchanged. The tag
+  resolves to `f4922aa7ac` ("Merge tested main for v0.24.1" on `release`); the
+  v0.21.1 and v0.22.0 tag commits sit on an earlier release line that is not
+  an ancestor of v0.24.1, so the review compares trees.
+  `apps/vectorcraft-cli/src/main.rs` keeps `mcp [--connect | --headless]
+  [--automation-read-root DIR]... [--automation-write-root DIR]...` (also
+  `=DIR`), and the confined branch is still
+  `Headless::with_document().with_automation_roots(..)` with no stores, so the
+  catalog launch is accepted with the same meaning. New: `mcp
+  --allow-plugin-grants` (#6285, 0.23.0) lets `plugin.install`'s `grant` and
+  `allowHeavy` take effect and is refused with `--connect` and with either
+  root flag; a root `--safe-mode` before the subcommand (#6185, 0.23.0) loads
+  no plug-ins and refuses `--connect`; `run`/`convert` gain `--ppi`, `convert`
+  `--legacy-name-encoding`. No new server environment variable; scripts read
+  `JSINCLUDE` for include folders (outside the script's folder passed over)
+  and `$.getenv` sees only LANG, LC_MESSAGES, LC_ALL and OS. Roots cover the
+  same files: `crates/engine/src/file_access.rs` adds the Windows device names
+  COM¹ to LPT³ (#5896, 0.22.0), compares a share prefix without case as a
+  drive's, and adds `ScriptScope` for a script's own reads; `docs/mcp.md`
+  "Confining file access" now leaves paths outside the read roots out of
+  `file.recentFiles`, `ui_inspect` and the library listings. Tools: the
+  `crates/mcp/src/tools/definitions.rs` diff adds, removes and renames none
+  (33, matching today's probe of the pinned binary, server 0.24.1,
+  `source_revision` f4922aa); no required parameter changed. `open_file` gains
+  optional `importer` and `params` (importer plug-ins, #6264, 0.23.0);
+  `export`'s raster `scale` defaults to the document's raster effects
+  resolution, `options.ppi` winning (#3071, 0.22.0); angle descriptions say
+  which way they turn (#6631). `command_list`/`list_commands` add desktop menu
+  ids marked `ui: true` from `crates/mcp/src/ui_catalog.rs` (#6551, 0.24.0),
+  which `headless.rs` refuses naming `--connect`, and `schema`/`inputSchema`
+  that `brief` drops; new resource `vectorcraft://commands/reference` (#6399),
+  prompts check-spelling, variables-bind and path-tools; `answer_dialog` sets
+  and answers in one `ui.dialog.set`; a refusal while a script runs is error
+  -32003. Smoke tool: `doc_inspect` is still defined (`definitions.rs`,
+  `dispatch.rs`), readOnlyHint, only optional depth, childLimit, ids, kind,
+  limit and offset, passed to the query command `document.inspect`
+  (`crates/engine/src/cmd/edit.rs`); today's call returned no error.
+  Packaging: release v0.24.1 (published 2026-11-12, target f4922aa) lists
+  `SHA256SUMS.txt`, `vectorcraft-cli-0.24.1-macos-universal.zip`,
+  `vectorcraft-0.24.1-linux-x86_64.tar.gz` and
+  `vectorcraft-0.24.1-windows-x64-portable.zip` at the byte counts in
+  config/releases.json; `packaging/*/package.sh` and `package.ps1` are
+  unchanged, the Flatpak manifests add `--talk-name=org.freedesktop.Flatpak`
+  for the updater (#6649), and the Windows x86 MSI and portable ZIP are gone
+  from v0.23.0. Behaviour: new `crates/js` (an ES5.1 interpreter with fuel and
+  heap limits) behind `script.run` (#6411, 0.24.0), `#include`/`$.evalFile`
+  (#6536), File/Folder reads (#6615, 0.24.1) and named engines
+  `script.engines`/`script.engine.drop` (#6663, 0.24.1): one transaction that
+  puts the documents back on an error, a limit or `script.stop` while files
+  its commands wrote stay written, its own reads in the script's folder inside
+  the read roots, no file write, `File.execute` false, no network or process
+  code in `crates/js` or `crates/engine/src/script`, and `plugin.*`,
+  `prefs.*`, other `script.*` and `edit.clearHistory` refused inside a run.
+  Plug-ins (`docs/plugins.md`, `crates/engine/src/cmd/plugin.rs`) stay
+  WebAssembly without WASI, files or network; API level 2 adds host imports
+  and command calls (#6462) whose allowlist refuses file commands; a request's
+  `grant` and `allowHeavy` are refused without the flag (#6285), and a
+  confined server has no plug-in store, so a heavy filter or a module that
+  lists permissions does not install there. SVG filters (resvg) resolve only
+  `data:` images; new HEIC/HEIF and JPEG XL readers, 3D asset export (OBJ,
+  glTF, USD) through the write root, `document.compare` (0.23.0). Color
+  Settings (#6335) and the custom dictionary (#4936) persist only in an
+  unconfined headless session. No new unconfined file access, no network crate
+  in the CLI (`craft-web-api` is only in `apps/vectorcraft-web`), no
+  SECURITY.md at either tag; release notes list feature and fix PRs only.
+  Card: the allowHeavy advice replaced by the 0.23.0 approval rule (a heavy or
+  permission-listing plug-in does not install in this launch) and
+  `--allow-plugin-grants` added to the flags never to add; `script.run` and
+  its limits, the `ui: true` catalogue ids and schemas, the raster resolution
+  default, `open_file` importer and HEIC/JPEG XL, `document.compare`, the
+  script cancel, Color Settings and dictionary words, and the PDF 1.4 password
+  note added; recheck date moved to 2026-11-13.
+
+- WordCraft v0.18.1 (`079f478`; 627 commits over tags
+  v0.15.2..v0.16.0..v0.17.0..v0.18.0..v0.18.1): launch accepted unchanged.
+  `apps/wordcraft-cli/src/automation_args.rs` and
+  `crates/engine/src/file_access.rs` have no diff and the `mcp` arm of
+  `main.rs` (with `MCP_OPTIONS`) is untouched, so `mcp --automation-read-root
+  {work} --automation-write-root {outputs}` keeps its meaning (each flag once,
+  `--connect` conflict, roots in force for the whole process); no new root
+  flag. The `main.rs` changes lie outside `mcp`: `convert`/`render --strict`
+  (exit 3, report on stderr; #6039), `--update-fields` skipped with a warning
+  on a protected document (#5849), `--format` value checks (#5709),
+  non-Unicode input paths after options (#5611) and escaped engine error text.
+  No new launch environment variable for `mcp`; the engine now also reads
+  `SPEECHD_ADDRESS` (Read Aloud on Linux, below), and `WORDCRAFT_TEST_PRINT_*`
+  are desktop-only. Tools: `crates/mcp/src/tools.rs` adds `insert_table`
+  (0.17.0, #2595 for #2242; required `values`, optional `header`, `style`,
+  `doc`; it runs `insert.spreadsheet`, which gained `values`/`header`/`style`
+  with a 1000-row by 63-column cap in `cmd/tools/actions.rs`); none removed or
+  renamed, no other required parameter changed, and the probe's 18 tools
+  match. Smoke tool `inspect_document` unchanged: optional `doc` only,
+  readOnly hint, `document.inspect`; the probe call passed. MCP: `server.rs`
+  answers a non-UTF-8 request line with -32700 and reads on, and the
+  `--connect` bridge (`backend.rs`) never replays a mutation, or an image
+  export to a path, whose outcome is unknown (#2596; docs/mcp.md "Delivery
+  failures"); the 1 MiB line cap is unchanged. Engine commands added:
+  `file.strictReport` and `strict` on `file.save`, `file.saveAs`,
+  `file.exportPdf`, `file.exportPng` (0.18.0, #6039), nine `para.*` Paragraph
+  Tools (#5116), `text.deleteSentenceBack` (#5094), `view.paperColor` (#5115),
+  `view.arrangeAll`/`sideBySide`/`syncScroll` (#331; disabled without the
+  app), `select.member`; none removed. `file.newFromTemplate` now reads
+  through `file.open`'s path and takes `data`, `password`, `replaceBlank`
+  (#5698). Packaging: `gh release view v0.18.1` lists SHA256SUMS.txt,
+  wordcraft-cli-0.18.1-macos-universal.zip,
+  wordcraft-0.18.1-linux-x86_64.tar.gz and
+  wordcraft-0.18.1-windows-x64-portable.zip with the pinned sizes and digests;
+  `packaging/macos/package.sh` has no diff (the `.app` still holds only the
+  desktop app), `nfpm.yaml` still installs `/usr/bin/wordcraft-cli` (RPM
+  requirements by soname, #5369; espeak-ng or speech-dispatcher recommended);
+  Flatpak gains `--talk-name=org.freedesktop.Flatpak` for the updater (#6339),
+  release.yml a nightly dry run (#6367) and a credits job. Behaviour: the
+  language-pack write-root check the Nov 5 bullet took from the docs is now
+  read in code (`crates/engine/src/packs.rs` calls `file_access::check_write`
+  before install and remove; no pack code changed). Read Aloud on Linux falls
+  back to Speech Dispatcher over its Unix or TCP socket and may start
+  `speech-dispatcher --spawn` (#5712, `crates/engine/src/speech/ssip.rs`); the
+  headless session has the same `ReadAloud`. craft-update (#6038) links only
+  into the desktop app and ui-egui, not wordcraft-cli; SECURITY.md unchanged.
+  Also: ODT full open, edit and save (#5559), RTF notes and comments (#1056),
+  import-limit and link-scheme hardening (#3862). Card: insert_table and its
+  `doc`, strict PDF/PNG exports and file.strictReport, the -32700 parse error,
+  the Read Aloud note, and the date.
+
 ## Build infrastructure
 
 The workflow uses reviewed full-commit action references:

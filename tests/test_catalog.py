@@ -17,7 +17,7 @@ class CatalogTests(WorkspaceCase):
         self.assertIn('--headless',self.catalog['vectorcraft']['args'])
         # Both PdfCraft roots apply: a path must be inside --root and inside the matching automation root.
         self.assertEqual(self.catalog['pdfcraft']['args'],['mcp','--automation-read-root','{work}','--automation-write-root','{outputs}','--root','{work}','--compact'])
-        # MaterialCraft refuses the --automation-* spelling every other rooted app takes.
+        # MaterialCraft keeps its short root spelling (the --automation-* aliases arrived in 0.2.0, after its review).
         self.assertEqual(self.catalog['materialcraft']['args'],['mcp','--read-root','{work}','--write-root','{outputs}'])
         self.assertEqual(self.catalog['texturecraft']['args'],['mcp','--automation-read-root','{work}','--automation-write-root','{outputs}'])
     def test_newly_rooted_apps_need_the_release_that_added_the_flags(self):

@@ -38,12 +38,15 @@ experimental `.fig` export is not proof of a Figma round trip.
 
 ## Procedural material → painted textures
 
-MaterialCraft owns the node graph and saves a `.mcraft` package or exports maps with
-outputs_export. Verify graph, cook errors and each map on disk. TextureCraft owns the
-painted mesh: it imports maps with resource_import, or loads the `.mcraft` as a linked
-material with material_load, which runs `materialcraft-cli` outside TextureCraft's roots
-(see its card), so load only a package you just verified. Verify the layer,
-session_inspect and every exported texture; neither app reopens the other's file.
+MaterialCraft owns the node graph and exports maps with outputs_export. Verify graph,
+cook errors and each map on disk. TextureCraft owns the painted mesh and imports those
+maps with resource_import. Hand over only the exported maps: at the pinned pair
+TextureCraft cannot load what MaterialCraft writes as a linked material (it reads `.mcmat`
+version 1 and the older `.mcraft` layout, MaterialCraft 0.4 writes version 2 and a
+`package.sbs` package), so material_load of either fails and a re-cook of an older linked
+material fails inside `materialcraft-cli`, which runs outside TextureCraft's roots (see
+both cards). Verify the layer, session_inspect and every exported texture; neither app
+reopens the other's file.
 
 If a stage fails, stop dependent work. Report the last verified file and the
 unverified/failed stage. No app can roll back another app's files automatically.

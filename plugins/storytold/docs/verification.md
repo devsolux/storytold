@@ -7,6 +7,24 @@ of them through operator-run `setup` on a developer Mac (FigCraft there since
 October 18, 2026; tables below). That is M0-level evidence, not acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Card recheck at the November 12 releases — November 13, 2026
+
+macOS (Darwin 27, arm64) with Python **3.11.18**, plus GitHub:
+
+| Check | Result |
+|---|---|
+| Source review | All fifteen apps from their last rechecked tags to the 2026-11-12 pins on blob-less clones, nine reviewers; findings per app in the [source ledger](source-ledger.md). Every catalog launch accepted with unchanged meaning, every smoke tool present with no required parameter and read-only, no tool removed or renamed; WordCraft adds one tool and PdfCraft nineteen. No `config/apps.json` change. |
+| Operator `setup --upgrade` on the developer Mac | The thirteen installed CLIs moved from 0.6.0–0.10.0 to the pins: notarized by `DJ6XS33FX8` and Sigstore-verified, probe `discovery_and_call_passed` each, registrations unchanged, `setup --list` hash and manifest commit matching, `claude mcp list` connected. Their probe `tools/list` matches the reviewed tool definitions. MaterialCraft and TextureCraft are not installed there. |
+| Runners | Run 43231479584 (the pin move) and run 43432074822 (main at 1.6.5): the three `verify` jobs ran the strict `setup --all` on Linux, Windows and macOS and passed. |
+| Binary strings | FilmCraft's `tts.downloadVoices` and `transcript.downloadModel` ids are present in the installed pinned macOS CLI (searched as bytes, not run). |
+| `make check`, `make test`, `make build`, `make verify-build` | Passed: 77 checks, **292 tests**. |
+
+**Not run:** no release archive was unpacked, so the CLI's place inside each archive rests on
+the packaging scripts and the runners' `setup`; the shared release workflow in
+craft-common-actions was not reviewed. New behaviour (PhotoCraft's path-less save refusal,
+PdfCraft's document JavaScript, MaterialCraft's dependency reads, the broken
+MaterialCraft→TextureCraft link, the download commands) was read in source, not exercised.
+
 ## Release refresh every third day — November 13, 2026
 
 | Gate | Result |

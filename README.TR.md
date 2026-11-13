@@ -147,7 +147,9 @@ sütunu, Storytold'un her uygulamanın MCP sunucusunu nasıl başlattığını g
   yalnızca onun `outputs/` dizinine yazmalarına izin veren yerel kök
   bayraklarıyla başlatılır. PdfCraft ayrıca çalışma alanındaki tek `--root`
   kökünü korur; ikisi birlikte geçerlidir. TextureCraft bir `.mcraft` paketi
-  yüklerken bu köklerin dışında `materialcraft-cli` başlatır.
+  yüklerken bu köklerin dışında `materialcraft-cli` başlatır; MaterialCraft
+  bir paketi açarken örneklediği `.sbs` dosyalarını nerede olurlarsa olsunlar
+  okur.
 - **Kullanıcı geneli** (dört uygulama): dosya kökü bayrağı olmadan başlatılır,
   bu yüzden işletim sistemi kullanıcınızın erişebildiği her şeyi okuyup
   yazabilir. `setup` bunları yalnızca `--acknowledge-unconfined` ile kurar ve
