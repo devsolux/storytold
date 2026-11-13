@@ -5,9 +5,49 @@ repository neither ships nor executes Craft binaries. All fifteen CLIs have
 passed the native probe through runner-run `setup` on GitHub runners, and all fifteen
 through operator-run `setup` on a developer Mac (FigCraft there since October 18,
 MaterialCraft and TextureCraft since November 13, 2026; tables below). That is M0-level evidence, not acceptance.
-PdfCraft's and MaterialCraft's app scenarios are the acceptance runs so far (November 13,
-2026, below); they do not make any M gate pass. This report separates the checks actually executed for each
+PdfCraft's, MaterialCraft's and TextureCraft's app scenarios are the acceptance runs so far
+(November 13, 2026, below); they do not make any M gate pass. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## TextureCraft acceptance scenario on the developer Mac — November 13, 2026
+
+Operator-run on macOS (Darwin 27, arm64) with Python **3.11.18** and the official
+MCP SDK **2.3.0**: the pinned `texturecraft-cli` 0.6.1 launched directly with its
+registered arguments (`mcp --automation-read-root {work} --automation-write-root
+{outputs}`, working directory `{work}`, from `preflight`). Inputs were the
+built-in cube exported by TextureCraft as `.glb` and MaterialCraft's exported
+height map from the run below, both staged with `stage`. Logs, renders and the
+summary are kept privately outside the workspace; nothing from them is
+committed.
+
+| Required evidence (`tests/native/acceptance.json`) | Result |
+|---|---|
+| immutable_revision, binary_sha256 | `34a1961` = manifest commit (`--version` 0.6.1); binary SHA-256 = installation lock = the Sigstore-signed CLI hash; `preflight` ready. |
+| help_and_flags | `mcp [--bridge] [--token] [--read-root] [--write-root]` with the `--automation-*` aliases the catalog uses. |
+| initialize_and_tools_list, read_only_fixture_call | texturecraft 0.6.1, protocol 2025-11-25, 22 tools; session_inspect on the default session and the imported cube. |
+| headless_no_gui | No socket held at start or end of any session, no TextureCraft entry in `lsappinfo list`. |
+| native_save_export_reopen | Steps: mesh_import (256); paint_stroke; a fill layer; resource_import of the height map as a height layer; CPU bake of ambient occlusion and curvature; project_save; textures_export with the default preset; viewport_render 3D and 2D; mesh_export `.glb`. The reopened `.tcraft` gave the same texture sets (resolution, channels, baked maps) and layers (sources, painted tiles), and a byte-identical 3D render. The reimported `.glb` has the same topology (1728 triangles, 1014 vertices). The six textures match the export plan in size and bit depth (16-bit height, 8-bit others). The project ZIP is intact and embeds the height map byte-identical to MaterialCraft's export. `verify-artifact --format png` passed. |
+| original_hashes_unchanged | `verify-inputs`: all staged inputs unchanged; outside files unchanged. |
+| warnings_reviewed | Export plan and export: none. A non-ZIP `.tcraft` was a typed error ("malformed project file"). |
+| failure_and_boundary_test | Refused with a clear error: absolute paths, `../`, a symlink in inputs pointing outside, resource_import and bake_mesh_add from outside, `file.save` and `textureSet.meshMap.import` through command_run ("with host paths is disabled"), project_save to /tmp and `../`. A missing file, an unknown command and a wrong parameter type were typed errors, and the server answered afterwards. |
+
+Observed beyond the checklist, now in the TextureCraft card and the handoff
+guide:
+- **The MaterialCraft link is broken at the pinned pair** (storytold/texturecraft#473):
+  - **`.mcmat`:** material_load refused MaterialCraft 0.4.1's file with
+    "unsupported: MaterialCraft material version 2 (this version reads up to 1)".
+  - **`.mcraft`:** refused with "malformed project file: specified file not found
+    in archive". This is not the "material.json is missing" that the issue
+    predicted from source.
+
+  The exported-map route works.
+- **Overwrite.** project_save over an existing `.tcraft` replaced it without
+  asking. Over a hard-linked name it wrote a new file and left the other link
+  unchanged.
+
+**Not run:** the host-level M1 test, OS isolation, GPU bakes and high-poly or cage
+bakes, a re-cook through `materialcraft-cli`, UDIM, and real-world meshes in other
+formats.
 
 ## MaterialCraft acceptance scenario on the developer Mac — November 13, 2026
 
@@ -633,18 +673,17 @@ Host manifest schemas remain authoritative.
 ## Not verified
 
 - **Craft apps.** All fifteen CLIs passed discovery and one read-only call on one
-  macOS machine; PhotoCraft, PdfCraft and MaterialCraft have produced real
-  exports, and PdfCraft and MaterialCraft have run their acceptance scenarios
+  macOS machine; PhotoCraft, PdfCraft, MaterialCraft and TextureCraft have
+  produced real exports, and the last three have run their acceptance scenarios
   (edit, save, reopen and root denial, November 13, 2026). Native edit, export,
   root-denial, isolation and fidelity tests (M1–M3) have not run for the other
-  thirteen apps, and the host-level M1 test has not run for any.
+  twelve apps, and the host-level M1 test has not run for any.
 - **MaterialCraft and TextureCraft.** Executed on the three GitHub runners
   (runs 42034977077 and 42222471577: download, provenance, discovery and the
   `session_inspect` smoke call) and, since November 13, 2026, through
   operator-run `setup` on a developer Mac, registered with Claude Code.
-  MaterialCraft's app scenario ran there (above); TextureCraft's card rests on
-  source review checked against its probe's tool list. Every acceptance gate
-  (M1–M3) is still open for both.
+  Both apps' scenarios ran there (above), including the exported-map handoff
+  between them. Every acceptance gate (M1–M3) is still open for both.
 - **Linux and Windows.** Real runs exist only on GitHub-hosted runners: the
   release workflow's verify matrix (run 38278727530 on 2026-10-12 with twelve
   apps, runs 38583930461 and 38588658915 on 2026-10-14 with all thirteen, the

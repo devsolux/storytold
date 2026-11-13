@@ -45,8 +45,10 @@ TextureCraft cannot load what MaterialCraft writes as a linked material (it read
 version 1 and the older `.mcraft` layout, MaterialCraft 0.4 writes version 2 and a
 `package.sbs` package), so material_load of either fails and a re-cook of an older linked
 material fails inside `materialcraft-cli`, which runs outside TextureCraft's roots (see
-both cards). Verify the layer, session_inspect and every exported texture; neither app
-reopens the other's file.
+both cards). Both material_load failures and the exported-map route were observed in the
+2026-11-13 acceptance runs: a height map from outputs_export, imported with resource_import
+and used as a height layer, reached the saved `.tcraft` byte-identical. Verify the layer,
+session_inspect and every exported texture; neither app reopens the other's file.
 
 If a stage fails, stop dependent work. Report the last verified file and the
 unverified/failed stage. No app can roll back another app's files automatically.

@@ -42,6 +42,21 @@
   and tell agents to check a package's dependency file names before opening
   it. The card also notes overwriting without asking, the no-path save target,
   and that `outputs_export` writes image outputs only.
+- Acceptance: TextureCraft's app scenario ran against the pinned 0.6.1 on a
+  developer Mac:
+  - **Edit and round trip:** mesh import; paint, fill and image layers; a CPU
+    bake; a save that reopens to the same texture sets and layers with a
+    byte-identical render; textures matching the export plan; a `.glb` that
+    reimports with the same topology.
+  - **Boundaries:** root denial for absolute, traversal and symlink paths and
+    for host-path commands.
+  - **Handoff:** the route from MaterialCraft's exported maps worked, with the
+    height map arriving byte-identical. Loading MaterialCraft 0.4.1's `.mcmat`
+    and `.mcraft` failed as storytold/texturecraft#473 describes; the card and
+    the handoff guide now quote the observed messages.
+  - **Card notes:** it also says that a save replaces an existing file without
+    asking, and that `setup`'s shared folder puts `materialcraft-cli` beside
+    TextureCraft.
 
 ## 1.6.5 — 2026-11-12
 

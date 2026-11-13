@@ -20,21 +20,28 @@ The catalog launches `mcp` with `--automation-read-root` (the workspace) and
 folders must exist at launch, and a root left out denies that kind of access. The roots are
 held directory handles, so a request path is relative to its root in forward slashes:
 `inputs/crate.glb` to read, `crate.tcraft` to write. Absolute paths, `..`, drive prefixes, device
-names and symlink or junction escapes are refused. A write replaces an existing file. Never add
-`--bridge` or `--token`: they drive a running desktop app.
+names and symlink or junction escapes are refused. A write replaces an existing file without
+asking, so ask before reusing a name; over a hard-linked name it writes a new file and leaves the
+other link alone (observed). Never add `--bridge` or `--token`: they drive a running desktop app.
 
 Not confined: a `.mcraft` package given to material_load, and the `material.link.*` commands
 that re-cook a linked MaterialCraft layer (`material.link.set` does by default), run
 `materialcraft-cli` as a child process with this user's full access and the system temp folder
-for its files. It is taken from `MATERIALCRAFT_CLI`, then beside this binary, then PATH. Load a
-`.mcraft` only from a trusted source, and treat a set `MATERIALCRAFT_CLI` as a finding. A
+for its files. It is taken from `MATERIALCRAFT_CLI`, then beside this binary, then PATH; `setup`
+installs every Craft CLI into one folder, so with MaterialCraft installed it is found beside this
+binary. Load a `.mcraft` only from a trusted source, and treat a set `MATERIALCRAFT_CLI` as a
+finding. A
 `.mcmat` or `.tcmat` needs no child process to load. `resource.text` reads the system font
 folders.
 
 The MaterialCraft link does not work at the pinned pair: this release reads `.mcmat` version 1
 and recognises a `.mcraft` by its `package.json`, while MaterialCraft v0.4.1 writes version 2
 `.mcmat` files and `.mcraft` files holding `package.sbs`, and cannot read the old package a
-re-cook hands it. Bring MaterialCraft's outputs_export maps in with resource_import instead.
+re-cook hands it. Observed: material_load refuses MaterialCraft's `.mcmat` with "unsupported:
+MaterialCraft material version 2 (this version reads up to 1)" and its `.mcraft` with "malformed
+project file: specified file not found in archive". Bring MaterialCraft's outputs_export maps in
+with resource_import instead: an imported height map used as a height layer survived save and
+reopen byte-identical (observed).
 
 ## Discover before execution
 
@@ -79,3 +86,6 @@ guidance, not a runtime-tested capability contract. Upstream:
 [features](https://github.com/storytold/texturecraft/blob/main/docs/features.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.
+Notes marked "observed" come from the acceptance run of the pinned 0.6.1 on macOS on
+2026-11-13 (see the [verification report](../../../../docs/verification.md)); the rest is
+source-grounded.
