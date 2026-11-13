@@ -1,7 +1,7 @@
 """Rotate config/signatures.json: keep current Sigstore bundles, sign new ones, publish atomically.
 
 Workflow/maintainer network step (`make sign-releases`), meant to run in the
-daily GitHub Actions job whose OIDC identity the manifest's
+scheduled GitHub Actions job whose OIDC identity the manifest's
 `signers.sigstore_identity_regexp` names. The previous store is read with the
 same shape and signer checks as at runtime, but entries the manifest no longer
 pins (or whose archive hash moved) are dropped instead of rejected. Every

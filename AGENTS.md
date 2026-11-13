@@ -12,7 +12,7 @@ commit directly to main, and push main only when the operator asks. One commit
 holds one change that can be described in one subject line and reverted alone:
 it passes the gates by itself and carries the plugins/storytold it regenerates,
 and anything unrelated found along the way gets its own commit.
-The daily release workflow's bot/releases pull request is the one exception,
+The release workflow's bot/releases pull request (every third day) is the one exception,
 and it is merged into main on its own, so start with `git pull --ff-only origin
 main` (or `make github-pull`) before reading or editing. Upstream references in
 app cards, the catalog's documentation links and the docs point at each Craft
@@ -60,7 +60,7 @@ docs/verification.md and docs/source-ledger.md together, then passes make
 release, make test-sdk and, with the Claude CLI installed, make host-validate.
 Pushing main, the lightweight `v<version>` tag and the GitHub release happen
 only when the operator asks, never as a side effect of a commit. The one
-automated release is the workflow's own: a daily run that moves a pin bumps the
+automated release is the workflow's own: a scheduled run that moves a pin bumps the
 patch version with scripts/bump_release.py in its pull request, and its merge
 job tags the squash commit `v<version>` and publishes that release from the
 changelog section the run wrote. The moved cards' recheck and its record in

@@ -9,6 +9,12 @@
   and a `cli_not_registered` step adds `--upgrade` when a plain `setup` would
   refuse the installed binary. On the developer Mac all thirteen installed CLIs
   had read `registered` while pinned seven to sixteen minor releases back.
+- Release workflow: the scheduled refresh runs every third day of the month
+  (`23 5 */3 * *`: days 1, 4, …, 31 at 05:23 UTC, never more than three days
+  apart) instead of daily, and is named "Craft release refresh". Its Sigstore
+  identity names the workflow file, not its name, so signing is unchanged;
+  `make github-run-workflow` still starts a check at once. The pin releases it
+  opens say "Automated release by the Craft release refresh".
 
 ## 1.6.5 — 2026-11-12
 

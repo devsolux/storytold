@@ -210,7 +210,7 @@ nutzen die manuelle Kette in [Betrieb](docs/operations.md): herunterladen, Lock,
 
 Unter macOS muss die Binärdatei vom ArtCraft-Team bei Apple notarisiert sein.
 Upstream signiert Linux- und Windows-Builds nicht, daher signiert der
-[tägliche Workflow](.github/workflows/releases.yml) jede gepinnte CLI
+[Release-Workflow](.github/workflows/releases.yml) jede gepinnte CLI
 schlüssellos mit [Sigstore cosign](https://docs.sigstore.dev/) unter seiner
 eigenen GitHub-Identität und committet die Bundles nach
 [`config/signatures.json`](config/signatures.json). Unter Linux und Windows
@@ -220,10 +220,11 @@ vorhanden ist. Solange ein Release kein Bundle hat oder cosign fehlt, fährt
 `--trust-upstream-sums` allein auf Basis von Manifest und `SHA256SUMS.txt` fort
 und vermerkt das im Lock.
 
-### Tägliche Release-Aktualisierung
+### Release-Aktualisierung alle drei Tage
 
-Der Workflow prüft jeden Tag das neueste Release jeder App, schreibt das
-Manifest neu, signiert neue CLIs, baut das Plugin neu, führt die Checks und das
+Der Workflow prüft an jedem dritten Tag des Monats (1., 4., …, 31.: nie mehr
+als drei Tage Abstand; `make github-run-workflow` prüft sofort) das neueste
+Release jeder App, schreibt das Manifest neu, signiert neue CLIs, baut das Plugin neu, führt die Checks und das
 echte `setup` auf Linux-, Windows- und macOS-Runnern aus und öffnet zur Prüfung
 einen Pull Request auf `bot/releases` (setze die Repository-Variable
 `STORYTOLD_AUTO_MERGE=true`, um grüne Läufe automatisch zu mergen). Ein Lauf,
@@ -370,7 +371,7 @@ make verify-build
 | `make release` | Geordnete Checks, Kerntests und reproduzierbare Paketierung; keine Veröffentlichung, keine Behauptung nativer Abnahme. |
 | `make setup` / `make setup-probe` | Eine lokale `.venv` anlegen; danach als ausdrückliches Netzwerk-Opt-in das hash-gesperrte offizielle MCP-SDK (`mcp==2.3.0`) installieren. |
 | `make test-sdk` | Das echte SDK gegen ein synthetisches stdio-Fixture prüfen, nicht gegen die Craft-Apps. |
-| `make refresh-releases` / `make sign-releases` | Die Netzwerkschritte des täglichen Workflows (Signieren braucht cosign). |
+| `make refresh-releases` / `make sign-releases` | Die Netzwerkschritte des Release-Workflows (Signieren braucht cosign). |
 | `make setup-confined` | Die elf wurzelbeschränkten Apps auf diesem Rechner installieren, pinnen, prüfen und registrieren. |
 | `make clean` | Nur markierte `.build/` und `dist/` entfernen; Workspaces und `.venv` bleiben. |
 
@@ -402,7 +403,7 @@ ausgeführt wurde, von dokumentarischen Belegen.
 | `tests/` | Kern-Regressionstests, synthetisches SDK-Fixture, native Abnahmeszenarien |
 | `docs/` | Architektur, Betrieb, Abnahme, Quellen und Verifikation |
 | `plugins/storytold/` | Generierte gemeinsame Laufzeit; niemals direkt bearbeiten |
-| `.github/workflows/` | Offline-CI-Matrix sowie tägliche Release-Aktualisierung, Signierung und Verifikation auf drei Betriebssystemen |
+| `.github/workflows/` | Offline-CI-Matrix sowie Release-Aktualisierung alle drei Tage, Signierung und Verifikation auf drei Betriebssystemen |
 
 [Architektur](docs/architecture.md) hält fest, warum der native Plan Vorrang vor
 der älteren Gateway-Referenz hat und welche Komponente wofür zuständig ist.

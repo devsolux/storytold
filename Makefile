@@ -206,7 +206,7 @@ github-verify: ## Show git remotes and branches
 # - Local commits ahead of origin/main: no-op; use github-push when ready.
 # - Remote commits ahead of local main: fast-forward only.
 # - Diverged history or a dirty worktree during an update: stop without changing files.
-# The daily release workflow merges into main on its own, so local and remote
+# The release workflow merges into main on its own, so local and remote
 # main diverge routinely; the fix is always a rebase of the local commits.
 REBASE_HELP := "error: rebase stopped on a conflict. Resolve and git add any source files; for plugins/storytold run git checkout HEAD -- plugins/storytold, make build, git add plugins/storytold; then git rebase --continue. Then rerun this target. To abandon: git rebase --abort"
 
@@ -295,8 +295,8 @@ github-bootstrap: ## Publishes: validate, git init, first commit, create public 
 	@$(MAKE) github-repo-create
 	@$(MAKE) github-verify
 
-github-allow-action: github-check ## Repo setting: let the daily workflow open pull requests with github.token
+github-allow-action: github-check ## Repo setting: let the release workflow open pull requests with github.token
 	gh api -X PUT repos/$(GITHUB_FULL)/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true
 
-github-run-workflow: github-check ## Trigger the daily release refresh now (refresh, sign, three-OS verify, PR, auto-merge if enabled)
+github-run-workflow: github-check ## Trigger the release refresh now, outside its every-third-day schedule (refresh, sign, three-OS verify, PR, auto-merge if enabled)
 	gh workflow run releases.yml --repo $(GITHUB_FULL)

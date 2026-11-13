@@ -213,7 +213,7 @@ kullanır: indirme, kilit, `preflight`, `probe`, `configure`, kayıt.
 
 macOS'ta ikili dosya ArtCraft ekibi tarafından Apple noterliğinden geçirilmiş
 olmalıdır. Upstream, Linux ve Windows derlemelerini kod imzalamaz; bu yüzden
-[günlük iş akışı](.github/workflows/releases.yml) sabitlenmiş her CLI'yi kendi
+[sürüm iş akışı](.github/workflows/releases.yml) sabitlenmiş her CLI'yi kendi
 GitHub kimliğiyle, anahtarsız olarak [Sigstore cosign](https://docs.sigstore.dev/)
 ile imzalar ve paketleri [`config/signatures.json`](config/signatures.json)
 dosyasına işler. Linux ve Windows'ta `setup` kurmadan önce bu paketi
@@ -222,9 +222,11 @@ doğrular. Bir sürümün paketi olmadığında ya da cosign yokken
 `--trust-upstream-sums` yalnızca manifest ve `SHA256SUMS.txt` ile ilerler ve
 bunu kilide yazar.
 
-### Günlük sürüm yenileme
+### Üç günde bir sürüm yenileme
 
-İş akışı her gün her uygulamanın son sürümünü denetler, manifesti yeniden
+İş akışı ayın her üçüncü gününde (1, 4, …, 31: iki çalıştırma arası hiçbir
+zaman üç günü aşmaz; `make github-run-workflow` hemen denetler) her
+uygulamanın son sürümünü denetler, manifesti yeniden
 yazar, yeni CLI'leri imzalar, eklentiyi yeniden derler, denetimleri ve gerçek
 `setup`'ı Linux, Windows ve macOS runner'larında çalıştırır ve inceleme için
 `bot/releases` üzerinde tek bir çekme isteği açar (yeşil çalıştırmaları otomatik
@@ -371,7 +373,7 @@ make verify-build
 | `make release` | Sıralı denetimler, çekirdek testler ve yeniden üretilebilir paketleme; yayımlama ya da yerel kabul iddiası yoktur. |
 | `make setup` / `make setup-probe` | Yerel bir `.venv` oluşturur; ardından açık bir ağ tercihi olarak özet kilitli resmi MCP SDK'yı (`mcp==2.3.0`) kurar. |
 | `make test-sdk` | Gerçek SDK'yı Craft uygulamalarına değil, sentetik bir stdio fikstürüne karşı sınar. |
-| `make refresh-releases` / `make sign-releases` | Günlük iş akışının çalıştırdığı ağ adımları (imzalama cosign gerektirir). |
+| `make refresh-releases` / `make sign-releases` | Sürüm iş akışının çalıştırdığı ağ adımları (imzalama cosign gerektirir). |
 | `make setup-confined` | Kök sınırlı on bir uygulamayı bu makinede kurar, sabitler, yoklar ve kaydeder. |
 | `make clean` | Yalnızca işaretli `.build/` ve `dist/` dizinlerini kaldırır; çalışma alanları ve `.venv` kalır. |
 
@@ -402,7 +404,7 @@ kalır. [Doğrulama raporu](docs/verification.md), her sürüm için gerçekten
 | `tests/` | Çekirdek regresyon testleri, sentetik SDK fikstürü, yerel kabul senaryoları |
 | `docs/` | Mimari, işletim, kabul, kaynaklar ve doğrulama |
 | `plugins/storytold/` | Üretilen ortak çalışma zamanı; asla doğrudan düzenlemeyin |
-| `.github/workflows/` | Çevrimdışı CI matrisi ile günlük sürüm yenileme, imzalama ve üç işletim sisteminde doğrulama |
+| `.github/workflows/` | Çevrimdışı CI matrisi ile üç günde bir sürüm yenileme, imzalama ve üç işletim sisteminde doğrulama |
 
 [Mimari](docs/architecture.md), yerel planın neden eski ağ geçidi
 referansından önce geldiğini ve hangi bileşenin neye sahip olduğunu kayda

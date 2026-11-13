@@ -1,4 +1,4 @@
-"""Open the next patch release after the daily refresh moved a pin: version and changelog section.
+"""Open the next patch release after the scheduled refresh moved a pin: version and changelog section.
 
 Workflow step, no network. After scripts/refresh_releases.py rewrote
 config/releases.json, this moves packaging/project.json to the next patch
@@ -48,7 +48,7 @@ def pin_moves(report: dict, names: dict[str, str]) -> list[str]:
 
 def section(version: str, day: str, moves: list[str], run: str | None) -> str:
     where = f' (run {run})' if run else ''
-    summary = (f'Automated release by the daily Craft release refresh{where}: {len(moves)} pin'
+    summary = (f'Automated release by the Craft release refresh{where}: {len(moves)} pin'
                f'{"s" if len(moves) != 1 else ""} moved on {day}. Each moved app needs its card and smoke tool rechecked at the new tag.')
     bullet = textwrap.fill('- Pins moved: ' + ', '.join(moves) + '.', WIDTH, subsequent_indent='  ')
     return f'## {version} — {day}\n\n{textwrap.fill(summary, WIDTH)}\n\n{bullet}\n'

@@ -8,8 +8,8 @@ never at a release tag.
 No native process or permission grant is implied by opening this repository.
 
 Pull before anything else (`git pull --ff-only origin main`, or `make
-github-pull` when local commits are not pushed yet): the daily release workflow
-merges its bot/releases pull request into main on its own. Commits go on main,
+github-pull` when local commits are not pushed yet): the release workflow (every third
+day) merges its bot/releases pull request into main on its own. Commits go on main,
 each one a single logical change that passes the gates alone and carries the
 plugins/storytold it regenerates; push main, the `v<version>` tag and the GitHub
 release happen only on the operator's explicit request in the current session.

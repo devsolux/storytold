@@ -4,7 +4,7 @@ Nothing here runs unless an operator invokes `storytold.py setup`. The command
 downloads only the reviewed release archives named in config/releases.json,
 checks each archive against the manifest and the release's own SHA256SUMS.txt,
 takes exactly one `<app>-cli` out of it, checks provenance (Apple notarization
-by the pinned team on macOS; the Sigstore bundle the daily workflow signed on
+by the pinned team on macOS; the Sigstore bundle the release workflow signed on
 Linux and Windows, and on macOS too when cosign is present), runs the existing
 preflight and official-SDK probe against that staged candidate, and only then
 promotes it, pins it in the private lock, probes the active launch so the

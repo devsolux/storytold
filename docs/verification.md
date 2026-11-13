@@ -7,6 +7,16 @@ of them through operator-run `setup` on a developer Mac (FigCraft there since
 October 18, 2026; tables below). That is M0-level evidence, not acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Release refresh every third day — November 13, 2026
+
+| Gate | Result |
+|---|---|
+| `make check`, `make test`, `make build`, `make verify-build` | Passed: 77 checks, **292 tests** (1 new in `tests/test_bump_release.py`: the workflow's only cron is `23 5 */3 * *`, `workflow_dispatch` stays, and the manifest's Sigstore identity names `releases.yml` by path, so the rename leaves signing alone; the changelog-section test now expects "the Craft release refresh"). Both workflows parse (Ruby YAML). |
+| Before the change | `gh run list` on 2026-11-13: the scheduled run of that day (43432074822) passed with no pin moved; every app's latest release equals its 2026-11-12 pin. |
+
+**Not run:** the new schedule has not fired yet; the first scheduled run after the push is
+on the next day of the month in 1, 4, …, 31.
+
 ## Doctor reports installs behind their pin — November 13, 2026
 
 macOS (Darwin 27, arm64) with Python **3.11.18**:

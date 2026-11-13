@@ -11,7 +11,7 @@ mutation retries, no optional scripts/macros enabled automatically. Binaries
 are downloaded and host registrations written only by the explicit `setup`
 command: from GitHub release hosts only, checked against the reviewed manifest
 and upstream `SHA256SUMS.txt`, then Apple notarization by the pinned team
-(macOS) or the Sigstore bundle the daily workflow signed keyless (Linux and
+(macOS) or the Sigstore bundle the release workflow signed keyless (Linux and
 Windows; macOS too when cosign is present), then preflight and the official-SDK
 probe before `codex mcp add` / `claude mcp add` run. `--trust-upstream-sums`
 and `--skip-probe` weaken that chain and are recorded in the lock or report.
@@ -26,7 +26,7 @@ itself writes (same command, same arguments, same scope, confirmed in the
 host's own file) for an app that is still pinned; `--dry-run` previews
 removal without any side effect. `--replace` removes a registration only when
 it can be restored exactly and restores it if the new one cannot be added.
-The daily workflow verifies every pinned archive against its Sigstore bundle
+The release workflow verifies every pinned archive against its Sigstore bundle
 and refuses to run `setup` with `--trust-upstream-sums`.
 The default plugin ships inactive launch templates; `configure` needs matching
 local pins and probe evidence.

@@ -1,6 +1,7 @@
-name: Daily Craft release refresh
-# Refreshes config/releases.json from the latest upstream releases, signs each
-# pinned CLI keyless with this workflow's Sigstore identity, opens the next patch
+name: Craft release refresh
+# Every third day, and on demand, refreshes config/releases.json from the latest
+# upstream releases, signs each pinned CLI keyless with this workflow's Sigstore
+# identity (bound to this file's path, not to its name), opens the next patch
 # release when a pin moved (version and changelog section) and rebuilds the
 # plugin, all in a job that can read the repository and mint an OIDC token,
 # nothing more. A separate publish job, which runs no repository code, commits
@@ -12,7 +13,9 @@ name: Daily Craft release refresh
 # release from the changelog section the pull request added.
 on:
   schedule:
-    - cron: '23 5 * * *'
+    # Every third day of the month (1, 4, ..., 28, 31) at 05:23 UTC: never more than three days
+    # between runs, one or two at a month's end. workflow_dispatch (make github-run-workflow) checks now.
+    - cron: '23 5 */3 * *'
   workflow_dispatch:
 permissions:
   contents: read
@@ -106,7 +109,7 @@ jobs:
         run: |
           reason='A build, check or test step failed; its log names the cause.'
           if [ -n "$FAILED" ] && [ -s "$RUNNER_TEMP/$FAILED.log" ]; then reason=$(tail -n 1 "$RUNNER_TEMP/$FAILED.log"); fi
-          echo "::error title=Daily Craft release refresh stopped::${reason//%/%25}"
+          echo "::error title=Craft release refresh stopped::${reason//%/%25}"
           { echo '### Stopped'; echo '```'; echo "$reason"; echo '```'; echo 'Nothing was handed to the publish job: no pull request, no merge and no release from this run.'; } >> "$GITHUB_STEP_SUMMARY"
   publish:
     needs: refresh

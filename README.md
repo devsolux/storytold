@@ -199,7 +199,7 @@ chain in [operations](docs/operations.md): download, lock, `preflight`, `probe`,
 
 On macOS the binary must be Apple-notarized by the ArtCraft team. Upstream does
 not code-sign Linux or Windows builds, so the
-[daily workflow](.github/workflows/releases.yml) signs every pinned CLI keyless
+[release workflow](.github/workflows/releases.yml) signs every pinned CLI keyless
 with [Sigstore cosign](https://docs.sigstore.dev/) under its own GitHub identity
 and commits the bundles to [`config/signatures.json`](config/signatures.json).
 On Linux and Windows, `setup` verifies that bundle with `cosign verify-blob`
@@ -208,13 +208,14 @@ present. Until a release has a bundle, or without cosign,
 `--trust-upstream-sums` proceeds on the manifest and `SHA256SUMS.txt` alone and
 says so in the lock.
 
-### Daily release refresh
+### Release refresh every third day
 
-The workflow checks every app's latest release each day, rewrites the manifest,
-signs new CLIs, rebuilds the plugin, runs the checks and the real `setup` on
-Linux, Windows and macOS runners, and opens one pull request on `bot/releases`
-for review (set the repository variable `STORYTOLD_AUTO_MERGE=true` to merge
-green runs automatically). A run that moves a pin also bumps Storytold's patch
+The workflow checks every app's latest release every third day of the month
+(1, 4, …, 31: never more than three days apart; `make github-run-workflow`
+checks at once), rewrites the manifest, signs new CLIs, rebuilds the plugin,
+runs the checks and the real `setup` on Linux, Windows and macOS runners, and
+opens one pull request on `bot/releases` for review (set the repository
+variable `STORYTOLD_AUTO_MERGE=true` to merge green runs automatically). A run that moves a pin also bumps Storytold's patch
 version and writes that release's changelog section; merging publishes the
 GitHub release `v<version>`. Users receive the new pins with the next plugin
 update.
@@ -347,7 +348,7 @@ make verify-build
 | `make release` | Ordered checks, core tests and reproducible packaging; no publishing or native acceptance claim. |
 | `make setup` / `make setup-probe` | Create a local `.venv`; then, as an explicit network opt-in, install the hash-locked official MCP SDK (`mcp==2.3.0`). |
 | `make test-sdk` | Exercise the real SDK against a synthetic stdio fixture, not the Craft apps. |
-| `make refresh-releases` / `make sign-releases` | The network steps the daily workflow runs (signing needs cosign). |
+| `make refresh-releases` / `make sign-releases` | The network steps the release workflow runs (signing needs cosign). |
 | `make setup-confined` | Install, pin, probe and register the eleven root-confined apps on this machine. |
 | `make clean` | Remove only marked `.build/` and `dist/`; workspaces and `.venv` stay. |
 
@@ -377,7 +378,7 @@ each release from documentary evidence.
 | `tests/` | Core regression tests, synthetic SDK fixture, native acceptance scenarios |
 | `docs/` | Architecture, operations, acceptance, sources and verification |
 | `plugins/storytold/` | Generated shared runtime; never edit it directly |
-| `.github/workflows/` | Offline CI matrix and the daily release refresh, signing and three-OS verification |
+| `.github/workflows/` | Offline CI matrix and the release refresh every third day, signing and three-OS verification |
 
 [Architecture](docs/architecture.md) records why the native plan takes
 precedence over the older gateway reference and which component owns what.

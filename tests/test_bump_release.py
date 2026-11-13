@@ -1,9 +1,11 @@
 """The workflow's own patch release after a pin move: version bump, changelog section and the jobs around them. Offline."""
 from pathlib import Path
+import re
 import tempfile
 import unittest
 from storytold_tools.catalog import load_catalog
 from storytold_tools.common import ROOT,StorytoldError
+from storytold_tools.releases import load_releases
 from scripts.bump_release import bump,changelog,next_version,pin_moves
 
 NAMES={app:row['name'] for app,row in load_catalog().items()}
@@ -42,7 +44,7 @@ class BumpTests(unittest.TestCase):
         self.assertEqual(result['pins'],['CADCraft 0.11.0 (assets re-published)','PdfCraft 0.11.0 → 0.11.1'])
         self.assertEqual(self.project.read_text(encoding='utf-8'),PROJECT.replace('1.5.5','1.5.6'))
         text=self.log.read_text(encoding='utf-8');flat=' '.join(text.split())
-        self.assertTrue(text.startswith('# Changelog\n\n## 1.5.6 — 2026-10-24\n\nAutomated release by the daily Craft release refresh (run 123): 2 pins'),text)
+        self.assertTrue(text.startswith('# Changelog\n\n## 1.5.6 — 2026-10-24\n\nAutomated release by the Craft release refresh (run 123): 2 pins'),text)
         self.assertIn('2 pins moved on 2026-10-24. Each moved app needs its card and smoke tool rechecked at the new tag.',flat)
         self.assertNotIn('Unreleased',text);self.assertTrue(all(len(line)<=78 for line in text.splitlines()),text)
         self.assertTrue(text.endswith('\n\n'+PINS+'- Pending entry.\n  Continued.\n\n'+PREVIOUS),text)
@@ -91,6 +93,12 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn('python',merge);self.assertNotIn('actions/checkout',merge)
         self.assertLess(merge.index('--match-head-commit'),merge.index('gh release create'))
         self.assertIn("needs.refresh.outputs.version != ''",merge);self.assertIn('--target "$MERGED_SHA"',merge)
+    def test_refresh_runs_every_third_day_and_on_demand(self):
+        text=(ROOT/'.github/workflows/releases.yml').read_text(encoding='utf-8');trigger=text[text.index('\non:'):text.index('\npermissions:')]
+        self.assertEqual(re.findall(r"cron:\s*'([^']*)'",trigger),['23 5 */3 * *'])
+        self.assertIn('  workflow_dispatch:',trigger)
+        # The Sigstore identity names the file path, so the workflow's name is free to change but the file is not.
+        self.assertIn(r'\.github/workflows/releases\.yml@refs/heads/main',load_releases()['signers']['sigstore_identity_regexp'])
     def test_ci_ignores_the_files_the_workflow_owns(self):
         text=(ROOT/'.github/workflows/ci.yml').read_text(encoding='utf-8');ignore=text[text.index('paths-ignore:'):text.index('workflow_dispatch:')]
         for name in ('config/releases.json','config/signatures.json','plugins/storytold/**','packaging/project.json','CHANGELOG.md'):

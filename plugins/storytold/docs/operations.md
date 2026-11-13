@@ -39,7 +39,7 @@ at the first failure, and prints a JSON report:
    - macOS: `spctl` must report *Notarized Developer ID* and `codesign` the
      manifest's Apple team, otherwise the file is discarded.
    - Linux and Windows: upstream publishes no code signature, so `setup`
-     requires the Sigstore bundle that the daily workflow produced for this
+     requires the Sigstore bundle that the release workflow produced for this
      exact archive (`config/signatures.json`): the extracted binary's SHA-256
      must equal the signed one, then `cosign verify-blob --bundle … 
      --certificate-identity-regexp <manifest signers> --certificate-oidc-issuer
@@ -200,8 +200,9 @@ GitHub, Fulcio or Rekor fault, including a Rekor `409 createLogEntryConflict`
 after cosign's own HTTP retry, does not fail the run. Any other HTTP error (a
 release without SHA256SUMS.txt, a missing asset) and a size-limit or hash
 refusal are final: they are findings about the release, not hiccups.
-In the repository this runs daily: the
-[release workflow](https://github.com/devsolux/storytold/blob/main/.github/workflows/releases.yml) refreshes, signs keyless
+In the repository this runs every third day of the month (1, 4, …, 31, so
+never more than three days apart; `make github-run-workflow` starts it at
+once): the [release workflow](https://github.com/devsolux/storytold/blob/main/.github/workflows/releases.yml) refreshes, signs keyless
 with its GitHub OIDC identity (`id-token: write`) and rebuilds the plugin in a
 job that holds no write token, hands the changed files to a `publish` job that
 runs only `git` and `gh` (the one holding `contents: write`) to commit them,
@@ -211,7 +212,7 @@ bundle) and a real `setup --all --acknowledge-unconfined` that verifies each
 bundle with cosign, never `--trust-upstream-sums`, on Linux, Windows and macOS
 runners, and opens one pull request on
 `bot/releases` (an open one is updated, title and body). The run's summary page
-shows the refresh and signing reports and the changed files, so a day's result
+shows the refresh and signing reports and the changed files, so a run's result
 is readable without the logs; a run takes about four minutes, most of it the
 three-OS verify downloading and probing all fifteen CLIs. Review the pull
 request (a changed app needs its card and smoke tool rechecked
@@ -262,7 +263,7 @@ that release's `SHA256SUMS.txt`. On Windows the MSI and portable ZIP install
 `/usr/bin/<app>-cli`. Pin whichever copy you use, preferably the version that
 matches your desktop app.
 
-The reviewed pins live in `config/releases.json`, which the daily workflow
+The reviewed pins live in `config/releases.json`, which the release workflow
 keeps current: per app the release tag, its commit (the lock's `revision`),
 and per platform the archive name, size and SHA-256 from upstream's
 `SHA256SUMS.txt`. Print them instead of copying from a document that would go

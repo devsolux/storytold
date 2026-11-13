@@ -11,7 +11,7 @@ from storytold_tools.releases import PLATFORMS,asset_names,asset_url,load_releas
 from scripts.refresh_releases import MAX_METADATA,get,guard
 
 class RefreshGuardTests(unittest.TestCase):
-    """The daily refresh must stop, not pin, on a downgrade or a re-published tag."""
+    """The scheduled refresh must stop, not pin, on a downgrade or a re-published tag."""
     def setUp(self): self.pinned=json.loads(json.dumps(load_releases()['apps']['soundcraft']))
     def latest(self,**changes): return json.loads(json.dumps(dict(self.pinned,**changes)))
     def test_unchanged_and_newer_releases_pass(self):
