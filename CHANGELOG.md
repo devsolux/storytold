@@ -25,6 +25,14 @@
   `.sbs` packages it instances outside its read root (now in `safety.md` and the
   README), and TextureCraft cannot load what MaterialCraft 0.4 writes, so the
   material-to-texture handoff hands over exported maps only.
+- Acceptance: PdfCraft's app scenario ran against the pinned 0.21.1 on a
+  developer Mac: edit, save, reopen, a redaction checked by the app's audit and
+  an independent byte scan, root denial for absolute, traversal and symlink
+  paths, and unchanged originals. No M gate is marked passed. The card now says,
+  from that run, that JavaScript is back on in every new session and runs on
+  open, that `js_document_scripts` misses an `/OpenAction` script while doc_info
+  `has_javascript` does not, that doc_save replaces an existing file without
+  asking, and that only doc_info shows a repaired file's warnings.
 
 ## 1.6.5 — 2026-11-12
 

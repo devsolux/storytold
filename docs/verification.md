@@ -4,8 +4,52 @@ Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All fifteen CLIs have
 passed the native probe through runner-run `setup` on GitHub runners, and all fifteen
 through operator-run `setup` on a developer Mac (FigCraft there since October 18,
-MaterialCraft and TextureCraft since November 13, 2026; tables below). That is M0-level evidence, not acceptance. This report separates the checks actually executed for each
+MaterialCraft and TextureCraft since November 13, 2026; tables below). That is M0-level evidence, not acceptance.
+PdfCraft's app scenario is the one acceptance run so far (November 13, 2026, below); it
+does not make any M gate pass. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## PdfCraft acceptance scenario on the developer Mac — November 13, 2026
+
+Operator-run on macOS (Darwin 27, arm64) with Python **3.11.18** and the official
+MCP SDK **2.3.0**: the pinned `pdfcraft-cli` 0.21.1 launched directly with its
+registered arguments (`mcp --automation-read-root {work} --automation-write-root
+{outputs} --root {work} --compact`, working directory `{work}`), not through the
+host, whose PdfCraft server predated the upgrade. Fixtures were generated
+synthetic PDFs (two pages, a text field, a document `/OpenAction` script and a
+marker string) staged with `stage`. The full logs, renders and summary are kept
+privately outside the workspace; nothing from them is committed.
+
+| Required evidence (`tests/native/acceptance.json`) | Result |
+|---|---|
+| immutable_revision, binary_sha256 | `b503b2e` = manifest commit; binary SHA-256 = installation lock = the Sigstore-signed CLI hash; `preflight` ready. |
+| help_and_flags | `--version` 0.21.1; `mcp` takes `--root`, `--compact` and the two automation roots only. |
+| initialize_and_tools_list, read_only_fixture_call | pdfcraft 0.21.1, protocol 2025-06-18, 17 compact tools; doc_inspect, doc_info, text_extract and form_fields on the fixture without error. |
+| headless_no_gui | Four server sessions: no socket held at start or end, no PdfCraft entry in `lsappinfo list`; stderr names both roots. |
+| native_save_export_reopen | page_rotate (page 2, 90°), doc_set_info Title, redact_mark and redact_apply on the marker, doc_save to a new outputs path, reopen: 2 pages, page 2 at 90° (792×612), new Title, field value kept, marker not found, doc_audit_redactions 0 findings; both pages rendered and reviewed. `verify-artifact --format pdf` passed (marker checks only). |
+| original_hashes_unchanged | `verify-inputs`: all unchanged; the files outside the workspace used as escape targets unchanged. |
+| warnings_reviewed | None on the clean fixture. A truncated copy opened as a one-page document: doc_open's reply showed nothing, doc_info listed `repairs`, `unreadable_objects` and a warning. |
+| failure_and_boundary_test | Refused with a clear error: absolute paths (/etc/hosts, a file outside), `../` traversal, a symlink in inputs pointing outside, a save into the read root, to /tmp and through `outputs/../../`. A missing file, a wrong parameter type and an unknown document id were typed errors, and the server answered afterwards. |
+
+Observed beyond the checklist, now in the PdfCraft card:
+- **JavaScript on open:** `js_enabled` is on in every new server session, and
+  opening the fixture ran its `/OpenAction` script. The open reply was already
+  dirty with the undo step "Run JavaScript", and the field changed. With
+  `js_enabled {enabled: false}` first, it did not change.
+- **Script listing:** `js_document_scripts` returned none for the `/OpenAction`
+  script while doc_info said `has_javascript: true`. The saved output keeps the
+  script.
+- **Overwrite:** `doc_save` over an existing outputs file replaced it without
+  asking. Over a hard-linked name it wrote a new file (new inode, mode 0600) and
+  left the other link unchanged.
+- **Redaction:** besides the app's audit, a stdlib scan of the raw and
+  Flate-decoded streams found no trace of the marker in Latin-1, UTF-16BE or hex
+  form, while the kept text was present. Text extraction order changed around
+  the redacted span.
+
+**Not run:** the host-level M1 test (Claude Code `/mcp`, approval, a failing
+server's isolation), OS isolation, LibreOffice and Tesseract conversions, printing,
+signing, real-world documents, and fidelity in other viewers.
 
 ## MaterialCraft and TextureCraft on the developer Mac — November 13, 2026
 
@@ -542,10 +586,12 @@ Host manifest schemas remain authoritative.
 
 ## Not verified
 
-- **Craft apps.** Thirteen CLIs passed discovery and one read-only call on one
-  macOS machine; only PhotoCraft has produced a real export. Native edit,
-  export, root-denial, isolation and fidelity tests (M1–M3) have not run for the
-  other fourteen apps.
+- **Craft apps.** All fifteen CLIs passed discovery and one read-only call on one
+  macOS machine; PhotoCraft and PdfCraft have produced real exports, and
+  PdfCraft alone has run its acceptance scenario (edit, save, reopen, redaction
+  and root denial, November 13, 2026). Native edit, export, root-denial,
+  isolation and fidelity tests (M1–M3) have not run for the other thirteen
+  apps, and the host-level M1 test has not run for any.
 - **MaterialCraft and TextureCraft.** Executed on the three GitHub runners
   (runs 42034977077 and 42222471577: download, provenance, discovery and the
   `session_inspect` smoke call) and, since November 13, 2026, through
