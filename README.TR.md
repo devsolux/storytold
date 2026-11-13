@@ -113,8 +113,10 @@ python3 storytold.py setup --all --acknowledge-unconfined
 `/storytold:craft`, Codex'te ise Skill seçicisinden `storytold:craft`.
 
 `python3 storytold.py doctor` her uygulama için bulduğu masaüstü uygulamasını,
-CLI'yi ve host kaydını bildirir ve eksik olan her şey için tam `setup` komutunu
-yazdırır; bir sunucu bağlı değilken Skill aynı komutu sohbette önerir.
+CLI'yi ve host kaydını bildirir ve eksik olan her şey için tam `setup` komutunu,
+sabitlenen sürümün gerisinde kalan bir kurulum (`registered_outdated`) için de
+`setup --upgrade` komutunu yazdırır; bir sunucu bağlı değilken Skill aynı komutu
+sohbette önerir.
 
 ## Craft App Suite uygulamaları
 

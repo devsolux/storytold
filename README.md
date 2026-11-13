@@ -103,8 +103,10 @@ python3 storytold.py setup --all --acknowledge-unconfined
 Code, or `storytold:craft` from the Codex Skill picker.
 
 `python3 storytold.py doctor` reports, per app, the desktop app, CLI and host
-registration it finds and prints the exact `setup` command for anything missing;
-the Skill offers the same command in chat when a server is not connected.
+registration it finds and prints the exact `setup` command for anything missing,
+and the `setup --upgrade` command for an install behind its pin
+(`registered_outdated`); the Skill offers the same command in chat when a server
+is not connected.
 
 ## The Craft App Suite
 

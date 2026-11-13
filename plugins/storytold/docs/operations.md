@@ -508,6 +508,13 @@ For each app, `connections.apps[]` shows the desktop app, a CLI in
 | `registered_command_missing` | The binary moved or was removed; re-run `setup` (with `--upgrade` if a stale file remains) or reinstall and re-probe by hand. |
 | `registration_unknown` | A host configuration (or the lock) could not be read; `host_config_errors` names it. Fix the file, or wait until the host stops writing it, and run `doctor` again before re-registering. |
 | `registered` | Start a new host session; check `codex mcp get <app>` or `claude mcp get <app>` and approve the server. |
+| `registered_outdated` | Registered, but the installation lock pins another release than `config/releases.json` (or a label from before the app's root flags). It still works at its own release; run the `setup … --upgrade` command `next` names when the pinned release is wanted, add `--replace` if `setup` reports the registration differs, then start a new host session. |
+
+Each row also carries `up_to_date`: `true` when the lock pins the manifest
+release, `false` when it pins another one (a `cli_not_registered` step then
+carries `--upgrade` too, since a plain `setup` refuses that binary), and `null`
+when the lock has no entry for the app, as for a CLI installed by hand. It is
+read from the lock alone; `setup --list` also checks the binary's hash.
 
 `doctor` reads the Codex user (`$CODEX_HOME/config.toml`) and project
 (`./.codex/config.toml`) scopes and the Claude Code user

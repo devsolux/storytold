@@ -48,9 +48,10 @@ instructions, not an authorization layer, execution service or new agent.
    authoritative current tool names and argument schemas from the connected
    server. Cards contain source-reported hints, not frozen command registries.
    They describe the release pinned in `config/releases.json`; `doctor` lists
-   each app's `pinned_version` beside `manifest_release`. An older installed
-   binary may lack what its card describes: its live tool list wins, and its
-   setup command with `--upgrade` is offered only when the user wants it.
+   each app's `pinned_version` beside `manifest_release` and reports an install
+   behind that pin as `registered_outdated`. An older installed binary may lack
+   what its card describes: its live tool list wins, and the `--upgrade` command
+   doctor names is offered only when the user wants it.
 4. Inspect document structure and warnings before mutation. Work from a staged
    copy or a new headless document. Keep originals outside writable scope. Root
    flags cover only some apps; sensitive work in an unconfined process is blocked

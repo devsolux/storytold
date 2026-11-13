@@ -45,6 +45,49 @@ class DoctorTests(unittest.TestCase):
         r,apps=self.run_report()
         self.assertTrue(r['setup_state_recorded']);self.assertEqual(apps['gridcraft']['status'],'cli_not_registered')
         self.assertEqual(apps['gridcraft']['cli'],str(cmd));self.assertEqual(apps['gridcraft']['pinned_version'],'0.5.0 (test)')
+        # A plain setup refuses a binary at another pin, so the step it names must carry --upgrade.
+        self.assertIs(apps['gridcraft']['up_to_date'],False);self.assertIn('setup --app gridcraft --acknowledge-unconfined --upgrade`',apps['gridcraft']['next'])
+        self.assertIsNone(apps['photocraft']['up_to_date'])
+
+    def recorded(self,app,revision,label):
+        """Setup state whose lock pins `app` at `revision`, and a Claude registration of its binary."""
+        from storytold_tools.setup import state_dir
+        cmd=self.binary(app+'-cli');state=state_dir(self.env,self.home);state.mkdir(parents=True)
+        (state/'setup.json').write_text(json.dumps({'schema_version':1,'bin_dir':str(self.base/'bin'),'work_root':str(self.base/'w'),
+            'output_root':str(self.base/'w/outputs'),'lock':str(state/'installations.lock.json'),'evidence_dir':str(state/'evidence'),'updated_at':'2026-11-13T00:00:00+00:00'}))
+        (state/'installations.lock.json').write_text(json.dumps({'schema_version':1,'platform':{},'apps':{app:{'revision':revision,'version':label,'sha256':'y'}}}))
+        (self.home/'.claude.json').write_text(json.dumps({'mcpServers':{app:{'command':str(cmd),'args':['mcp']}}}))
+
+    def test_registered_at_an_older_pin_is_reported_outdated(self):
+        self.recorded('photocraft','0'*40,'0.7.0 (v0.7.0, test)')
+        from storytold_tools.releases import load_releases
+        tag=load_releases()['apps']['photocraft']['tag']
+        _,apps=self.run_report();row=apps['photocraft']
+        self.assertEqual(row['status'],'registered_outdated');self.assertIs(row['up_to_date'],False)
+        self.assertIn('0.7.0 (v0.7.0, test)',row['next']);self.assertIn(tag,row['next'])
+        self.assertIn('setup --app photocraft --upgrade`',row['next']);self.assertNotIn('--upgrade',row['setup_command'])
+
+    def test_registered_at_the_manifest_pin_is_up_to_date(self):
+        from storytold_tools.releases import load_releases
+        row=load_releases()['apps']['photocraft']
+        self.recorded('photocraft',row['commit'],row['version']+' ('+row['tag']+', test)')
+        _,apps=self.run_report()
+        self.assertEqual(apps['photocraft']['status'],'registered');self.assertIs(apps['photocraft']['up_to_date'],True)
+
+    def test_manifest_commit_with_a_label_before_root_flags_is_outdated(self):
+        # setup refuses such a pin without --upgrade (honours_roots), so doctor must not call it current.
+        from storytold_tools.catalog import ROOTS_SINCE
+        from storytold_tools.releases import load_releases
+        app=sorted(ROOTS_SINCE)[0];row=load_releases()['apps'][app]
+        self.recorded(app,row['commit'],'0.0.1 (v0.0.1, test)')
+        _,apps=self.run_report()
+        self.assertEqual(apps[app]['status'],'registered_outdated');self.assertIs(apps[app]['up_to_date'],False)
+
+    def test_registration_without_a_lock_entry_stays_registered(self):
+        # A CLI installed by hand has no lock entry: doctor cannot tell its release, so it does not guess.
+        self.test_codex_registration_with_runnable_command()
+        _,apps=self.run_report()
+        self.assertEqual(apps['photocraft']['status'],'registered');self.assertIsNone(apps['photocraft']['up_to_date'])
 
     def test_cli_on_path_is_found(self):
         self.binary('photocraft-cli');self.env['PATH']=str(self.base/'bin')

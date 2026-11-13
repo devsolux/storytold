@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Doctor: an app registered at another pin than `config/releases.json` (or at
+  a label from before its root flags) is now `registered_outdated` instead of
+  `registered`, and its `next` step names the `setup … --upgrade` command. Each
+  row carries `up_to_date` (`true`, `false`, or `null` without a lock entry),
+  and a `cli_not_registered` step adds `--upgrade` when a plain `setup` would
+  refuse the installed binary. On the developer Mac all thirteen installed CLIs
+  had read `registered` while pinned seven to sixteen minor releases back.
+
 ## 1.6.5 — 2026-11-12
 
 Automated release by the daily Craft release refresh (run 43231479584): 15

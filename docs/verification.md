@@ -7,6 +7,18 @@ of them through operator-run `setup` on a developer Mac (FigCraft there since
 October 18, 2026; tables below). That is M0-level evidence, not acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Doctor reports installs behind their pin — November 13, 2026
+
+macOS (Darwin 27, arm64) with Python **3.11.18**:
+
+| Gate | Result |
+|---|---|
+| `make check`, `make test`, `make build`, `make verify-build` | Passed: 77 checks, **291 tests** (4 new in `tests/test_doctor.py`: an older pin is `registered_outdated` with the `--upgrade` step, the manifest pin stays `registered`, a manifest commit with a label from before the root flags is outdated as `setup` decides it, and a registration without a lock entry stays `registered` with `up_to_date: null`; the `cli_not_registered` case now asserts its `--upgrade` step). |
+| `doctor` on the developer Mac | Before the operator's upgrade all thirteen installed CLIs read `registered` at pins from 0.6.0 to 0.10.0 against the 2026-11-12 manifest; with the change, each one not yet upgraded reads `registered_outdated` and each upgraded one `registered` with `up_to_date: true`. MaterialCraft and TextureCraft stay `desktop_app_only`. |
+
+**Not run:** doctor still reads the lock alone and does not hash the binary; `setup --list`
+remains the check that the installed file matches its pin.
+
 ## First runs of all fifteen apps — November 5 and 6, 2026
 
 Read from the logs of the daily release workflow. Both runs used the strict

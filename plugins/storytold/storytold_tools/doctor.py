@@ -14,13 +14,15 @@ import shutil
 import subprocess
 import tomllib
 from typing import Mapping
-from .catalog import APP_IDS, load_catalog
+from .catalog import APP_IDS, honours_roots, load_catalog
 from .common import MAX_JSON, ROOT, StorytoldError, parse_json, require, snapshot
 from .releases import load_releases
 from .setup import load_state, resolve_paths
 
 NEXT = {
     'registered': 'Registered. If the host still lacks its tools, start a new host session and check its MCP list.',
+    'registered_outdated': 'Registered, but installed at {pinned} while the manifest pins {tag}; run `{cmd}` when you want the pinned release '
+                           '(setup names --replace if the registration also has to change), then start a new host session.',
     'registered_command_missing': 'The registered command is missing or not executable; re-run `{cmd}` (add --upgrade if a stale file is in the way).',
     'cli_not_registered': 'CLI found but no host registration; run `{cmd}` (or follow docs/operations.md sections 1-5).',
     'desktop_app_only': 'The macOS desktop app contains no MCP server; run `{cmd}` to install the notarized {exe} and register it.',
@@ -68,7 +70,7 @@ def runnable(command: object) -> bool:
     return isinstance(command, str) and Path(command).is_absolute() and Path(command).is_file() and os.access(command, os.X_OK)
 
 def pins(lock_path: Path) -> tuple[dict, str | None]:
-    """Pinned version per app, and the reason the lock could not be read (None when it is absent or fine)."""
+    """Lock entry (revision and version label) per app, and the reason the lock could not be read (None when it is absent or fine)."""
     if not lock_path.is_file(): return {}, None
     try:
         lock = parse_json(snapshot(lock_path, limit=MAX_JSON, body=True)[2] or b'')
@@ -76,7 +78,16 @@ def pins(lock_path: Path) -> tuple[dict, str | None]:
         return {}, str(exc)[:300]
     apps = lock.get('apps') if isinstance(lock, dict) else None
     if not isinstance(apps, dict): return {}, 'the lock has no apps object'
-    return {a: r.get('version') for a, r in apps.items() if isinstance(r, dict)}, None
+    return {a: {'revision': r.get('revision'), 'version': r.get('version')} for a, r in apps.items() if isinstance(r, dict)}, None
+
+def up_to_date(app: str, pin: dict | None, row: dict) -> bool | None:
+    """Whether the lock pins the manifest release, as `setup` decides it; None when the lock has no entry for the app.
+
+    A pin at the manifest commit whose label predates the app's root flags is
+    stale too: `setup` refuses it without --upgrade.
+    """
+    if pin is None: return None
+    return pin['revision']==row['commit'] and honours_roots(app, pin['version'])
 
 def report(env: Mapping[str,str], cwd: Path, home: Path, app_dirs: list[Path], plugin_root: Path = ROOT) -> dict:
     catalog = load_catalog(); releases = load_releases(); found = {}; errors = []
@@ -104,16 +115,20 @@ def report(env: Mapping[str,str], cwd: Path, home: Path, app_dirs: list[Path], p
         desktop = next((str(d/(catalog[app]['name']+'.app')) for d in app_dirs if (d/(catalog[app]['name']+'.app')).is_dir()), None)
         regs = [{'host': host, 'config': str(path), 'command': servers[app], 'command_runnable': runnable(servers[app])}
                 for host, (path, servers) in found.items() if app in servers]
-        status = ('registered' if regs and all(r['command_runnable'] for r in regs) else
+        row = releases['apps'][app]; pin = pinned.get(app); current = up_to_date(app, pin, row)
+        status = (('registered_outdated' if current is False else 'registered') if regs and all(r['command_runnable'] for r in regs) else
                   'registered_command_missing' if regs else
                   'registration_unknown' if unreadable_hosts else
                   'cli_not_registered' if cli else
                   'desktop_app_only' if desktop else 'not_installed')
         unconfined = catalog[app]['confinement']=='os_only'
         cmd = setup_command(plugin_root, app, unconfined)
+        # An installed binary at another pin is refused by a plain `setup`; the step shown must carry --upgrade.
+        fix = cmd+' --upgrade' if current is False and status in {'registered_outdated', 'cli_not_registered'} else cmd
         rows.append({'app': app, 'desktop_app': desktop, 'cli': cli, 'registrations': regs, 'status': status,
-                     'manifest_release': releases['apps'][app]['tag'], 'pinned_version': pinned.get(app),
-                     'setup_command': cmd, 'next': NEXT[status].format(cmd=cmd, exe=catalog[app]['executable'])})
+                     'manifest_release': row['tag'], 'pinned_version': pin and pin['version'], 'up_to_date': current,
+                     'setup_command': cmd, 'next': NEXT[status].format(cmd=fix, exe=catalog[app]['executable'],
+                                                                        pinned=pin and pin['version'], tag=row['tag'])})
     return {'apps': rows, 'host_config_errors': errors, 'setup_state_recorded': bool(state),
             'scopes_inspected': [host for host, _, _ in host_configs(env, cwd, home)],
             'notice': 'Static view of registration files only (Codex user and project scope, Claude user and project scope). '

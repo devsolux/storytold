@@ -110,9 +110,10 @@ python3 storytold.py setup --all --acknowledge-unconfined
 in Claude Code oder `storytold:craft` aus der Skill-Auswahl von Codex.
 
 `python3 storytold.py doctor` meldet je App die gefundene Desktop-App, CLI und
-Host-Registrierung und gibt für alles Fehlende den genauen `setup`-Befehl aus;
-der Skill bietet denselben Befehl im Chat an, wenn ein Server nicht verbunden
-ist.
+Host-Registrierung und gibt für alles Fehlende den genauen `setup`-Befehl aus,
+für eine Installation hinter ihrem Pin (`registered_outdated`) den Befehl
+`setup --upgrade`; der Skill bietet denselben Befehl im Chat an, wenn ein Server
+nicht verbunden ist.
 
 ## Die Craft App Suite
 
