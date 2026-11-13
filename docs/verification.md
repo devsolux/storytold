@@ -2,10 +2,26 @@
 
 Native application and host *acceptance* (M0–M4) remain **not run**: this
 repository neither ships nor executes Craft binaries. All fifteen CLIs have
-passed the native probe through runner-run `setup` on GitHub runners, and thirteen
-of them through operator-run `setup` on a developer Mac (FigCraft there since
-October 18, 2026; tables below). That is M0-level evidence, not acceptance. This report separates the checks actually executed for each
+passed the native probe through runner-run `setup` on GitHub runners, and all fifteen
+through operator-run `setup` on a developer Mac (FigCraft there since October 18,
+MaterialCraft and TextureCraft since November 13, 2026; tables below). That is M0-level evidence, not acceptance. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## MaterialCraft and TextureCraft on the developer Mac — November 13, 2026
+
+Operator-run on macOS (Darwin 27, arm64) with Python **3.11.18**:
+`setup --app materialcraft --app texturecraft`, after a `--dry-run` that predicted
+both `registered`.
+
+| App | Result |
+|---|---|
+| MaterialCraft 0.4.1 | `materialcraft-cli-0.4.1-macos-universal.zip` (11.9 MB), notarized by `DJ6XS33FX8` and Sigstore-verified; probe at `65f7bfd` `discovery_and_call_passed` (MCP 2025-11-25, SDK 2.3.0): 20 tools and the `session_inspect` smoke call. Registered with Claude Code as `mcp --read-root {work} --write-root {outputs}`. |
+| TextureCraft 0.6.1 | `texturecraft-cli-0.6.1-macos-universal.zip` (16.9 MB), notarized by `DJ6XS33FX8` and Sigstore-verified; probe at `34a1961` `discovery_and_call_passed`: 22 tools and `session_inspect`. Registered as `mcp --automation-read-root {work} --automation-write-root {outputs}`. |
+| Afterwards | `setup --list`: both hashes match their pins at the manifest commit; `doctor`: all fifteen apps `registered` with `up_to_date: true`; `claude mcp list`: both connected. Every probed tool name appears in its card except the bridge-only `ui_*` tools, which both cards cover as a group. |
+
+**Not run:** no native edit, export, root denial or handoff. MaterialCraft's dependency reads
+outside the read root (reported upstream as GHSA-gf6w-7pvx-6p86) and the broken
+MaterialCraft→TextureCraft link (storytold/texturecraft#473) rest on source review.
 
 ## Card recheck at the November 12 releases — November 13, 2026
 
@@ -14,7 +30,7 @@ macOS (Darwin 27, arm64) with Python **3.11.18**, plus GitHub:
 | Check | Result |
 |---|---|
 | Source review | All fifteen apps from their last rechecked tags to the 2026-11-12 pins on blob-less clones, nine reviewers; findings per app in the [source ledger](source-ledger.md). Every catalog launch accepted with unchanged meaning, every smoke tool present with no required parameter and read-only, no tool removed or renamed; WordCraft adds one tool and PdfCraft nineteen. No `config/apps.json` change. |
-| Operator `setup --upgrade` on the developer Mac | The thirteen installed CLIs moved from 0.6.0–0.10.0 to the pins: notarized by `DJ6XS33FX8` and Sigstore-verified, probe `discovery_and_call_passed` each, registrations unchanged, `setup --list` hash and manifest commit matching, `claude mcp list` connected. Their probe `tools/list` matches the reviewed tool definitions. MaterialCraft and TextureCraft are not installed there. |
+| Operator `setup --upgrade` on the developer Mac | The thirteen installed CLIs moved from 0.6.0–0.10.0 to the pins: notarized by `DJ6XS33FX8` and Sigstore-verified, probe `discovery_and_call_passed` each, registrations unchanged, `setup --list` hash and manifest commit matching, `claude mcp list` connected. Their probe `tools/list` matches the reviewed tool definitions. MaterialCraft and TextureCraft were installed there afterwards (section above). |
 | Runners | Run 43231479584 (the pin move) and run 43432074822 (main at 1.6.5): the three `verify` jobs ran the strict `setup --all` on Linux, Windows and macOS and passed. |
 | Binary strings | FilmCraft's `tts.downloadVoices` and `transcript.downloadModel` ids are present in the installed pinned macOS CLI (searched as bytes, not run). |
 | `make check`, `make test`, `make build`, `make verify-build` | Passed: 77 checks, **292 tests**. |
@@ -530,11 +546,12 @@ Host manifest schemas remain authoritative.
   macOS machine; only PhotoCraft has produced a real export. Native edit,
   export, root-denial, isolation and fidelity tests (M1–M3) have not run for the
   other fourteen apps.
-- **MaterialCraft and TextureCraft.** Executed only on the three GitHub runners
+- **MaterialCraft and TextureCraft.** Executed on the three GitHub runners
   (runs 42034977077 and 42222471577: download, provenance, discovery and the
-  `session_inspect` smoke call); their cards and scenarios rest on source
-  review. No developer machine has run them, no host has registered them, and
-  every acceptance gate (M1–M3) is still open.
+  `session_inspect` smoke call) and, since November 13, 2026, through
+  operator-run `setup` on a developer Mac, registered with Claude Code. Their
+  cards and scenarios rest on source review checked against that probe's tool
+  list, and every acceptance gate (M1–M3) is still open.
 - **Linux and Windows.** Real runs exist only on GitHub-hosted runners: the
   release workflow's verify matrix (run 38278727530 on 2026-10-12 with twelve
   apps, runs 38583930461 and 38588658915 on 2026-10-14 with all thirteen, the

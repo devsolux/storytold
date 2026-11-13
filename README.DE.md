@@ -388,7 +388,7 @@ Die Offline-Kerntests, der Vertragstest mit dem offiziellen MCP-SDK, die
 strikte Validierung der Claude-Manifeste und die Installation in Claude Code und
 Codex mit Skill-Erkennung wurden ausgeführt. `setup` hat alle fünfzehn
 Craft-CLIs auf macOS-, Linux- und Windows-Runnern installiert, geprüft und per
-Sigstore verifiziert, dreizehn davon auch auf einem Entwickler-Mac. Das ist ein
+Sigstore verifiziert, ebenso auf einem Entwickler-Mac. Das ist ein
 Nachweis auf Protokollebene, keine native Abnahme: Die Stufen in
 [Abnahme](docs/acceptance.md) führt der Betreiber selbst aus. Der
 [Verifikationsbericht](docs/verification.md) trennt, was für jedes Release

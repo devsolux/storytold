@@ -3,7 +3,7 @@
 These are operator steps, not actions performed by installing the plugin. Use
 non-sensitive fixtures until [acceptance](acceptance.md) passes. `setup` has
 installed, probed and Sigstore-verified all fifteen CLIs on macOS, Linux and
-Windows runners, thirteen of them on a developer Mac as well. That is M0-level
+Windows runners, and on a developer Mac as well. That is M0-level
 evidence, not the M1–M3 gates. See [verification](verification.md).
 
 ## One-command setup (macOS, Linux x86_64, Windows x64)

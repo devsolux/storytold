@@ -363,8 +363,8 @@ target, and [CONTRIBUTING.md](CONTRIBUTING.md) describes the contribution rules.
 The offline core suite, the official MCP SDK contract test, strict Claude
 manifest validation, and Claude Code and Codex installation with Skill
 discovery have been run. `setup` has installed, probed and Sigstore-verified
-all fifteen Craft CLIs on macOS, Linux and Windows runners, and thirteen of them
-on a developer Mac as well. That is protocol-level evidence, not native acceptance:
+all fifteen Craft CLIs on macOS, Linux and Windows runners, and on a developer
+Mac as well. That is protocol-level evidence, not native acceptance:
 the gates in [acceptance](docs/acceptance.md) remain the operator's to run. The
 [verification report](docs/verification.md) separates what was executed for
 each release from documentary evidence.

@@ -389,8 +389,8 @@ açıklar.
 Çevrimdışı çekirdek testleri, resmi MCP SDK sözleşme testi, sıkı Claude
 manifest doğrulaması ve Skill keşfiyle Claude Code ve Codex kurulumu
 çalıştırıldı. `setup`, on beş Craft CLI'sinin tümünü macOS, Linux ve Windows
-runner'larında kurdu, yokladı ve Sigstore ile doğruladı; on üçünü ayrıca bir
-geliştirici Mac'inde. Bu, protokol düzeyinde bir kanıttır, yerel kabul değildir:
+runner'larında kurdu, yokladı ve Sigstore ile doğruladı; tümünü ayrıca bir
+geliştirici Mac'inde de. Bu, protokol düzeyinde bir kanıttır, yerel kabul değildir:
 [kabul](docs/acceptance.md) belgesindeki aşamaları çalıştırmak işletmeciye
 kalır. [Doğrulama raporu](docs/verification.md), her sürüm için gerçekten
 çalıştırılanları belgesel kanıttan ayırır.
