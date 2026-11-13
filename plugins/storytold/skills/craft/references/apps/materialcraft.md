@@ -25,13 +25,19 @@ of access. The roots are held directory handles, so a request path is relative t
 forward slashes: `inputs/wall.sbs` to read, `wall.sbs` to write. Absolute paths, `..`, drive
 prefixes and symlink or junction escapes are refused. Reads have no size cap since 0.3.0. A
 write goes to a temporary file beside the target and renames over it, so it replaces an
-existing file (package resources excepted, below). Never add `--bridge` or `--token`: they
+existing file without asking (package resources excepted, below): ask before reusing a name.
+Over a hard-linked name the rename leaves the other link alone (observed). Never add `--bridge` or `--token`: they
 drive a running desktop app.
 
 Not confined: package_open also loads every other `.sbs` package the opened one instances (its
 SBS dependency file names) with plain reads of the user's files, absolute or resolved against
 the server's working directory, not the read root; one it cannot read only adds a `Could not
-resolve` warning. Open only packages whose dependencies you trust. `sbs://` library references
+resolve` warning. Observed: an instance of a package outside the workspace cooked that package's
+own colours, and a missing one's warning named its absolute path, so the warning also tells
+whether a file exists (reported upstream). Before opening a package you
+did not make here, read its `<dependency><filename>` entries (in the `.sbs` XML, or
+`package.sbs` inside a `.mcraft`) and open it only when they all stay inside the workspace, or
+you trust what they name. `sbs://` library references
 read `MATERIALCRAFT_SBS_DIR`, else an `assets/sbs` folder beside the binary, else the bundled
 `functions.sbs`; treat a set `MATERIALCRAFT_SBS_DIR` as a finding.
 
@@ -56,9 +62,11 @@ writes `.sbs` XML with its resources as new files in an adjacent `resources/` fo
 file of the same name there is refused), or a self-contained `.mcraft` ZIP (`package.sbs` and
 `resources/`) when the path ends in `.mcraft`, and appends `.sbs` without a package extension; a
 0.1.x `.mcraft` (`package.json`) no longer opens. Always give it a path: without one it reuses
-the path the package was opened from, now relative to the write root. outputs_export creates its
-folder and cooks at the graph's size unless given `size`, which can take a while on a large graph;
-`outputs` and `colorSpaces` choose the maps and their encoding. material_export writes a version 2
+the path the package was opened from, now relative to the write root, or after a save the last
+path it saved to (observed). outputs_export creates its folder and cooks at the graph's size
+unless given `size`, which can take a while on a large graph; `outputs` and `colorSpaces` choose
+the maps and their encoding. It writes image outputs only: a value output (usage value) gets no
+file (observed). material_export writes a version 2
 `.mcmat` (cooked maps and `source.sbs`; `.mcmat` appended, the parent folder must exist, at most
 256 MiB), which TextureCraft v0.6.1 refuses: hand it exported maps instead (see its card).
 
@@ -85,3 +93,6 @@ runtime-tested capability contract. Upstream:
 [primitive workflow and limits](https://github.com/storytold/materialcraft/blob/main/docs/atomic-workflow.md).
 Pin the source revision and executable hash, verify help/flags and current
 `tools/list`, then run the app's non-sensitive acceptance fixture before real work.
+Notes marked "observed" come from the acceptance run of the pinned 0.4.1 on macOS on
+2026-11-13 (see the [verification report](../../../../docs/verification.md)); the rest is
+source-grounded.

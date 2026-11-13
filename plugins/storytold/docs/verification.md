@@ -5,9 +5,54 @@ repository neither ships nor executes Craft binaries. All fifteen CLIs have
 passed the native probe through runner-run `setup` on GitHub runners, and all fifteen
 through operator-run `setup` on a developer Mac (FigCraft there since October 18,
 MaterialCraft and TextureCraft since November 13, 2026; tables below). That is M0-level evidence, not acceptance.
-PdfCraft's app scenario is the one acceptance run so far (November 13, 2026, below); it
-does not make any M gate pass. This report separates the checks actually executed for each
+PdfCraft's and MaterialCraft's app scenarios are the acceptance runs so far (November 13,
+2026, below); they do not make any M gate pass. This report separates the checks actually executed for each
 release from documentary evidence.
+
+## MaterialCraft acceptance scenario on the developer Mac — November 13, 2026
+
+Operator-run on macOS (Darwin 27, arm64) with Python **3.11.18** and the official
+MCP SDK **2.3.0**: the pinned `materialcraft-cli` 0.4.1 launched directly with
+its registered arguments (`mcp --read-root {work} --write-root {outputs}`,
+working directory `{work}`, both from `preflight`). Fixtures were packages
+MaterialCraft saved from its built-in "Atomic sample", copied out of the
+workspace and staged with `stage`. Logs, renders and the summary are kept
+privately outside the workspace; nothing from them is committed.
+
+| Required evidence (`tests/native/acceptance.json`) | Result |
+|---|---|
+| immutable_revision, binary_sha256 | `65f7bfd` = manifest commit (`--version` 0.4.1); binary SHA-256 = installation lock = the Sigstore-signed CLI hash; `preflight` ready. |
+| help_and_flags | `mcp [--bridge] [--token] [--read-root] [--write-root]` with the `--automation-*` aliases; an unknown option (`mcp --help`) exits 1. |
+| initialize_and_tools_list, read_only_fixture_call | materialcraft 0.4.1, protocol 2025-11-25, 20 tools; session_inspect on the default session and the staged package, package warnings empty. |
+| headless_no_gui | No socket held at start or end of any session, no MaterialCraft entry in `lsappinfo list`. |
+| native_save_export_reopen | node_param Blur intensity 1.5→4.0, package_save as `.sbs` and `.mcraft`, outputs_export (`Atomic_sample_height.png`, 256×256, 16-bit gray, matching the graph's u16 at 256), view_render 3D and 2D reviewed; both reopened packages' graphs (nodes, parameters, connections, format, size) equal the edited graph, package warnings empty. `verify-artifact --format png` passed. |
+| original_hashes_unchanged | `verify-inputs`: all staged inputs unchanged; the outside files used as targets unchanged. |
+| warnings_reviewed | None on clean packages. A non-XML file was a typed error ("not a MaterialCraft package"). The dependency fixture's warning is below. |
+| failure_and_boundary_test | Refused with a clear error: absolute paths ("path rejected (absolute)"), `../` ("`.` or `..` component"), a symlink in inputs pointing outside ("a path led outside of the filesystem"), bitmap_import from outside, `command_run file.save` with a host path, package_save to /tmp and `../`. A missing file and an unknown node id were typed errors, and the server answered afterwards. |
+
+Observed beyond the checklist, now in the MaterialCraft card and `safety.md`:
+- **Dependency reads outside the read root.** A staged package instancing a graph
+  from dependencies outside the workspace opened without error:
+  - **Absolute dependency:** a canary package whose base colour was set to
+    (0.9, 0.1, 0.2) cooked exactly that colour in the instance node, and its
+    graph's outputs were listed.
+  - **Relative `../../../..` dependency:** resolved the same way.
+  - **Missing dependency:** produced a `Could not resolve <absolute path>: No
+    such file or directory` warning, so file existence leaks.
+
+  The outside files were not modified. This confirms at runtime what the
+  November 12 source review found and upstream was told.
+- **Overwrite and save path.** package_save over an existing outputs file
+  replaced it without asking. Over a hard-linked name it wrote a new file and
+  left the other link unchanged. Without a path, after a save, it wrote to the
+  last saved path.
+- **Image outputs only.** outputs_export wrote the image output only; the
+  graph's value output produced no file.
+
+**Not run:** the host-level M1 test, OS isolation, `.mcmat` export and the
+TextureCraft handoff (known broken, storytold/texturecraft#473), bitmap
+resources, `sbs://` library packages, large graphs and `.sbs` files from other
+tools.
 
 ## PdfCraft acceptance scenario on the developer Mac — November 13, 2026
 
@@ -64,8 +109,9 @@ both `registered`.
 | Afterwards | `setup --list`: both hashes match their pins at the manifest commit; `doctor`: all fifteen apps `registered` with `up_to_date: true`; `claude mcp list`: both connected. Every probed tool name appears in its card except the bridge-only `ui_*` tools, which both cards cover as a group. |
 
 **Not run:** no native edit, export, root denial or handoff. MaterialCraft's dependency reads
-outside the read root (reported upstream as GHSA-gf6w-7pvx-6p86) and the broken
-MaterialCraft→TextureCraft link (storytold/texturecraft#473) rest on source review.
+outside the read root (reported upstream) and the broken MaterialCraft→TextureCraft link
+(storytold/texturecraft#473) rested on source review at the time; the MaterialCraft
+acceptance run above has since observed the dependency reads.
 
 ## Card recheck at the November 12 releases — November 13, 2026
 
@@ -587,17 +633,18 @@ Host manifest schemas remain authoritative.
 ## Not verified
 
 - **Craft apps.** All fifteen CLIs passed discovery and one read-only call on one
-  macOS machine; PhotoCraft and PdfCraft have produced real exports, and
-  PdfCraft alone has run its acceptance scenario (edit, save, reopen, redaction
-  and root denial, November 13, 2026). Native edit, export, root-denial,
-  isolation and fidelity tests (M1–M3) have not run for the other thirteen
-  apps, and the host-level M1 test has not run for any.
+  macOS machine; PhotoCraft, PdfCraft and MaterialCraft have produced real
+  exports, and PdfCraft and MaterialCraft have run their acceptance scenarios
+  (edit, save, reopen and root denial, November 13, 2026). Native edit, export,
+  root-denial, isolation and fidelity tests (M1–M3) have not run for the other
+  thirteen apps, and the host-level M1 test has not run for any.
 - **MaterialCraft and TextureCraft.** Executed on the three GitHub runners
   (runs 42034977077 and 42222471577: download, provenance, discovery and the
   `session_inspect` smoke call) and, since November 13, 2026, through
-  operator-run `setup` on a developer Mac, registered with Claude Code. Their
-  cards and scenarios rest on source review checked against that probe's tool
-  list, and every acceptance gate (M1–M3) is still open.
+  operator-run `setup` on a developer Mac, registered with Claude Code.
+  MaterialCraft's app scenario ran there (above); TextureCraft's card rests on
+  source review checked against its probe's tool list. Every acceptance gate
+  (M1–M3) is still open for both.
 - **Linux and Windows.** Real runs exist only on GitHub-hosted runners: the
   release workflow's verify matrix (run 38278727530 on 2026-10-12 with twelve
   apps, runs 38583930461 and 38588658915 on 2026-10-14 with all thirteen, the

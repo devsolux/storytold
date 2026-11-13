@@ -33,6 +33,15 @@
   open, that `js_document_scripts` misses an `/OpenAction` script while doc_info
   `has_javascript` does not, that doc_save replaces an existing file without
   asking, and that only doc_info shows a repaired file's warnings.
+- Acceptance: MaterialCraft's app scenario ran against the pinned 0.4.1 on a
+  developer Mac: an edit, `.sbs` and `.mcraft` saves that reopen to the same
+  graph, a 16-bit height map export, and root denial for absolute, traversal
+  and symlink paths. The run confirmed that `package_open` reads instanced
+  packages outside the read root, and that a missing one's warning reveals
+  whether a file exists. The card and `safety.md` now mark that as observed
+  and tell agents to check a package's dependency file names before opening
+  it. The card also notes overwriting without asking, the no-path save target,
+  and that `outputs_export` writes image outputs only.
 
 ## 1.6.5 — 2026-11-12
 
