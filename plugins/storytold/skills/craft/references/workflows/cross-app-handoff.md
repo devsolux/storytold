@@ -8,7 +8,10 @@ transaction, router service, second model, or home-grown queue.
 
 PhotoCraft owns pixel edits and exports a new PNG. Verify dimensions, format and
 visual appearance on disk. DesignCraft consumes that exact PNG and owns the page
-layout; verify links, story/overset state and its exported PDF. PdfCraft inspects
+layout; verify links, story/overset state and its exported PDF. Since DesignCraft
+0.21.1 a placed PNG is linked, not embedded, so the saved layout needs that PNG
+unchanged at its path; hand over a self-contained layout only as a copy with
+embedded links (see the DesignCraft card). PdfCraft inspects
 or audits the PDF when appropriate; it does not repeat the pixel/layout decisions.
 Retain paths, hashes and warnings for every intermediate. An audit is not approval.
 

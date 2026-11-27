@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Cards: DeckCraft, DesignCraft, EffectCraft, PdfCraft and WordCraft rechecked
+  at the pins 1.6.6 moved, with the findings in the source ledger. No launch or
+  smoke tool changed and no tool was removed; PdfCraft gained eight tools.
+  WordCraft and DesignCraft now refuse tool arguments outside the schema.
+  DesignCraft links placed images instead of embedding them (now also in the
+  cross-app handoff guide), and PdfCraft's unasked document scripts may add
+  template pages. EffectCraft confines Watch Folder, Edit Original and script
+  file dialogs, and DeckCraft imports `.ppt` and needs an explicit
+  `arrange.align` edge.
+
 ## 1.6.6 — 2026-11-27
 
 Automated release by the Craft release refresh (run 45995979940): 5 pins moved

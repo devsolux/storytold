@@ -9,6 +9,26 @@ PdfCraft's, MaterialCraft's, TextureCraft's and PhotoCraft's app scenarios are t
 runs so far (November 13, 2026, below); they do not make any M gate pass. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Card recheck at the November 23 to 25 releases — November 27, 2026
+
+macOS (Darwin 27, arm64) with Python **3.11.18**, plus GitHub:
+
+| Check | Result |
+|---|---|
+| Source review | DeckCraft, DesignCraft, EffectCraft, PdfCraft and WordCraft from their 2026-11-12 pins to the pull request #22 pins on blob-less clones, one reviewer each; findings per app in the [source ledger](source-ledger.md). Every catalog launch accepted with unchanged meaning, every smoke tool present with no required parameter and read-only, no tool removed or renamed; PdfCraft adds eight tools. No `config/apps.json` change. |
+| Pins against the release assets | Each new pin's tag commit, archive names and sizes in `config/releases.json` match the GitHub release (`gh release view`); no archive was downloaded here. |
+| Runners | Run 45995979940 (the pin move, on the workflow with the pull-request retry and cosign 3.1.6): refresh and keyless signing passed, the publish job opened pull request #22 on its first attempt, the three `verify` jobs ran the strict `setup --all` on Linux, Windows and macOS and passed with every app `discovery_and_call_passed`, and the merge job merged it and published v1.6.6. The probe's tool counts for the five moved apps match the source (25, 26, 27 headless, 17 compact, 18). |
+| `make check`, `make test`, `make build`, `make verify-build` | Passed: **293 tests**. |
+
+**Not run:** the five new pins were not installed on the developer Mac (`setup --upgrade`
+is the operator's step), so no host registration or local probe of them exists. No
+release archive was unpacked. The shared craft-libs crates the apps moved to
+(`craft-mcp-server`, `craft-jsonrpc`, PdfCraft's `craft-pdf`, DeckCraft's
+`craft-pptx`, the format crates) were read only where named in the ledger. New
+behaviour (PdfCraft's template pages from unasked scripts, DesignCraft's linked
+placement, WordCraft's argument check, EffectCraft's new refusals) was read in source,
+not exercised.
+
 ## Probe SDK lock refresh — November 27, 2026
 
 `mcp` 2.3.0 is still the latest PyPI release, so only its transitive graph was

@@ -1,6 +1,6 @@
 # Source ledger and verification scope
 
-Review dates: **2026-10-12 to 2026-11-05** (each section names its own). The integration uses the attached project plan as its
+Review dates: **2026-10-12 to 2026-11-27** (each section names its own). The integration uses the attached project plan as its
 architecture authority. Fresh public-document checks supplement its implementation
 mechanics; they do not silently replace its decisions or prove native behavior.
 
@@ -2951,6 +2951,361 @@ card's recheck date is now 2026-11-13.
   import-limit and link-scheme hardening (#3862). Card: insert_table and its
   `doc`, strict PDF/PNG exports and file.strictReport, the -32700 parse error,
   the Read Aloud note, and the date.
+
+## Release-tag recheck of the five apps moved by pull request #22 — 2026-11-27
+
+Pull request #22 (release 1.6.6, run 45995979940) moved DeckCraft 0.18.1 → 0.19.1,
+DesignCraft 0.20.1 → 0.21.1, EffectCraft 0.24.1 → 0.25.1, PdfCraft 0.21.1 → 0.22.0 and
+WordCraft 0.18.1 → 0.19.1; those releases are still each app's latest on 2026-11-27,
+and the other ten pins did not move. Each repository is reviewed from the 2026-11-12
+pin rechecked in the section above to the new one, by `git log`, `git diff`, `git
+show` and `gh release view` on blob-less clones; nothing from upstream was built or run
+and no asset was downloaded, so archive layouts rest on the packaging scripts and
+release asset lists. Five reviewers covered one app each. None of the five tagged its
+x.y.0 release, so each card dates the changes to the first published tag (or to "x.y"
+where the split is unknown). Runtime evidence is the run's own `verify` jobs: the
+strict `setup --all` on Linux, Windows and macOS runners passed, and each new pin was
+`discovery_and_call_passed` with the tool count read in source (DeckCraft 25,
+DesignCraft 26, EffectCraft 27 headless, PdfCraft its 17 compact core tools, WordCraft
+18). The pinned binaries were not installed on the developer Mac.
+
+Every catalog launch is still accepted with unchanged meaning, every smoke tool still
+exists with no required parameter and read-only, and no tool was removed or renamed;
+PdfCraft added eight tools (216 in all), the others only optional parameters. No
+`config/apps.json` change is needed. Each release carries its three pinned archives and
+`SHA256SUMS.txt` at the pinned sizes. Four of the five moved their stdio framing to the
+shared craft-libs `craft-mcp-server`/`craft-jsonrpc` crates, read here only for
+framing, versions and envelopes. Findings that change how an agent works:
+
+- WordCraft 0.19 and DesignCraft 0.21.1 check `tools/call` arguments against the input
+  schema: an unknown, mistyped or missing required argument is an `isError` result
+  (WordCraft used to ignore unknown ones). Nested `execute` params are not checked.
+- DesignCraft 0.21.1 links placed images instead of embedding them, and a document with
+  a link saves as a format 0.20.x cannot open; a self-contained copy needs
+  `file.saveACopy {embedLinks: true}`, `file.package` or `file.place {embed: true}`.
+  The cross-app handoff guide now says so. Its request lines are capped at 4 MiB.
+- PdfCraft 0.22.0: an unasked document-level, /OpenAction, Will Save or Will Print script
+  may add or show up to 100 template pages and switch layers; JavaScript is still on by
+  default. `doc_rename` works only inside the write root, and colour profiles come only
+  from the read root. PDF parsing and rendering now come from craft-libs' `craft-pdf`
+  (not reviewed), so the November 13 acceptance notes stay tied to 0.21.1.
+- EffectCraft 0.25 confines Watch Folder, Edit Original and script file dialogs, renders
+  contact sheets through `times`, and makes channel-picking parameters static.
+- DeckCraft 0.19.1 imports `.ppt`/`.pot`/`.pps` (lossy, no save path), reports
+  `importWarnings`, and `arrange.align` needs an explicit `edge`.
+
+- DeckCraft v0.19.1 (`4a980c3`; 225 commits over tags v0.18.1..v0.19.1; the
+  v0.19.0 release commit, PR #2134, was never tagged or released): launch
+  unchanged. `apps/deckcraft-cli/src/automation_args.rs` and `help.rs` have no
+  diff, so `mcp --automation-read-root {work} --automation-write-root
+  {outputs}` keeps its meaning (repeatable roots, `--connect` conflict, a
+  missing root stops the server). `main.rs` only refuses the desktop Nightly
+  launcher flags `--launch-profile` and `--profile-root` (exit 2, anywhere
+  before `--`) and has `convert` print `importWarnings`; no new runtime flag
+  or environment variable (`DECKCRAFT_BUILD_CHANNEL` and `DECKCRAFT_VERSION`
+  are build-time and desktop-only). `docs/mcp.md` changes one sentence (the
+  Windows root comparison below); the repository still has no SECURITY.md.
+  Tools (`crates/mcp/src/tools.rs`): no diff, still 25, none added, removed
+  or renamed, no required parameter changed; the `open_presentation`
+  description still names only .deckcraft and .pptx. PR #2261 moves stdio
+  framing and the protocol constants to craft-mcp-server (craft-libs
+  `bc186ca`) with the same limits (16 MiB per frame, protocol 2025-06-18 with
+  2025-03-26 and 2024-11-05, the 1000-item and 64 MiB batch limits); only the
+  oversize error text is now "request too large". Smoke tool `list_commands`
+  exists, only optional `filter`, readOnlyHint true. Packaging: release
+  v0.19.1 lists the same 50 asset names as v0.18.1, among them
+  `SHA256SUMS.txt`, `deckcraft-cli-0.19.1-macos-universal.zip`,
+  `deckcraft-0.19.1-linux-x86_64.tar.gz` and
+  `deckcraft-0.19.1-windows-x64-portable.zip` (sizes and API digests match
+  config/releases.json); packaging diffs add the separate DeckCraft Nightly
+  channel (nightly scripts and workflows, co-installable `deckcraft-nightly`
+  Linux packages, `-Nightly` in `package.ps1`, required signing in
+  `sign.ps1`) and .ppt/.pot/.pps file associations, while the stable layout
+  and `packaging/macos/package.sh` are unchanged; the archives were not
+  opened. Confinement (`crates/engine/src/file_access.rs`, PR #1915): Windows
+  root checks no longer lower-case names but compare them exactly after
+  existing folders resolve to their real case, so a differently cased new
+  folder inside a case-sensitive folder is outside the root, and they refuse
+  COM¹ to LPT³ and device names before a colon. `io.rs` is unchanged; the new
+  `crates/ppt` reader parses the bytes `file.open` already read under the
+  read root, and the Serbian Cyrillic/Latin dictionary choice (#1619) only
+  changes which file the existing unchecked dictionary scan picks. Behaviour:
+  `open_presentation` imports PowerPoint 97–2003 `.ppt`/`.pot`/`.pps` (#1137),
+  import only, with no save path for the deck (`file.save` without a path
+  returns `needsPath`); it returns `importWarnings` (a PPTX table over 100,000
+  cells keeps only its leading rows and the deck opens as a repaired copy,
+  #1742), lists a slide-list entry with a missing relationship in
+  `lostSlides` and refuses more than 10,000 slide entries (#1951). Newly
+  refused: `arrange.align` with a missing or unknown `edge` (it used to default
+  to left) and an unknown `to`/`dir` in `arrange.align`/`arrange.distribute`
+  (#1974), `shape.merge` on a group member (#1967), table edits past 100,000
+  cells (#1742), a `format.font` typeface that is not a 1–200 character
+  string, and Base64 payloads with a lone trailing symbol or data after
+  padding (#2152). Also: `format.font` takes `eastAsia` and `complexScript`
+  (#791), `edit.duplicate` copies a group member into its group (#1972) and a
+  copied member pastes where it was drawn (#1968), `arrange.ungroup` frees a
+  nested group (#1973), `design.headerFooter` without `dateFormat` keeps each
+  slide's own date format (#942), and labels and messages say Diagram and
+  Decorative Text with the `smartArt.*` and `insert.wordArt` ids unchanged
+  (#1981). The engine's 329 command ids are unchanged; the PPTX reader and
+  writer moved to craft-pptx (#2276). No new network use or process start in
+  the MCP path. Card: .ppt import, importWarnings and the lostSlides
+  additions, the new refusals, format.font typefaces, the Diagram naming, the
+  Windows root comparison and the date.
+
+- DesignCraft v0.21.1 (`7470fea`; 816 commits over tags v0.20.1..v0.21.1;
+  0.21.0 was cut on 2026-11-14 as `6f0e044` on the release branch and
+  `0e794cd` on main but never tagged or released, so the card dates its
+  changes to 0.21.1; the tag is a merge on `release` whose tree is main
+  `d9eba17`, and v0.20.1 is an ancestor): launch accepted unchanged.
+  `apps/designcraft-cli/src/automation_args.rs` and `lib.rs` have no diff and
+  the `mcp` arm of `main.rs` is unchanged (`main.rs` changes only perf's usage
+  flags, thumbnail decoding through craft-image-codecs, format detection
+  through craft-file-formats, and `script --keep-going`, #2836, which now
+  exits non-zero naming the first failed step and skips `--save`/`--export`),
+  so `mcp --automation-read-root {work} --automation-write-root {outputs}`
+  keeps its parser, repeatable flags and `--connect` conflict; no new flag or
+  launch environment variable (#1482 adds argument-surface tests only). MCP
+  framing: `crates/mcp/src/server.rs` now wraps craft-libs' craft-mcp-server
+  at `33be356` (#3042): protocol still 2025-06-18 (also 2025-03-26,
+  2024-11-05); DesignCraft's -32602 unknown-key check runs first, then the
+  shared check of required arguments, top-level types and enums returns
+  isError results; non-string/number ids, a missing `"jsonrpc": "2.0"`,
+  batches over 1000 messages and a request line over 4 MiB (#2803) are refused
+  with -32600 and the server keeps serving. Tools: `crates/mcp/src/tools.rs`
+  changes only a Windows `DirBuilder` cfg (#2355); 26 tools (the runners'
+  probe lists 26), none added, removed or renamed, no required parameter
+  changed. Smoke tool `inspect_document`: empty schema, read-only hint,
+  `document.inspect` (`cmd/inspect.rs` unchanged). Packaging: release v0.21.1
+  (2026-11-23) lists `SHA256SUMS.txt`,
+  `designcraft-cli-0.21.1-macos-universal.zip`,
+  `designcraft-0.21.1-linux-x86_64.tar.gz` and
+  `designcraft-0.21.1-windows-x64-portable.zip` at the pinned sizes and
+  digests; `packaging/` has no diff (the `.app` still bundles
+  `Contents/MacOS/designcraft-cli`; Linux `/usr/bin/designcraft-cli`);
+  `release.yml` drops its git-sources job, turns the scheduled dry run into
+  nightly prereleases (#3185) and forwards `ARTCRAFT_SERVICES_DISPATCH_TOKEN`
+  (#3170). Confinement: on Windows, `crates/engine/src/file_access.rs` refuses
+  network (UNC, `\\?\UNC\`, WebDAV), device and non-disk verbatim paths by name
+  before lookup unless a root is on the same server and share, a link to one
+  of those, a `\\?\` path with `..`, a name ending in a period or space
+  (#2799), and COM¹–LPT³ or a device name before a colon (#2383); macOS and
+  Linux checks are unchanged; `docs/mcp.md` documents this and still says "On
+  Windows case is ignored". Placed graphics now link to their files (#2765,
+  `docs/linked-artwork.md`): `asset_io.rs` reads linked bytes only through
+  `crate::io` (`file_metadata`/`read_capped`, read root checked;
+  `confine_process` covers the background hash and proxy threads), up to 1 GiB
+  in a 512 MiB cache; a document with a linked asset saves as format version 5
+  (craft-designcraft-format; v0.20.1 reads at most 4); `links.unembed` writes
+  through `check_write` and `file.package` through `OutputRoot`; `unconfined`
+  is still used only in tests. Behaviour: explicit story and frame targets are
+  validated (#1809), table ids found in more than one story need `story`
+  (#2354), hyperlink and button URLs are limited to http/https/mailto at
+  command entry and in PDF export (#2804, #2809), a save that would not reopen
+  is refused (#3155), value checks are stricter (#2645, #2650, #2787),
+  data-merge image fields go at text insertion points or in cells (#2649,
+  #2341), placing honours a raster's stored resolution (#2651), new commands
+  place.load/grid/contactSheet (#2302, #2308), and edit.pasteImage takes
+  base64 only. No new network use: the CLI's lockfile closure adds only
+  craft-libs format and codec crates (reqwest still arrives only through
+  craft-print/winprint, as at v0.20.1; craft-update only in the desktop app
+  and ui-egui); images inside an SVG still come only from data: URLs; no new
+  process spawn or environment read in the core diff; `SECURITY.md`
+  unchanged. Card: framing limits, the place queue, linked placement and
+  embedding, stored resolution, story/table target refusals, value and URL
+  refusals, the save check, data-merge fields, Windows path refusals, `script
+  --keep-going` and the date; the cross-app handoff guide now says a placed
+  PNG stays linked.
+
+- EffectCraft v0.25.1 (`f5ce0dc`; 887 commits over tags v0.24.1..v0.25.1, with
+  no v0.25.0 tag or release, only an untagged `Release: EffectCraft v0.25.0`
+  merge on the release branch; v0.24.1 is an ancestor of the pin): launch
+  unchanged. In `apps/effectcraft-cli/src/main.rs` only `session()` changed:
+  it now builds `effectcraft_host::headless_session()`, which reads the
+  installed RAM once so the caches share its budget (#3941). The `mcp` arm
+  (repeatable `--automation-read-root`/`--automation-write-root`,
+  `--autosave`, `--bridge PORT`) and `crates/automation/src/bridge.rs` are
+  untouched, so the catalog launch keeps its meaning. `server.rs` hands
+  JSON-RPC envelope framing to craft-libs' `craft-jsonrpc` (#3967; stdio
+  transcript tests for initialize, cancel and batch in #3990). No new flag,
+  and no new environment variable outside tests touches the launch. Tools:
+  `crates/automation/src/tools.rs` still defines 36 (27 headless, nine
+  bridge-only): none added, removed or renamed, no required parameter changed.
+  `render_frame` and `render_preview` gain optional `times` (1 to 64),
+  `columns` and `labels` for a contact sheet (`sheet.rs`, #3594), the only
+  `docs/mcp.md` change. `docs/agents.md` adds the contact sheet, the EXR main
+  picture, analysis clearing and script file dialogs; `SECURITY.md`
+  unchanged. Smoke tool `doc_inspect` exists, empty closed schema,
+  readOnlyHint true (from source). Packaging: release v0.25.1 (2026-11-23)
+  lists the same 50 asset names as v0.24.1, among them `SHA256SUMS.txt`,
+  `effectcraft-cli-0.25.1-macos-universal.zip`,
+  `effectcraft-0.25.1-linux-x86_64.tar.gz` and
+  `effectcraft-0.25.1-windows-x64-portable.zip` at the pinned sizes;
+  `release.yml` still calls craft-common-actions at main and only forwards
+  `ARTCRAFT_SERVICES_DISPATCH_TOKEN` (#4112), the scheduled nightly
+  prerelease (#4128) is back to a dry run (#4131), and `packaging/env.sh`
+  strips CRLF from Cargo.toml (#3656); the archives were not opened.
+  Confinement (`crates/automation/src/confine.rs`): newly refused while
+  confined are `file.watchFolder` and `file.watchFolder.poll` (before, only
+  the watched `folder` was read-checked, not the outputs the found projects
+  name or its status files), `edit.editOriginal` (#2983) and the new
+  `scriptui.fileDialog`, which answers a script's file dialog (#3253).
+  `ConfinedFootage`'s new row and channel reads keep the readable check. A
+  contact sheet's `path` is write-checked and refused on the project's own
+  files before rendering; a bridged sheet cannot be saved. Settings ▸ Disk ▸
+  Localize Network Footage (off by default, UNC footage only, #3271) is
+  reachable only through `prefs.set`, whose absolute paths are write-checked.
+  Behaviour: one RAM budget for all caches with idle caching on (#3301;
+  `help.systemReport` `caches` is now `{budget, inUse, reduced}`);
+  channel-selection parameters are static (#3271); expressions use After
+  Effects' layer property numbers and match names (#3528); a multi-layer EXR's
+  main picture follows After Effects, so a file of named layers only renders
+  black; mask, effect-above and precomp edits clear analyses (#3564); media
+  and format code moved to craft-libs; `.vectorcraft` files import through
+  their PDF (#2901). The only network changes narrow the Plug-in Library to
+  its own repository's release assets and refuse network-path file URLs
+  (#3147, #3148); it stays refused while confined. Card: contact-sheet
+  `times`, the restricted-mode additions (Watch Folder, Edit Original, script
+  file dialogs), static channel parameters and After Effects layer numbering,
+  the EXR main picture, analysis clearing and the date.
+
+- PdfCraft v0.22.0 (`ac140f8`; 356 commits over tags v0.21.1..v0.22.0; both
+  tags sit on the `release` branch, not on main, which took two "Release:
+  PdfCraft v0.22.0" merges of tested main (`346d8030`, `4f23ee1c`) and the
+  macOS signing-keychain fix #8111; v0.21.1 is an ancestor of v0.22.0, so this
+  is a plain diff): launch unchanged. In `apps/pdfcraft-cli/src` only
+  `main.rs` changed: on x86 or x86-64 outside macOS, with `OPENSSL_ia32cap`
+  set, it first runs the CLI again without it (same arguments and standard
+  streams, exit code passed back; #2916, `crates/platform/src/crypto_env.rs`),
+  then starts aws-lc. `automation_args.rs`, `options.rs`, `run.rs`,
+  `crates/automation/src/file_access.rs`, `paths.rs`,
+  `crates/automation/README.md` and `docs/mcp.md` have no diff, and there is
+  no `SECURITY.md` at either tag, so the catalog `mcp --automation-read-root
+  {work} --automation-write-root {outputs} --root {work} --compact` keeps its
+  meaning; no new flag or launch setting (`PDFCRAFT_DROPPED_OPENSSL_IA32CAP`
+  only tags the restarted child's log). Stdio framing and JSON-RPC envelopes
+  moved to craft-libs' `craft-mcp-server`/`craft-jsonrpc` at `fbb2d4b2`
+  (#7910): protocol versions unchanged (2025-06-18, 2025-03-26, 2024-11-05),
+  a line over 16 MiB is still -32600 ("request too large") and skipped,
+  non-UTF-8 still -32700; new: a batch array is answered with an array (an
+  empty one with -32600) and a response envelope is ignored rather than
+  answered (#7969). Tools: 208 to 216 in `crates/automation/src/tools.rs`,
+  eight added (`doc_rename` #2102/#2923, destructive; `page_templates`
+  read-only, `page_template_spawn`, `page_template_set_hidden` #1429;
+  `link_run_javascript` #2081, destructive; `js_page`, `js_advance` #169;
+  `print_color_profiles` read-only, #6853), none removed or renamed, no
+  required parameter added or changed on an existing tool; optional values
+  only (`doc_print` `color_management`/`color_profile`/`rendering_intent`/
+  `black_point_compensation`, `text_edit` `paragraph_spacing`).
+  `doc_import_data` returns `import_repairs` and fails, committing nothing,
+  when the form refuses every value (#7409); `doc_audit_redactions` adds thick
+  strokes, dark Highlight annotations and `hidden-under-white` (#2408);
+  `page_set_box` margins are user-space units under /UserUnit.
+  `COMPACT_CORE_TOOLS` is unchanged (fifteen core tools plus tool_search and
+  tool_call, the 17 the runners' probe lists). Smoke tool `doc_inspect`
+  unchanged: `doc` optional, no required parameter, read-only. Packaging: the
+  v0.22.0 release (2026-11-23, target `ac140f8`) lists `SHA256SUMS.txt`,
+  `pdfcraft-cli-0.22.0-macos-universal.zip`,
+  `pdfcraft-cli-0.22.0-linux-x86_64.tar.gz` and
+  `pdfcraft-0.22.0-windows-x64-portable.zip` at the pinned sizes, the same
+  asset names as v0.21.1; `pdfcraft.wxs` and `release.yml` have no diff,
+  `env.sh`'s `copy_docs` adds `ATTRIBUTION.md` and `licenses/` (the macOS app
+  too) and `import-cert.sh` uses a private `mktemp -d` keychain folder
+  (#8111), so the CLI does not move; the archives were not opened.
+  Confinement is stricter, not different: `doc_rename` checks the old and the
+  new name as writes, on Linux moves below the write root with `O_NOFOLLOW`
+  and `renameat2` NOREPLACE, elsewhere by hard link after the root check,
+  never replacing a file (`crates/engine/src/rename.rs`); under roots
+  `print_color_profiles` and doc_print's `color_profile` see only ICC files in
+  the read root, not the system colour folders (`print_colour.rs`); a staging
+  name must be one name (#5923). Behaviour: an unasked document-level,
+  /OpenAction, Will Save or Will Print script may now add or show up to 100
+  pages from page templates in its "Run JavaScript" step and set layer
+  visibility (`getOCGs`, view only); field scripts may not
+  (`crates/engine/src/js.rs` `may_change_pages`); page actions and
+  `app.setInterval`/`setTimeOut` timers run only through
+  `js_page`/`js_advance` (`live_scripts.rs`); `app.openDoc` only queues an
+  `open_doc` request; JavaScript is still on by default. `redact_apply` now
+  refuses, changing nothing, a marked page holding an annotation without a
+  readable Rect (#7180) or text in a font with unreadable CMap codespaces
+  (#6075), and removes an XObject whose /Subtype is a reference or unknown
+  under a mark (#6750); signature validation checks field locks (`/Lock`,
+  FieldMDP; #6757); a macOS save over a file with extended attributes copies
+  them instead of refusing (#7203). PDF parsing, filters, crypt and rendering
+  now come from craft-libs' `craft-pdf` and hayro crates at `9eb02be8`
+  instead of `crates/cos`, `crates/filters`, `crates/crypt` and
+  `vendor/hayro*` (#2068, #778), not reviewed here. LibreOffice
+  (`crates/create/src/office.rs` no diff) and Tesseract (`tesseract.rs`
+  refactor only) unchanged; no new network code in pdfcraft's crates (only
+  the `ui` control client's 127.0.0.1 connection). Card: tool count 216 with
+  the 0.22.0 additions, import_repairs, doc_rename in the write root,
+  print_color_profiles in the read root, template pages and layers from
+  unasked scripts, js_page/js_advance/link_run_javascript, the audit's new
+  findings and redact_apply's new refusals, the November 13 acceptance notes
+  tied to 0.21.1 with the craft-pdf caveat, and the date.
+
+- WordCraft v0.19.1 (`5d658dc`; 299 commits over tags v0.18.1..v0.19.1,
+  through the untagged v0.19.0 release commit `2cde91a`, which has no tag or
+  GitHub release; v0.18.1 is an ancestor, and the pin is main `09faec42` plus
+  the version bump on `release`): launch accepted unchanged.
+  `apps/wordcraft-cli/src/automation_args.rs`,
+  `crates/engine/src/file_access.rs` and `crates/mcp/src/backend.rs` have no
+  diff and the `mcp` arm of `main.rs` (with `MCP_OPTIONS`) is untouched, so
+  `mcp --automation-read-root {work} --automation-write-root {outputs}` keeps
+  its meaning; no new root flag. The `main.rs` changes lie outside `mcp`: `run`
+  refuses a `--cmd` with no value or followed by another option (#6686),
+  documents `--page`/`--scale` for PNG saves (#6687) and rewords the scale
+  error (#6691). The only new environment variable, `WGPU_ADAPTER_NAME`, is the
+  desktop app's Linux GPU choice. MCP: the protocol core is now craft-libs'
+  `craft-mcp-server` (rev `93dac78c`; #778, #6960), tested against the old
+  hand-written server (`crates/mcp/src/tests/differential.rs`) with six
+  accepted differences: `tools/call` arguments are checked at the top level
+  against the inputSchema (unknown, mistyped, missing or null required gives an
+  `isError` result; `type_text {}` no longer succeeds), a JSON-RPC batch over
+  1000 messages is -32600 "batch too large", the 1 MiB line refusal keeps
+  -32600 as "request too large", `resources/read` without `uri` is -32002,
+  `prompts/list` answers empty, and capabilities carry `listChanged: false`.
+  Protocol versions (2025-06-18, 2025-03-26, 2024-11-05), strict request ids,
+  -32700 for non-UTF-8 lines and tool failures as results are unchanged
+  (`docs/mcp.md`, 2026-11-17). Tools: `crates/mcp/src/tools.rs` keeps 18; none
+  added, removed or renamed, no required parameter changed; `click` and `key`
+  (desktop app only) now list `button`, `alt`, `ctrl` and `command`. Smoke tool
+  `inspect_document` unchanged: optional `doc` only, read-only hint,
+  `document.inspect`; `{}` passes the new check. Engine commands added:
+  `layout.fitOnePage` (#6433), `view.markdownSource` and
+  `view.markdownSourceText` (#6004); none removed. `document.inspect` parts
+  gain `fields` (`perPage`, `fieldsTruncated`, `resultTruncated`; #4467);
+  `file.save` writes an unedited Markdown file's own text back and replies
+  `rewritten`; `font.missing` adds a publisher download page from a built-in
+  list (`crates/fonts/src/font_downloads.json`; nothing fetched);
+  style-definition changes are now tracked (#2697). Packaging: release v0.19.1
+  (2026-11-25) lists `SHA256SUMS.txt`,
+  `wordcraft-cli-0.19.1-macos-universal.zip`,
+  `wordcraft-0.19.1-linux-x86_64.tar.gz` and
+  `wordcraft-0.19.1-windows-x64-portable.zip` at the pinned sizes, the same 50
+  asset names as v0.18.1; `packaging/macos`, `packaging/windows`, `nfpm.yaml`
+  and `release.yml` have no diff (the `.app` still holds only the desktop app;
+  the CLI still installs to `/usr/bin/wordcraft-cli`), and the Flatpak only
+  moves its craft-i18n commit. Confinement: the root-check call sites are
+  unchanged apart from the new Markdown writer (`io::save_text_path` calls
+  `check_write`; the Markdown head read goes through `read_file_head`, which
+  calls `check_read`); the engine's
+  `commands_do_not_touch_the_file_system_themselves` guard stays, and HTML
+  pictures still load through `io.rs`'s `LocalImages`. DOCX, RTF, .doc, ODF,
+  HTML, Markdown, LaTeX, spreadsheet, image, zip and metafile code moved to
+  craft-libs `93dac78c`, whose `src` has no `std::fs`, process, socket or
+  environment reads apart from a craft-metadata Fuji file reader WordCraft
+  never calls. Process and socket call sites (speech, Zotero, `--connect`)
+  keep the same count per file; Read Aloud's SSIP framing moved to
+  `craft-ssip` with no new socket. Language packs: `packs.rs` has no diff; the
+  font store now keeps a removed pack under `language-packs/.removing/` until
+  cleanup, inside the checked folder; downloads still need the person's switch,
+  and `CRAFT_LANGUAGE_PACK_INDEX` remains. New lockfile crates add no network
+  client, and craft-update and craft-web-* still link only into the desktop and
+  web apps. `SECURITY.md` unchanged. Card: the argument check, the
+  1000-message batch cap, `layout.fitOnePage`, the inspect_document part
+  fields, the Markdown round trip and source view, and the date.
+
 
 ## Build infrastructure
 
