@@ -2967,9 +2967,19 @@ in full on the 2026-10-16 push of `main` (run 38927511616), and the release
 workflow runs daily; none of this was executed locally. The artifact actions
 first run with the release workflow after this change. MCP is the only optional direct runtime dependency;
 since 2026-10-16 its transitive graph is locked with hashes in
-`requirements-probe.lock` (uv 0.13.1, universal resolution, 28 packages; a
-strict `--require-hashes --only-binary=:all:` install and `make test-sdk`
-passed on macOS arm64; Linux and Windows wheels are hashed but install there
-only in CI and on users' machines).
+`requirements-probe.lock`, re-resolved on 2026-11-27 (uv 0.13.9 with
+`--refresh`, universal resolution, 30 packages; a strict `--require-hashes
+--only-binary=:all:` install and `make test-sdk` passed on macOS arm64; Linux
+and Windows wheels are hashed but install there only in CI and on users'
+machines). That refresh kept `mcp` 2.3.0, still PyPI's latest, and moved twelve
+transitive packages within its bounds: anyio 4.16.0, click 8.5.1, httpcore2 and
+httpx2 2.16.2, opentelemetry-api 1.45.2, pycparser 3.12, pydantic 2.14.4,
+pydantic-core 2.50.5, python-multipart 0.0.34, sse-starlette 3.7.1, starlette
+1.10.0 and typing-inspection 0.4.5. An OSV query found one advisory in the old
+graph, [GHSA-mf5v-w3w3-f6cg](https://osv.dev/vulnerability/GHSA-mf5v-w3w3-f6cg)
+(opentelemetry-api before 1.45.2: quadratic-time `traceparent` parsing,
+moderate), and none in the new one. The probe is a short-lived stdio client
+that parses no `traceparent` from the network, so the advisory was not
+reachable through Storytold.
 Recheck releases before an intentional upgrade and run both core and SDK/native
 acceptance tests.

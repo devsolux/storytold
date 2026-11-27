@@ -9,6 +9,23 @@ PdfCraft's, MaterialCraft's, TextureCraft's and PhotoCraft's app scenarios are t
 runs so far (November 13, 2026, below); they do not make any M gate pass. This report separates the checks actually executed for each
 release from documentary evidence.
 
+## Probe SDK lock refresh — November 27, 2026
+
+`mcp` 2.3.0 is still the latest PyPI release, so only its transitive graph was
+re-resolved: `make lock-probe` (uv 0.13.9, now with `--refresh`) moved twelve of
+30 packages, listed in the source ledger, and removed the one OSV advisory the
+old graph had (GHSA-mf5v-w3w3-f6cg, opentelemetry-api 1.45.1).
+
+| Executed on macOS (Darwin 27, arm64), Python 3.11.18 | Result |
+|---|---|
+| `.venv/bin/python -m pip install --isolated --require-hashes --only-binary=:all: -r requirements-probe.lock` | Installed the new graph; every wheel matched its locked SHA-256. |
+| `make test-sdk` | The 8 synthetic-fixture checks passed with `mcp` 2.3.0 on the new graph. No Craft app ran. |
+| OSV batch query of both locks | Old: GHSA-mf5v-w3w3-f6cg. New: no known advisories. |
+| `make check`, `make test`, `make build`, `make verify-build` | Passed (293 tests). |
+
+**Not run:** the Linux and Windows wheels of the new graph, which install only
+in CI's SDK contract job (Linux) and on users' machines.
+
 ## PhotoCraft acceptance scenario on the developer Mac — November 13, 2026
 
 Operator-run on macOS (Darwin 27, arm64) with Python **3.11.18** and the official

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Probe SDK: `requirements-probe.lock` re-resolved on 2026-11-27. `mcp` stays
+  at 2.3.0, still the latest release; twelve transitive packages move within
+  its bounds (pydantic 2.14.4, starlette 1.10.0, anyio 4.16.0, httpx2 2.16.2
+  and others, listed in the source ledger). The old graph's one known advisory,
+  GHSA-mf5v-w3w3-f6cg in opentelemetry-api 1.45.1, is gone. A hash-checked
+  install and `make test-sdk` passed on macOS arm64.
 - `make lock-probe` passes `--refresh`, so it resolves against PyPI's current
   index. On 2026-11-27 uv's cached index pages returned the committed lock
   unchanged although twelve of its packages had newer releases.
