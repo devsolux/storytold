@@ -1,7 +1,14 @@
 # Changelog
 
-## Unreleased
+## 1.6.6 — 2026-11-27
 
+Automated release by the Craft release refresh (run 45995979940): 5 pins moved
+on 2026-11-27. Each moved app needs its card and smoke tool rechecked at the
+new tag.
+
+- Pins moved: DeckCraft 0.18.1 → 0.19.1, DesignCraft 0.20.1 → 0.21.1,
+  EffectCraft 0.24.1 → 0.25.1, PdfCraft 0.21.1 → 0.22.0, WordCraft 0.18.1 →
+  0.19.1.
 - Probe SDK: `requirements-probe.lock` re-resolved on 2026-11-27. `mcp` stays
   at 2.3.0, still the latest release; twelve transitive packages move within
   its bounds (pydantic 2.14.4, starlette 1.10.0, anyio 4.16.0, httpx2 2.16.2
