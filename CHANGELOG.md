@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `make lock-probe` passes `--refresh`, so it resolves against PyPI's current
+  index. On 2026-11-27 uv's cached index pages returned the committed lock
+  unchanged although twelve of its packages had newer releases.
 - Workflows: actions/setup-python 7.1.0 in CI and the release workflow, and
   sigstore/cosign-installer 4.1.4 installing cosign 3.1.6 there, each pinned to
   its full commit and reviewed in the source ledger.

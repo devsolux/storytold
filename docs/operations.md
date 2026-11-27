@@ -369,7 +369,8 @@ later), each wheel with its SHA-256. `make setup-probe`, `setup`'s probe venv an
 the CI SDK job install only from that lock with `--isolated --require-hashes
 --only-binary=:all:`: no source builds, and no `PIP_*` variable or pip
 configuration file can redirect the index. `make lock-probe` (uv, network)
-re-resolves it; review that diff like any dependency update. An unavailable dependency makes the SDK gate fail explicitly;
+re-resolves it against PyPI's current index (`--refresh`: uv's cached index
+pages could otherwise return the old graph unchanged); review that diff like any dependency update. An unavailable dependency makes the SDK gate fail explicitly;
 no successful stub result is substituted for it.
 
 ## 4. Probe one trusted app, then an approved fixture call

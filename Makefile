@@ -21,8 +21,8 @@ setup: ## Explicitly create a local .venv (core has no third-party dependencies)
 setup-probe: setup ## Explicit network opt-in: install the reviewed optional MCP client SDK (hash-locked wheels only)
 	.venv/bin/python -m pip install --isolated --require-hashes --only-binary=:all: -r requirements-probe.lock
 
-lock-probe: ## Maintainer network step: re-resolve requirements-probe.lock for every platform with hashes (uv), then review the diff
-	uv pip compile --universal --python-version 3.11 --generate-hashes --custom-compile-command 'make lock-probe' \
+lock-probe: ## Maintainer network step: re-resolve requirements-probe.lock for every platform with hashes (uv, PyPI's current index, not uv's cache), then review the diff
+	uv pip compile --refresh --universal --python-version 3.11 --generate-hashes --custom-compile-command 'make lock-probe' \
 		--index-url https://pypi.org/simple requirements-probe.txt -o requirements-probe.lock
 
 doctor: ## Report installed capabilities without starting hosts or native apps
