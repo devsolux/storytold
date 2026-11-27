@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Release workflow: opening the bot/releases pull request now survives a
+  transient GitHub API error. Run 45649044259 (2026-11-25) verified three pin
+  moves on all three runners, then lost its pull request to one HTTP 502 from
+  `gh pr create`, so its merge job found nothing to merge. The publish job now
+  tries up to four times and looks for an open pull request before each try,
+  because a create that failed may still have opened one. Its warning quotes
+  GitHub's own error instead of always blaming the "Allow GitHub Actions to
+  create and approve pull requests" setting. The merge job retries its lookup
+  and says how to recover: open the pull request from bot/releases, then re-run
+  that job, which merges only the verified commit.
 - Doctor: an app registered at another pin than `config/releases.json` (or at
   a label from before its root flags) is now `registered_outdated` instead of
   `registered`, and its `next` step names the `setup … --upgrade` command. Each

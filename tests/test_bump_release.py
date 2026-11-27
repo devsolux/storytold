@@ -93,6 +93,14 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn('python',merge);self.assertNotIn('actions/checkout',merge)
         self.assertLess(merge.index('--match-head-commit'),merge.index('gh release create'))
         self.assertIn("needs.refresh.outputs.version != ''",merge);self.assertIn('--target "$MERGED_SHA"',merge)
+    def test_the_bot_pull_request_rides_out_a_transient_api_error(self):
+        text=(ROOT/'.github/workflows/releases.yml').read_text(encoding='utf-8')
+        publish=text[text.index('\n  publish:'):text.index('\n  verify:')];merge=text[text.index('\n  merge:'):]
+        loop=publish[publish.index('for attempt in'):publish.index('\n          done\n')]
+        # Each attempt looks before it creates: a create that failed may still have opened the pull request.
+        self.assertLess(loop.index('find_pr'),loop.index('gh pr create'));self.assertIn('gh pr edit',loop);self.assertIn('sleep',loop)
+        self.assertIn('GitHub said:',publish)
+        self.assertLess(merge.index('for attempt in'),merge.index('gh pr list'));self.assertLess(merge.index('gh pr list'),merge.index('gh pr merge'))
     def test_refresh_runs_every_third_day_and_on_demand(self):
         text=(ROOT/'.github/workflows/releases.yml').read_text(encoding='utf-8');trigger=text[text.index('\non:'):text.index('\npermissions:')]
         self.assertEqual(re.findall(r"cron:\s*'([^']*)'",trigger),['23 5 */3 * *'])
