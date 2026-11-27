@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Workflows: actions/setup-python 7.1.0 in CI and the release workflow, and
+  sigstore/cosign-installer 4.1.4 installing cosign 3.1.6 there, each pinned to
+  its full commit and reviewed in the source ledger.
 - Release workflow: opening the bot/releases pull request now survives a
   transient GitHub API error. Run 45649044259 (2026-11-25) verified three pin
   moves on all three runners, then lost its pull request to one HTTP 502 from
